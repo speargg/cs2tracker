@@ -1599,45 +1599,94 @@ function updateMatchHistory(matches) {
     });
 }
 
-// Create match card element with improved error handling
+// Create match card element with improved error handling and correct Faceit API structure
 function createMatchCard(match) {
     const matchCard = document.createElement('div');
     matchCard.className = 'match-card';
     
     try {
-        // Safely determine match result
-        let result = 'L';
-        let resultClass = 'loss';
+        console.log('Processing match:', match); // Debug log to see actual structure
         
-        if (match.results && match.results.winner && match.teams) {
-            // This logic might need adjustment based on actual API response structure
-            const playerTeam = match.teams.faction1 || match.teams.faction2;
-            if (playerTeam && match.results.winner === playerTeam.faction_id) {
-                result = 'W';
-                resultClass = 'win';
-            }
+        // Extract basic match info
+        const matchId = match.match_id || match.id;
+        const gameMode = match.game_mode || 'Unknown';
+        const status = match.status || 'unknown';
+        
+        // Get map name - Faceit API usually stores this in different places
+        let mapName = 'Unknown';
+        if (match.voting && match.voting.map && match.voting.map.name) {
+            mapName = match.voting.map.name;
+        } else if (match.voting && match.voting.map && match.voting.map.pick) {
+            mapName = match.voting.map.pick;
+        } else if (match.map) {
+            mapName = match.map;
+        } else if (match.maps && match.maps.length > 0) {
+            mapName = match.maps[0];
         }
         
-        // Safely get map name
-        const mapName = (match.voting && match.voting.map && match.voting.map.name) || 
-                       (match.map && match.map.name) || 
-                       'Unknown';
+        // Clean up map name (remove prefixes like de_, cs_)
+        if (mapName && mapName !== 'Unknown') {
+            mapName = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+            mapName = mapName.charAt(0).toUpperCase() + mapName.slice(1);
+        }
         
-        // Safely get scores
+        // Determine match result and score
+        let result = 'L';
+        let resultClass = 'loss';
         let scoreDisplay = '- - -';
-        if (match.results && match.results.score && match.teams) {
-            const faction1Id = match.teams.faction1 ? match.teams.faction1.faction_id : null;
-            const faction2Id = match.teams.faction2 ? match.teams.faction2.faction_id : null;
+        
+        // For finished matches
+        if (status === 'FINISHED' && match.results) {
+            // Get teams and results
+            const teams = match.teams || {};
+            const results = match.results || {};
             
-            if (faction1Id && faction2Id && match.results.score[faction1Id] !== undefined && match.results.score[faction2Id] !== undefined) {
-                scoreDisplay = `${match.results.score[faction1Id]} - ${match.results.score[faction2Id]}`;
+            // Try to get scores from different possible locations
+            if (results.score) {
+                const scoreKeys = Object.keys(results.score);
+                if (scoreKeys.length >= 2) {
+                    const scores = scoreKeys.map(key => results.score[key]);
+                    scoreDisplay = `${scores[0]} - ${scores[1]}`;
+                }
             }
+            
+            // Determine if player won
+            // This is tricky without knowing which team the player was on
+            // We'll make a best guess based on the match structure
+            if (teams.faction1 && teams.faction2) {
+                // If we can determine player's team, check if they won
+                const faction1Score = results.score ? results.score[teams.faction1.faction_id] : 0;
+                const faction2Score = results.score ? results.score[teams.faction2.faction_id] : 0;
+                
+                // For now, we'll assume the first team is the player's team
+                // This should be improved with player team detection
+                if (faction1Score > faction2Score) {
+                    result = 'W';
+                    resultClass = 'win';
+                }
+            }
+        } else if (status === 'ONGOING') {
+            result = '?';
+            resultClass = 'ongoing';
+            scoreDisplay = 'Live';
+        } else if (status === 'CANCELLED' || status === 'ABORTED') {
+            result = '-';
+            resultClass = 'cancelled';
+            scoreDisplay = 'Cancelled';
+        }
+        
+        // Format date
+        let dateDisplay = '';
+        if (match.started_at || match.finished_at) {
+            const matchDate = new Date(match.started_at || match.finished_at);
+            dateDisplay = matchDate.toLocaleDateString();
         }
         
         matchCard.innerHTML = `
             <div class="match-left">
                 <div class="match-result ${resultClass}">${result}</div>
                 <div class="match-map">${mapName}</div>
+                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
             </div>
             <div class="match-score">${scoreDisplay}</div>
             <div class="match-stats">
@@ -1646,8 +1695,12 @@ function createMatchCard(match) {
                 <div class="match-stat-value">-</div>
             </div>
         `;
+        
+        // Add click handler to fetch detailed match stats
+        matchCard.addEventListener('click', () => fetchMatchDetails(matchId));
+        
     } catch (error) {
-        console.error('Error creating match card:', error);
+        console.error('Error creating match card:', error, match);
         matchCard.innerHTML = `
             <div class="match-left">
                 <div class="match-result loss">L</div>
@@ -1665,6 +1718,19 @@ function createMatchCard(match) {
     return matchCard;
 }
 
+// Function to fetch detailed match statistics
+async function fetchMatchDetails(matchId) {
+    try {
+        console.log('Fetching match details for:', matchId);
+        // This would require additional API endpoint for match details
+        // const response = await fetch(`${API_BASE_URL}/match?matchId=${matchId}`);
+        // For now, just log that we would fetch details
+        console.log('Would fetch detailed stats for match:', matchId);
+    } catch (error) {
+        console.error('Error fetching match details:', error);
+    }
+}
+
 // Placeholder function for performance chart update
 function updatePerformanceChart(matches, playerId) {
     console.log('Updating performance chart with matches:', matches);
@@ -1672,7 +1738,7 @@ function updatePerformanceChart(matches, playerId) {
     // This will depend on your API structure
 }
 
-// Debug helper function to understand API response structure
+// Enhanced debug helper function to understand API response structure
 async function debugApiStructure(nickname) {
     console.log('=== API DEBUG START ===');
     console.log('Testing with nickname:', nickname);
@@ -1709,18 +1775,46 @@ async function debugApiStructure(nickname) {
                     console.log('Stats error response:', errorText);
                 }
                 
-                // Test matches endpoint
+                // Test matches endpoint with detailed analysis
                 console.log('\n4. Testing matches endpoint...');
                 const matchesResponse = await fetch(`${API_BASE_URL}/matches?playerId=${playerData.player_id}`);
                 console.log('Matches response status:', matchesResponse.status);
                 
                 if (matchesResponse.ok) {
                     const matchesData = await matchesResponse.json();
-                    console.log('Matches data structure (first item only):');
-                    if (matchesData.items && matchesData.items[0]) {
-                        console.log(JSON.stringify(matchesData.items[0], null, 2));
-                    } else {
-                        console.log(JSON.stringify(matchesData, null, 2));
+                    console.log('Matches data structure:');
+                    console.log(JSON.stringify(matchesData, null, 2));
+                    
+                    if (matchesData.items && matchesData.items.length > 0) {
+                        console.log('\n5. Analyzing first match structure:');
+                        const firstMatch = matchesData.items[0];
+                        console.log('Match keys:', Object.keys(firstMatch));
+                        
+                        // Check for map information
+                        console.log('\n6. Map information analysis:');
+                        if (firstMatch.voting) {
+                            console.log('Voting structure:', firstMatch.voting);
+                        }
+                        if (firstMatch.map) {
+                            console.log('Map field:', firstMatch.map);
+                        }
+                        if (firstMatch.maps) {
+                            console.log('Maps array:', firstMatch.maps);
+                        }
+                        
+                        // Check for score/result information
+                        console.log('\n7. Score/Result analysis:');
+                        if (firstMatch.results) {
+                            console.log('Results structure:', firstMatch.results);
+                        }
+                        if (firstMatch.teams) {
+                            console.log('Teams structure:', firstMatch.teams);
+                        }
+                        
+                        // Check status
+                        console.log('\n8. Match status:', firstMatch.status);
+                        console.log('Match started_at:', firstMatch.started_at);
+                        console.log('Match finished_at:', firstMatch.finished_at);
                     }
                 } else {
                     const errorText = await matchesResponse.text();
@@ -1740,8 +1834,40 @@ async function debugApiStructure(nickname) {
     console.log('=== API DEBUG END ===');
 }
 
-// Call this function in the browser console to debug
+// Quick debug function to analyze just the match structure
+async function debugMatchStructure(nickname) {
+    try {
+        const playerData = await fetchPlayerData(nickname);
+        const matchHistory = await fetchMatchHistory(playerData.player_id);
+        
+        if (matchHistory && matchHistory.items && matchHistory.items.length > 0) {
+            console.log('=== MATCH STRUCTURE ANALYSIS ===');
+            console.log('Total matches:', matchHistory.items.length);
+            console.log('First match full structure:');
+            console.log(JSON.stringify(matchHistory.items[0], null, 2));
+            
+            // Analyze first few matches for patterns
+            console.log('\n=== PATTERN ANALYSIS ===');
+            matchHistory.items.slice(0, 3).forEach((match, index) => {
+                console.log(`\nMatch ${index + 1}:`);
+                console.log('- Status:', match.status);
+                console.log('- Map info:', {
+                    voting: match.voting?.map,
+                    map: match.map,
+                    maps: match.maps
+                });
+                console.log('- Results:', match.results);
+                console.log('- Teams:', match.teams ? Object.keys(match.teams) : 'No teams');
+            });
+        }
+    } catch (error) {
+        console.error('Debug match structure error:', error);
+    }
+}
+
+// Call these functions in the browser console to debug
 // Example: debugApiStructure('NiKo')
+// Example: debugMatchStructure('NiKo')
 
 // Add CSS for loading animation
 const style = document.createElement('style');
