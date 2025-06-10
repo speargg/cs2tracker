@@ -872,9 +872,18 @@ body {
     </style>
 </head>
 <body>
+
+  <!-- Loader -->
+  <div id="loader" style="color:white; font-size:1.2rem; text-align:center; margin-top:2rem;">
+    Ładowanie statystyk...
+  </div>
+
+  <!-- Ukryty kontent gracza -->
+  <div id="content" style="display: none;">
     <div class="container">
-        <!-- Header Section -->
-        <div class="header">
+      <!-- Header Section -->
+      <div class="header">
+
 		<!-- Search Bar Section -->
 <div class="search-section">
     <div class="search-container">
@@ -1397,39 +1406,53 @@ const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 async function searchPlayer() {
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
-    
+
     if (!nickname) {
         alert('Please enter a Faceit nickname');
         return;
     }
-    
+
+    // 👇 Pokaż loader, ukryj kontent
+    const loader = document.getElementById('loader');
+    const content = document.getElementById('content');
+    if (loader && content) {
+        loader.style.display = 'block';
+        content.style.display = 'none';
+    }
+
     // Get search button and store original content outside try block
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
-    
+
     try {
-        // Show loading state
+        // Show loading state on button
         searchBtn.innerHTML = '<div style="width: 16px; height: 16px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>';
-        
+
         // Fetch player data
         const playerData = await fetchPlayerData(nickname);
         console.log('Player data:', playerData);
-        
+
         const playerStats = await fetchPlayerStats(playerData.player_id);
         console.log('Player stats:', playerStats);
-        
+
         const matchHistory = await fetchMatchHistory(playerData.player_id);
         console.log('Match history:', matchHistory);
-        
+
         // Update UI with real data
         updatePlayerProfile(playerData, playerStats, matchHistory);
-        
+
     } catch (error) {
         console.error('Error fetching player data:', error);
         alert('Player not found or API error. Please try again.');
     } finally {
-        // Always restore the original button content
+        // Restore original button content
         searchBtn.innerHTML = originalContent;
+
+        // ✅ Ukryj loader, pokaż kontent
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+        }
     }
 }
 
@@ -1755,85 +1778,67 @@ async function fetchDetailedMatchData(matchId, playerId) {
             playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
         };
         
-        async function fetchDetailedMatchData(matchId, playerId) {
-  const result = { map: '-', score: '-', playerStats: {} };
-
-  try {
-    const [matchDetailsRes, matchStatsRes] = await Promise.all([
-      fetch(`/api/match-details?matchId=${matchId}`),
-      fetch(`/api/match-stats?matchId=${matchId}`)
-    ]);
-
-    const matchDetails = await matchDetailsRes.json();
-    const matchStats = await matchStatsRes.json();
-
-    // ... kod pobierający dane ...
-
-    // poprawiony fragment:
-    if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      let playerMatchStats = null;
-
-      for (const team of teams) {
-        const found = team.players.find(p => p.player_id === playerId);
-        if (found) {
-          playerMatchStats = found;
-          break;
+        // Extract map name from match details
+        if (matchDetails) {
+            // Map could be in different locations depending on API structure
+            if (matchDetails.voting && matchDetails.voting.map && matchDetails.voting.map.name) {
+                result.mapName = cleanMapName(matchDetails.voting.map.name);
+            } else if (matchDetails.map) {
+                result.mapName = cleanMapName(matchDetails.map);
+            } else if (matchDetails.maps && matchDetails.maps.length > 0) {
+                result.mapName = cleanMapName(matchDetails.maps[0]);
+            }
+            
+            // Extract proper round scores
+            if (matchDetails.rounds && matchDetails.rounds.length > 0) {
+                // Count rounds won by each team
+                const teamScores = { faction1: 0, faction2: 0 };
+                matchDetails.rounds.forEach(round => {
+                    if (round.winner) {
+                        teamScores[round.winner]++;
+                    }
+                });
+                result.score = `${teamScores.faction1}:${teamScores.faction2}`;
+            } else if (matchDetails.results && matchDetails.results.score) {
+                // Fallback to basic score
+                const scores = Object.values(matchDetails.results.score);
+                if (scores.length >= 2) {
+                    result.score = `${scores[0]}:${scores[1]}`;
+                }
+            }
         }
-      }
-
-      if (playerMatchStats && playerMatchStats.player_stats) {
-        const stats = playerMatchStats.player_stats;
-        result.playerStats = {
-          kills: stats.Kills || stats.kills || '-',
-          deaths: stats.Deaths || stats.deaths || '-',
-          adr: stats['Average Damage per Round']
-            ? Math.round(parseFloat(stats['Average Damage per Round']))
-            : '-',
-          hsPercent: stats['Headshots %']
-            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-            : '-'
-        };
-      }
-    }
-
-    return result;
-
-  } catch (error) {
-    console.error('Error fetching detailed match data:', error);
-    return null;
-  }
-}
-
         
         // Extract player stats
-if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
-    const teams = matchStats.rounds[0].teams;
-    let playerMatchStats = null;
-
-    for (const team of teams) {
-        const found = team.players.find(p => p.player_id === playerId);
-        if (found) {
-            playerMatchStats = found;
-            break;
+        if (matchStats && matchStats.rounds) {
+            // Find player stats in the match stats
+            let playerMatchStats = null;
+            
+            // Look through teams to find player stats
+            for (const team of matchStats.rounds) {
+                if (team.players) {
+                    playerMatchStats = team.players.find(p => p.player_id === playerId);
+                    if (playerMatchStats) break;
+                }
+            }
+            
+            if (playerMatchStats && playerMatchStats.player_stats) {
+                const stats = playerMatchStats.player_stats;
+                result.playerStats = {
+                    kills: stats.Kills || stats.kills || '-',
+                    deaths: stats.Deaths || stats.deaths || '-',
+                    adr: Math.round(parseFloat(stats.ADR || stats.adr || '0')) || '-',
+                    hsPercent: `${Math.round(parseFloat(stats['Headshots %'] || stats.headshots_percentage || '0'))}%` || '-'
+                };
+            }
         }
-    }
-
-    if (playerMatchStats && playerMatchStats.player_stats) {
-        const stats = playerMatchStats.player_stats;
-        result.playerStats = {
-            kills: stats.Kills || stats.kills || '-',
-            deaths: stats.Deaths || stats.deaths || '-',
-            adr: stats['Average Damage per Round']
-                ? Math.round(parseFloat(stats['Average Damage per Round']))
-                : '-',
-            hsPercent: stats['Headshots %']
-                ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-                : '-'
-        };
+        
+        return result;
+        
+    } catch (error) {
+        console.error('Error fetching detailed match data:', error);
+        return null;
     }
 }
-
 
 // Function to clean up map names
 function cleanMapName(mapName) {
@@ -1860,7 +1865,7 @@ function updateMatchCardWithDetails(matchCard, details, result) {
         </div>
         <div class="match-score">${details.score}</div>
         <div class="match-stats">
-            <div class="match-stat-value">${(details.playerStats.kills / details.playerStats.deaths).toFixed(2)}</div>
+            <div class="match-stat-value">${details.playerStats.kills}/${details.playerStats.deaths}</div>
             <div class="match-stat-value">${details.playerStats.adr}</div>
             <div class="match-stat-value">${details.playerStats.hsPercent}</div>
         </div>
