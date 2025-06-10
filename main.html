@@ -1786,36 +1786,33 @@ async function fetchDetailedMatchData(matchId, playerId) {
         }
         
         // Extract player stats
-        if (matchStats && matchStats.rounds) {
-            // Find player stats in the match stats
-            let playerMatchStats = null;
-            
-            // Look through teams to find player stats
-            for (const team of matchStats.rounds) {
-                if (team.players) {
-                    playerMatchStats = team.players.find(p => p.player_id === playerId);
-                    if (playerMatchStats) break;
-                }
-            }
-            
-            if (playerMatchStats && playerMatchStats.player_stats) {
-                const stats = playerMatchStats.player_stats;
-                result.playerStats = {
-                    kills: stats.Kills || stats.kills || '-',
-                    deaths: stats.Deaths || stats.deaths || '-',
-                    adr: Math.round(parseFloat(stats.ADR || stats.adr || '0')) || '-',
-                    hsPercent: `${Math.round(parseFloat(stats['Headshots %'] || stats.headshots_percentage || '0'))}%` || '-'
-                };
-            }
+if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
+    const teams = matchStats.rounds[0].teams;
+    let playerMatchStats = null;
+
+    for (const team of teams) {
+        const found = team.players.find(p => p.player_id === playerId);
+        if (found) {
+            playerMatchStats = found;
+            break;
         }
-        
-        return result;
-        
-    } catch (error) {
-        console.error('Error fetching detailed match data:', error);
-        return null;
+    }
+
+    if (playerMatchStats && playerMatchStats.player_stats) {
+        const stats = playerMatchStats.player_stats;
+        result.playerStats = {
+            kills: stats.Kills || stats.kills || '-',
+            deaths: stats.Deaths || stats.deaths || '-',
+            adr: stats['Average Damage per Round']
+                ? Math.round(parseFloat(stats['Average Damage per Round']))
+                : '-',
+            hsPercent: stats['Headshots %']
+                ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+                : '-'
+        };
     }
 }
+
 
 // Function to clean up map names
 function cleanMapName(mapName) {
@@ -1842,7 +1839,7 @@ function updateMatchCardWithDetails(matchCard, details, result) {
         </div>
         <div class="match-score">${details.score}</div>
         <div class="match-stats">
-            <div class="match-stat-value">${details.playerStats.kills}/${details.playerStats.deaths}</div>
+            <div class="match-stat-value">${(details.playerStats.kills / details.playerStats.deaths).toFixed(2)}</div>
             <div class="match-stat-value">${details.playerStats.adr}</div>
             <div class="match-stat-value">${details.playerStats.hsPercent}</div>
         </div>
