@@ -1392,6 +1392,26 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 // Faceit API configuration
 const API_BASE_URL = 'https://cs2tracker.vercel.app/api'; // or your GitHub Pages domain
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
+});
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const nickname = params.get('nickname');
+    if (nickname) {
+        const input = document.querySelector('.search-input');
+        if (input) {
+            input.value = nickname;
+        }
+
+        // 🟡 Poczekaj, aż DOM i funkcje będą gotowe
+        setTimeout(() => {
+            if (typeof searchPlayer === 'function') {
+                searchPlayer();
+            } else {
+                console.error("searchPlayer is not defined");
+            }
+        }, 100); // dodaj małe opóźnienie aby mieć pewność, że wszystko się załadowało
+    }
+});
 
 // Fixed search functionality with proper error handling and correct API structure
 async function searchPlayer() {
@@ -1947,21 +1967,6 @@ function updatePerformanceChart(matches, playerId) {
     // TODO: Implement ELO tracking from match history
     // This will depend on your API structure
 }
-window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const nickname = params.get('nickname');
-    if (nickname) {
-      const input = document.querySelector('.search-input');
-      if (input) {
-        input.value = nickname;
-      }
-      if (typeof searchPlayer === 'function') {
-        searchPlayer();
-      } else {
-        console.error("searchPlayer is not defined");
-      }
-    }
-  });
 // Add CSS for loading animation
 const style = document.createElement('style');
 style.textContent = `
