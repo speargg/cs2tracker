@@ -918,21 +918,23 @@ body {
 
                     </div>
                 </div>
-                <div class="rating-card">
-                    <div class="rating-title">Faceit</div>
-                    <div class="rating-value faceit-rating">2,834</div>
-                    <div class="rating-elo">Level 10</div>
-                    <div class="ranking">
-                        <div class="ranking-item">
-                            <span class="ranking-label">World</span>
-                            <span class="ranking-value">#2,156</span>
-                        </div>
-                        <div class="ranking-item">
-                            <span class="ranking-label">Europe</span>
-                            <span class="ranking-value">#1,423</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Faceit ranking card -->
+<div class="rating-card">
+    <div class="rating-title">Faceit</div>
+    <div class="rating-value faceit-rating">2,834</div>
+    <div class="rating-elo">Level 10</div>
+    <div class="ranking">
+        <div class="ranking-item">
+            <span class="ranking-label">World</span>
+            <span class="ranking-value" id="faceit-world-ranking">#2,156</span>
+        </div>
+        <div class="ranking-item">
+            <span class="ranking-label">Europe</span>
+            <span class="ranking-value" id="faceit-europe-ranking">#1,423</span>
+        </div>
+    </div>
+</div>
+
             </div>
         </div>
 
@@ -1504,11 +1506,11 @@ async function fetchMatchHistory(playerId) {
 }
 // Fetch and update FACEIT World/Europe Rankings
 fetchFaceitRanking(playerData.player_id).then(ranking => {
+    console.log('RANKING RECEIVED:', ranking);
+    const worldElement = document.getElementById('faceit-world-ranking');
+    const europeElement = document.getElementById('faceit-europe-ranking');
+
     if (ranking) {
-        const worldElement = document.getElementById('faceit-world-ranking');
-        const europeElement = document.getElementById('faceit-europe-ranking');
-
-
         if (worldElement) worldElement.textContent = `#${ranking.world.toLocaleString()}`;
         if (europeElement) europeElement.textContent = `#${ranking.europe.toLocaleString()}`;
     }
@@ -1542,6 +1544,18 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 levelElement.textContent = 'Level N/A';
             }
         }
+	    // Fetch and update FACEIT World/Europe Rankings
+fetchFaceitRanking(playerData.player_id).then(ranking => {
+    console.log('RANKING RECEIVED:', ranking); // 👈 Console debug
+    const worldElement = document.getElementById('faceit-world-ranking');
+    const europeElement = document.getElementById('faceit-europe-ranking');
+
+    if (ranking) {
+        if (worldElement) worldElement.textContent = `#${ranking.world.toLocaleString()}`;
+        if (europeElement) europeElement.textContent = `#${ranking.europe.toLocaleString()}`;
+    }
+});
+
         
         // Handle stats from lifetime stats API response
         if (playerStats && playerStats.lifetime) {
