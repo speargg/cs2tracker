@@ -1951,8 +1951,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const nickname = params.get('nickname');
     if (nickname) {
-      document.querySelector('.search-input').value = nickname;
-      searchPlayer(); // 👈 this triggers the fetch and shows player stats
+      const input = document.querySelector('.search-input');
+      if (input) {
+        input.value = nickname;
+      }
+      if (typeof searchPlayer === 'function') {
+        searchPlayer();
+      } else {
+        console.error("searchPlayer is not defined");
+      }
     }
   });
 // Add CSS for loading animation
