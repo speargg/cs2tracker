@@ -2025,6 +2025,47 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
+	    // Function to fetch and display rankings
+async function fetchAndDisplayRankings(playerId) {
+  try {
+    // Show loading state
+    const worldElement = document.querySelector('.ranking-item:nth-child(1) .ranking-value');
+    const europeElement = document.querySelector('.ranking-item:nth-child(2) .ranking-value');
+    
+    worldElement.textContent = 'Loading...';
+    europeElement.textContent = 'Loading...';
+
+    // Fetch rankings from your API
+    const response = await fetch(`/api/rankings?playerId=${playerId}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const rankings = await response.json();
+    
+    // Update world ranking
+    if (rankings.world) {
+      worldElement.textContent = `#${rankings.world.toLocaleString()}`;
+    } else {
+      worldElement.textContent = 'Not ranked';
+    }
+    
+    // Update Europe ranking
+    if (rankings.europe) {
+      europeElement.textContent = `#${rankings.europe.toLocaleString()}`;
+    } else {
+      europeElement.textContent = 'Not ranked';
+    }
+    
+  } catch (error) {
+    console.error('Error fetching rankings:', error);
+    
+    // Show error state
+    document.querySelector('.ranking-item:nth-child(1) .ranking-value').textContent = 'Error';
+    document.querySelector('.ranking-item:nth-child(2) .ranking-value').textContent = 'Error';
+  }
+}
 // Placeholder function for performance chart update
 function updatePerformanceChart(matches, playerId) {
     console.log('Updating performance chart with matches:', matches);
