@@ -1396,23 +1396,25 @@ const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const nickname = params.get('nickname');
+    
+    console.log("Loaded page with nickname:", nickname);
 
-    if (nickname) {
-        const input = document.querySelector('.search-input');
-        if (input) {
-            input.value = nickname;
-        }
+    // próbujemy znaleźć input
+    const input = document.querySelector('.search-input');
+    if (input) {
+        input.value = nickname;
+        console.log("Set input value to:", input.value);
+    } else {
+        console.error("⚠️ .search-input not found in DOM");
+    }
 
-        // Poczekaj na funkcję i uruchom
-        setTimeout(() => {
-            if (typeof searchPlayer === 'function') {
-                searchPlayer();
-            } else {
-                console.error("searchPlayer is not defined");
-            }
-        }, 100);
+    if (typeof searchPlayer === 'function') {
+        searchPlayer();
+    } else {
+        console.error("⚠️ searchPlayer() is not defined");
     }
 });
+
 
 // Fixed search functionality with proper error handling and correct API structure
 async function searchPlayer() {
