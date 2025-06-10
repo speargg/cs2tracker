@@ -923,13 +923,14 @@ body {
                     <div class="rating-elo">Level 10</div>
                     <div class="ranking">
                         <div class="ranking-item">
-                            <span class="ranking-label">World</span>
-                            <span class="ranking-value" id="faceit-world-ranking">#2,156</span>
-                        </div>
-                        <div class="ranking-item">
-                            <span class="ranking-label">Europe</span>
-                            <span class="ranking-value" id="faceit-europe-ranking">#1,423</span>
-                        </div>
+    <span class="ranking-label">World</span>
+    <span class="ranking-value" id="faceit-world-ranking">Not Ranked</span>
+</div>
+<div class="ranking-item">
+    <span class="ranking-label">Europe</span>
+    <span class="ranking-value" id="faceit-europe-ranking">Not Ranked</span>
+</div>
+
                     </div>
                 </div>
             </div>
@@ -1522,6 +1523,24 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             } else {
                 eloElement.textContent = 'N/A';
             }
+	// 🔄 Fetch estimated ranking based on ELO from your Vercel API
+fetch(`https://cs2tracker.vercel.app/api/rankings?elo=${cs2Data.faceit_elo}`)
+  .then(res => res.json())
+  .then(ranking => {
+      const world = document.getElementById('faceit-world-ranking');
+      const europe = document.getElementById('faceit-europe-ranking');
+
+      if (world) {
+          world.textContent = ranking?.world ? `#${ranking.world.toLocaleString()}` : 'Not Ranked';
+      }
+      if (europe) {
+          europe.textContent = ranking?.europe ? `#${ranking.europe.toLocaleString()}` : 'Not Ranked';
+      }
+  })
+  .catch(err => {
+      console.error('Failed to fetch estimated ranking:', err);
+  });
+
             
             if (cs2Data.skill_level) {
                 levelElement.textContent = `Level ${cs2Data.skill_level}`;
