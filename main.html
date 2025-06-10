@@ -1780,31 +1780,29 @@ async function fetchDetailedMatchData(matchId, playerId) {
         
         // Extract map name from match details
         if (matchDetails) {
-            // Map could be in different locations depending on API structure
-            if (matchDetails.voting && matchDetails.voting.map && matchDetails.voting.map.name) {
-                result.mapName = cleanMapName(matchDetails.voting.map.name);
-            } else if (matchDetails.map) {
-                result.mapName = cleanMapName(matchDetails.map);
-            } else if (matchDetails.maps && matchDetails.maps.length > 0) {
-                result.mapName = cleanMapName(matchDetails.maps[0]);
-            }
-            
-            // Extract proper round scores
-            if (matchDetails.rounds && matchDetails.rounds.length > 0) {
-                // Count rounds won by each team
-                const teamScores = { faction1: 0, faction2: 0 };
-                matchDetails.rounds.forEach(round => {
-                    if (round.winner) {
-                        teamScores[round.winner]++;
-                    }
-                });
-                result.score = `${teamScores.faction1}:${teamScores.faction2}`;
-            } else if (matchDetails.results && matchDetails.results.score) {
-                // Fallback to basic score
-                const scores = Object.values(matchDetails.results.score);
-                if (scores.length >= 2) {
-                    result.score = `${scores[0]}:${scores[1]}`;
-                }
+  // Map from rounds
+  if (matchDetails.rounds?.[0]?.round_stats?.Map) {
+    result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
+  } else if (matchDetails.voting?.map?.name) {
+    result.mapName = cleanMapName(matchDetails.voting.map.name);
+  } else if (matchDetails.map) {
+    result.mapName = cleanMapName(matchDetails.map);
+  } else if (matchDetails.maps && matchDetails.maps.length > 0) {
+    result.mapName = cleanMapName(matchDetails.maps[0]);
+  }
+
+  // Wynik rund:
+  let faction1Score = 0;
+  let faction2Score = 0;
+
+  matchDetails.rounds?.forEach(round => {
+    if (round.winner === 'faction1') faction1Score++;
+    else if (round.winner === 'faction2') faction2Score++;
+  });
+
+  result.score = `${faction1Score}:${faction2Score}`;
+}
+
             }
         }
         
@@ -1822,18 +1820,20 @@ if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
     }
 
     if (playerMatchStats && playerMatchStats.player_stats) {
-        const stats = playerMatchStats.player_stats;
-        result.playerStats = {
-            kills: stats.Kills || stats.kills || '-',
-            deaths: stats.Deaths || stats.deaths || '-',
-            adr: stats['Average Damage per Round']
-                ? Math.round(parseFloat(stats['Average Damage per Round']))
-                : '-',
-            hsPercent: stats['Headshots %']
-                ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-                : '-'
-         };
-    }
+    console.log('Player stats:', playerMatchStats.player_stats); // 👈 dodaj to tutaj
+
+    const stats = playerMatchStats.player_stats;
+    result.playerStats = {
+        kills: stats.Kills || stats.kills || '-',
+        deaths: stats.Deaths || stats.deaths || '-',
+        adr: stats['Average Damage per Round']
+            ? Math.round(parseFloat(stats['Average Damage per Round']))
+            : '-',
+        hsPercent: stats['Headshots %']
+            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+            : '-'
+    };
+}
 }
 
 return result;
