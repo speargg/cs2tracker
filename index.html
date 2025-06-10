@@ -1504,16 +1504,27 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
-	    async function fetchFaceitRanking(playerId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/rankings?playerId=${encodeURIComponent(playerId)}`);
-        if (!response.ok) throw new Error('Failed to fetch FACEIT rankings');
-        return await response.json();
-    } catch (error) {
-        console.error('Faceit ranking fetch error:', error);
-        return null;
+	    async function fetchFaceitRanking(playerData.player_id).then(ranking => {
+    console.log('RANKING RECEIVED:', ranking); // Debug
+
+    const worldElement = document.getElementById('faceit-world-ranking');
+    const europeElement = document.getElementById('faceit-europe-ranking');
+
+    if (worldElement) {
+        worldElement.textContent =
+            ranking && ranking.world && ranking.world > 0
+                ? `#${ranking.world.toLocaleString()}`
+                : 'Not Ranked';
     }
-}
+
+    if (europeElement) {
+        europeElement.textContent =
+            ranking && ranking.europe && ranking.europe > 0
+                ? `#${ranking.europe.toLocaleString()}`
+                : 'Not Ranked';
+    }
+});
+
 
 // Fetch and update FACEIT World/Europe Rankings
 fetchFaceitRanking(playerData.player_id).then(ranking => {
