@@ -1832,9 +1832,18 @@ if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
             hsPercent: stats['Headshots %']
                 ? `${Math.round(parseFloat(stats['Headshots %']))}%`
                 : '-'
-        };
+         };
     }
 }
+
+return result;
+
+} catch (error) {
+    console.error('Error fetching detailed match data:', error);
+    return null;
+}
+}
+
 
 // Function to clean up map names
 function cleanMapName(mapName) {
