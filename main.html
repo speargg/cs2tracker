@@ -1766,11 +1766,16 @@ function formatMatchDate(match) {
 // Function to fetch detailed match data (map, scores, stats)
 async function fetchDetailedMatchData(matchId, playerId) {
     try {
+	console.log('Fetching detailed data for match:', matchId, 'and player:', playerId);
+
         // Fetch match details and stats in parallel
         const [matchDetails, matchStats] = await Promise.all([
             fetchMatchDetails(matchId),
             fetchMatchStats(matchId, playerId)
         ]);
+
+console.log('📦 matchDetails:', matchDetails);
+console.log('📊 matchStats:', matchStats);
         
         let result = {
             mapName: 'Unknown',
