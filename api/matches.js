@@ -10,12 +10,12 @@ export default async function handler(req, res) {
   }
 
   const FACEIT_API_KEY = process.env.FACEIT_API_KEY;
-  const { playerId, limit = 20 } = req.query;
+  const { matchId } = req.query;
 
-  console.log('Fetching matches for player ID:', playerId);
+  console.log('Fetching match stats for match ID:', matchId);
 
-  if (!playerId) {
-    return res.status(400).json({ error: 'Player ID required' });
+  if (!matchId) {
+    return res.status(400).json({ error: 'Match ID required' });
   }
 
   if (!FACEIT_API_KEY) {
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Making request to FACEIT API for matches...');
-    const response = await fetch(`https://open.faceit.com/data/v4/players/${playerId}/history?game=cs2&limit=${limit}`, {
+    console.log('Making request to FACEIT API for match stats...');
+    const response = await fetch(`https://open.faceit.com/data/v4/matches/${matchId}/stats`, {
       headers: {
         'Authorization': `Bearer ${FACEIT_API_KEY}`
       }
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       console.error('FACEIT API error:', response.status, errorText);
       
       if (response.status === 404) {
-        return res.status(404).json({ error: 'Match history not found' });
+        return res.status(404).json({ error: 'Match stats not found' });
       }
       if (response.status === 401) {
         return res.status(500).json({ error: 'Invalid API key' });
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     }
     
     const data = await response.json();
-    console.log('Successfully retrieved match history');
+    console.log('Successfully retrieved match stats');
     res.json(data);
   } catch (error) {
     console.error('API Error:', error);
