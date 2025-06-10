@@ -13,7 +13,10 @@
     }
 
     body {
-      background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #0f1419 100%);
+      background: linear-gradient(270deg, #0f1419, #1a2332, #0f1419);
+      background-size: 600% 600%;
+      animation: gradientShift 20s ease infinite;
+      transition: background 0.5s ease;
       background-attachment: fixed;
       color: #ffffff;
       font-family: 'Inter', sans-serif;
@@ -22,6 +25,12 @@
       justify-content: center;
       align-items: center;
       padding: 2rem;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     body.black-theme {
@@ -128,60 +137,46 @@
     <div class="search-hint">Find any player profile using their Faceit nickname</div>
   </div>
 
- <script>
-  // Load theme
-  const savedTheme = localStorage.getItem('theme');
-  const themeIcon = document.querySelector('.theme-icon');
-  if (savedTheme === 'black') {
-    document.body.classList.add('black-theme');
-    themeIcon.textContent = '☀️';
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle('black-theme');
-    const isBlack = document.body.classList.contains('black-theme');
-    themeIcon.textContent = isBlack ? '☀️' : '🌙';
-    localStorage.setItem('theme', isBlack ? 'black' : 'blue');
-  }
-
-  // Prefill nickname if coming back
-  window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const nickname = params.get('nickname');
-    if (nickname) {
-      document.querySelector('.search-input').value = nickname;
+  <!-- ✅ Script should be at the very end -->
+  <script>
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = document.querySelector('.theme-icon');
+    if (savedTheme === 'black') {
+      document.body.classList.add('black-theme');
+      themeIcon.textContent = '☀️';
     }
-  });
 
-  // Redirect
-  function redirectToMainPage() {
-    const nickname = document.querySelector('.search-input').value.trim();
-    if (!nickname) {
-      alert('Please enter a nickname');
-      return;
+    function toggleTheme() {
+      document.body.classList.toggle('black-theme');
+      const isBlack = document.body.classList.contains('black-theme');
+      themeIcon.textContent = isBlack ? '☀️' : '🌙';
+      localStorage.setItem('theme', isBlack ? 'black' : 'blue');
     }
-    window.location.href = `/${encodeURIComponent(nickname)}`; // clean route
-  }
 
-  document.querySelector('.search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      redirectToMainPage();
+    // Prefill nickname if returning with ?nickname=
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const nickname = params.get('nickname');
+      if (nickname) {
+        document.querySelector('.search-input').value = nickname;
+      }
+    });
+
+    // ✅ Now globally defined
+    function redirectToMainPage() {
+      const nickname = document.querySelector('.search-input').value.trim();
+      if (!nickname) {
+        alert('Please enter a nickname');
+        return;
+      }
+      window.location.href = `/${encodeURIComponent(nickname)}`;
     }
-  });
-   /* Animate background */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 
-body {
-  background: linear-gradient(270deg, #0f1419, #1a2332, #0f1419);
-  background-size: 600% 600%;
-  animation: gradientShift 20s ease infinite;
-  transition: background 0.5s ease;
-}
-
-</script>
+    document.querySelector('.search-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        redirectToMainPage();
+      }
+    });
+  </script>
 </body>
 </html>
