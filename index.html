@@ -1545,45 +1545,54 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             document.querySelector('.nickname').textContent = playerData.nickname;
             document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
         }
-        
+
         // Handle player level and ELO from player data (CS2 specific)
         if (playerData && playerData.games && playerData.games.cs2) {
             const cs2Data = playerData.games.cs2;
-            
+
             // Update Faceit rating card using player data
             const eloElement = document.querySelector('.faceit-rating');
             const levelElement = document.querySelector('.rating-elo');
-            
+
             if (cs2Data.faceit_elo) {
                 eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
             } else {
                 eloElement.textContent = 'N/A';
             }
-            
+
             if (cs2Data.skill_level) {
                 levelElement.textContent = `Level ${cs2Data.skill_level}`;
             } else {
                 levelElement.textContent = 'Level N/A';
             }
         }
-	    // Fetch and update FACEIT World/Europe Rankings
-fetchFaceitRanking(playerData.player_id).then(ranking => {
-    console.log('RANKING RECEIVED:', ranking); // 👈 Console debug
-    const worldElement = document.getElementById('faceit-world-ranking');
-    const europeElement = document.getElementById('faceit-europe-ranking');
 
-    if (ranking) {
-        if (worldElement) worldElement.textContent = `#${ranking.world.toLocaleString()}`;
-        if (europeElement) europeElement.textContent = `#${ranking.europe.toLocaleString()}`;
-    }
-});
+        // ✅ Fetch and update FACEIT World/Europe Rankings with fallback for unranked
+        fetchFaceitRanking(playerData.player_id).then(ranking => {
+            console.log('RANKING RECEIVED:', ranking); // 👈 Console debug
+            const worldElement = document.getElementById('faceit-world-ranking');
+            const europeElement = document.getElementById('faceit-europe-ranking');
 
-        
+            if (worldElement) {
+                worldElement.textContent =
+                    ranking && ranking.world && ranking.world > 0
+                        ? `#${ranking.world.toLocaleString()}`
+                        : 'Not Ranked';
+            }
+
+            if (europeElement) {
+                europeElement.textContent =
+                    ranking && ranking.europe && ranking.europe > 0
+                        ? `#${ranking.europe.toLocaleString()}`
+                        : 'Not Ranked';
+            }
+        });
+
         // Handle stats from lifetime stats API response
         if (playerStats && playerStats.lifetime) {
             const lifetimeStats = playerStats.lifetime;
             console.log('Lifetime stats structure:', lifetimeStats);
-            
+
             // Update stats with safe access using the correct Faceit API response structure
             updateStatSafely('faceit-matches', lifetimeStats, ['Matches'], 'N/A');
             updateStatSafely('faceit-winrate', lifetimeStats, ['Win Rate %'], 'N/A', (val) => `${Math.round(parseFloat(val))}%`);
@@ -1599,7 +1608,7 @@ fetchFaceitRanking(playerData.player_id).then(ranking => {
             document.getElementById('faceit-adr').textContent = 'N/A';
             document.getElementById('faceit-hs').textContent = 'N/A';
         }
-        
+
         // Update social links
         if (playerData && playerData.nickname) {
             const faceitLink = document.querySelector('.social-link:nth-child(2)');
@@ -1607,14 +1616,14 @@ fetchFaceitRanking(playerData.player_id).then(ranking => {
                 faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
             }
         }
-        
+
         // Update match history with player ID for win/loss determination
         if (matchHistory && matchHistory.items) {
             updateMatchHistory(matchHistory.items, playerData.player_id);
             // Update performance chart with ELO history
             updatePerformanceChart(matchHistory.items, playerData.player_id);
         }
-        
+
     } catch (error) {
         console.error('Error updating player profile:', error);
         alert('Error displaying player data. Please try again.');
