@@ -483,8 +483,14 @@ body.black-theme .theme-toggle:hover {
         }
 
         .premier-value {
-            color: #60a5fa;
-        }
+    color: #666 !important;
+}
+
+.premier-value::after {
+    content: " (N/A)";
+    font-size: 0.8em;
+    color: #888;
+}
 
         .faceit-value {
             color: #3b82f6;
@@ -859,6 +865,9 @@ body {
     filter: brightness(1.2);
     transform: scale(1.1);
 }
+.premier-value {
+    color: #666 !important;
+}
 }
     </style>
 </head>
@@ -870,7 +879,7 @@ body {
 <div class="search-section">
     <div class="search-container">
         <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
-        <button class="search-btn">
+        <button class="search-btn" onclick="searchPlayer()">
     <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
 </button>
     </div>
@@ -1313,7 +1322,12 @@ const performanceChart = new Chart(ctx, {
                 eloChangeElement.className = 'elo-change elo-negative';
             }
         }
-
+// Add enter key support for search
+document.querySelector('.search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchPlayer();
+    }
+});
         // Initialize ELO change display
         updateEloChange();
 
@@ -1374,6 +1388,170 @@ const performanceChart = new Chart(ctx, {
                 btn.textContent = 'Show More Matches';
             }
         }
+// Faceit API configuration
+const FACEIT_API_KEY = 'dfadd23a-d6e2-45d4-9921-b7ecb9096d81'; // Replace with your actual API key
+const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
+
+// Search functionality
+async function searchPlayer() {
+    const searchInput = document.querySelector('.search-input');
+    const nickname = searchInput.value.trim();
+    
+    if (!nickname) {
+        alert('Please enter a Faceit nickname');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const searchBtn = document.querySelector('.search-btn');
+        const originalContent = searchBtn.innerHTML;
+        searchBtn.innerHTML = '<div style="width: 16px; height: 16px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>';
+        
+        // Fetch player data
+        const playerData = await fetchPlayerData(nickname);
+        const playerStats = await fetchPlayerStats(playerData.player_id);
+        const matchHistory = await fetchMatchHistory(playerData.player_id);
+        
+        // Update UI with real data
+        updatePlayerProfile(playerData, playerStats, matchHistory);
+        
+        searchBtn.innerHTML = originalContent;
+    } catch (error) {
+        console.error('Error fetching player data:', error);
+        alert('Player not found or API error. Please try again.');
+        document.querySelector('.search-btn').innerHTML = originalContent;
+    }
+}
+
+// Fetch player basic info
+async function fetchPlayerData(nickname) {
+    const response = await fetch(`${FACEIT_BASE_URL}/players?nickname=${nickname}`, {
+        headers: {
+            'Authorization': `Bearer ${FACEIT_API_KEY}`
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Player not found');
+    }
+    
+    return await response.json();
+}
+
+// Fetch player CS2 stats
+async function fetchPlayerStats(playerId) {
+    const response = await fetch(`${FACEIT_BASE_URL}/players/${playerId}/stats/cs2`, {
+        headers: {
+            'Authorization': `Bearer ${FACEIT_API_KEY}`
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Stats not found');
+    }
+    
+    return await response.json();
+}
+
+// Fetch match history
+async function fetchMatchHistory(playerId) {
+    const response = await fetch(`${FACEIT_BASE_URL}/players/${playerId}/history?game=cs2&offset=0&limit=20`, {
+        headers: {
+            'Authorization': `Bearer ${FACEIT_API_KEY}`
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Match history not found');
+    }
+    
+    return await response.json();
+}
+
+// Update UI with real player data
+function updatePlayerProfile(playerData, playerStats, matchHistory) {
+    // Update header info
+    document.querySelector('.nickname').textContent = playerData.nickname;
+    document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
+    
+    // Update Faceit rating card
+    const faceitStats = playerStats.segments[0].stats;
+    document.querySelector('.faceit-rating').textContent = Math.round(faceitStats['Faceit Elo'].value).toLocaleString();
+    document.querySelector('.rating-elo').textContent = `Level ${faceitStats['Faceit Level'].value}`;
+    
+    // Update social links
+    const faceitLink = document.querySelector('.social-link:nth-child(2)');
+    faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+    
+    // Update stats (Faceit column only for now)
+    document.getElementById('faceit-matches').textContent = faceitStats['Matches'].value;
+    document.getElementById('faceit-winrate').textContent = `${Math.round(faceitStats['Win Rate %'].value)}%`;
+    document.getElementById('faceit-kd').textContent = faceitStats['Average K/D Ratio'].value;
+    document.getElementById('faceit-adr').textContent = Math.round(faceitStats['Average Damage per Round'].value);
+    document.getElementById('faceit-hs').textContent = `${Math.round(faceitStats['Average Headshots %'].value)}%`;
+    
+    // Update match history
+    updateMatchHistory(matchHistory.items);
+    
+    // Update performance chart with ELO history
+    updatePerformanceChart(matchHistory.items, playerData.player_id);
+}
+
+// Update match history display
+function updateMatchHistory(matches) {
+    const matchesList = document.querySelector('.matches-list');
+    // Clear existing matches except headers
+    const existingMatches = matchesList.querySelectorAll('.match-card');
+    existingMatches.forEach(match => match.remove());
+    
+    matches.slice(0, 10).forEach((match, index) => {
+        const matchCard = createMatchCard(match);
+        matchesList.appendChild(matchCard);
+    });
+    
+    // Add remaining matches as hidden
+    matches.slice(10).forEach((match, index) => {
+        const matchCard = createMatchCard(match);
+        matchCard.classList.add('hidden-matches');
+        matchCard.style.display = 'none';
+        matchesList.appendChild(matchCard);
+    });
+}
+
+// Create match card element
+function createMatchCard(match) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card';
+    
+    const result = match.results.winner === match.teams[match.playing ? 'faction1' : 'faction2'].faction_id ? 'W' : 'L';
+    const resultClass = result === 'W' ? 'win' : 'loss';
+    
+    matchCard.innerHTML = `
+        <div class="match-left">
+            <div class="match-result ${resultClass}">${result}</div>
+            <div class="match-map">${match.voting.map.name || 'Unknown'}</div>
+        </div>
+        <div class="match-score">${match.results.score[match.teams.faction1.faction_id]} - ${match.results.score[match.teams.faction2.faction_id]}</div>
+        <div class="match-stats">
+            <div class="match-stat-value">-</div>
+            <div class="match-stat-value">-</div>
+            <div class="match-stat-value">-</div>
+        </div>
+    `;
+    
+    return matchCard;
+}
+
+// Add CSS for loading animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
     </script>
 </body>
 </html>
