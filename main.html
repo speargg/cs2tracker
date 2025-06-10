@@ -1145,14 +1145,6 @@ body {
     </div>
 
     <script>
-	    window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const nickname = params.get('nickname');
-    if (nickname) {
-        document.querySelector('.search-input').value = nickname;
-        searchPlayer(); // runs the actual player data fetch
-    }
-});
         // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // Create button
@@ -1955,7 +1947,14 @@ function updatePerformanceChart(matches, playerId) {
     // TODO: Implement ELO tracking from match history
     // This will depend on your API structure
 }
-
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const nickname = params.get('nickname');
+    if (nickname) {
+      document.querySelector('.search-input').value = nickname;
+      searchPlayer(); // 👈 this triggers the fetch and shows player stats
+    }
+  });
 // Add CSS for loading animation
 const style = document.createElement('style');
 style.textContent = `
@@ -1965,6 +1964,7 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+	    
     </script>
 </body>
 </html>
