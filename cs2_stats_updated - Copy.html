@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Statistics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #0f1419 100%);
+            background-attachment: fixed;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .search-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.search-container {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto 0.75rem;
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.search-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+.search-hint {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        max-width: 90%;
+    }
+    
+    .search-input {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .search-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .search-hint {
+        font-size: 0.75rem;
+    }
+}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 600;
+            border: 4px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .nickname {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-link {
+    width: 40px;
+    height: 40px;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    padding: 0;
+    overflow: hidden;
+}
+
+.social-link img {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+}
+
+        .social-link:hover {
+            background: rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .ratings {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .rating-card {
+            background: rgba(26, 35, 50, 0.6);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            min-width: 250px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .rating-title {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .rating-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .premier-rating {
+            color: #60a5fa;
+        }
+
+        .faceit-rating {
+            color: #3b82f6;
+        }
+
+        .rating-elo {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .rating-season {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .ranking {
+            padding-top: 1rem;
+            border-top: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid rgba(37, 99, 235, 0.5);
+        }
+
+        .ranking-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .ranking-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ranking-value {
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .stats-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-toggle {
+            display: flex;
+            background: rgba(26, 35, 50, 0.6);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 12px;
+            padding: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .stats-container {
+            background: rgba(26, 35, 50, 0.6);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .platform-label {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .premier-label {
+            color: #60a5fa;
+        }
+
+        .faceit-label {
+            color: #3b82f6;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+        }
+
+        .stat-value {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .premier-value {
+            color: #60a5fa;
+        }
+
+        .faceit-value {
+            color: #3b82f6;
+        }
+
+        .performance-section {
+            margin-bottom: 3rem;
+        }
+
+        .chart-container {
+            background: rgba(26, 35, 50, 0.6);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            height: 300px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .elo-change {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .elo-positive {
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .elo-negative {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Recent Matches Section - Fixed Alignment */
+.matches-section {
+    margin-bottom: 2rem;
+}
+
+.matches-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    align-items: center;
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px 16px 0 0;
+    padding: 1.5rem 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.matches-header-stats {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.matches-header-stats > div {
+    min-width: 50px;
+    text-align: center;
+}
+
+.matches-header > div {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
+    text-align: center;
+}
+
+.matches-header > div:first-child {
+    text-align: left;
+}
+
+.matches-list {
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    backdrop-filter: blur(10px);
+}
+
+.match-card {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+    transition: background 0.3s ease;
+}
+
+.match-stats {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.match-card:last-child {
+    border-bottom: none;
+}
+
+.match-card:hover {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.match-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: flex-start;
+}
+
+.match-result {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.win {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.loss {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.match-map {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.match-score {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.match-stat-value {
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 50px;
+}
+
+        .expand-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .expand-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .hidden-matches {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .nickname {
+                font-size: 2.5rem;
+            }
+
+            .ratings {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .rating-card {
+                min-width: auto;
+            }
+
+            .stat-row {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .matches-header {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .match-card {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .match-left {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+		/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .matches-header {
+        grid-template-columns: 1.5fr 1fr 1.5fr;
+        padding: 1rem;
+    }
+
+    .matches-header-stats > div {
+    min-width: 40px;
+    text-align: center;
+}
+
+    .matches-header > div {
+        font-size: 0.75rem;
+    }
+
+    .match-card {
+        grid-template-columns: 1.5fr 1fr 1.5fr;
+        padding: 1rem;
+    }
+
+    .match-stats {
+        gap: 0.3rem;
+    }
+
+    .match-left {
+        gap: 0.5rem;
+    }
+
+    .match-result {
+        width: 30px;
+        height: 30px;
+        font-size: 0.875rem;
+    }
+
+    .match-map {
+        font-size: 0.75rem;
+    }
+
+    .match-score {
+        font-size: 1rem;
+    }
+
+    .match-stat-value {
+        font-size: 0.875rem;
+        min-width: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .matches-header {
+        grid-template-columns: 1.2fr 0.8fr 1.2fr;
+        padding: 0.75rem;
+    }
+
+    .matches-header-stats > div {
+    min-width: 35px;
+    text-align: center;
+}
+
+    .matches-header > div {
+        font-size: 0.7rem;
+    }
+
+    .match-card {
+        grid-template-columns: 1.2fr 0.8fr 1.2fr;
+        padding: 0.75rem;
+    }
+
+    .match-stats {
+        gap: 0.2rem;
+    }
+
+    .match-result {
+        width: 25px;
+        height: 25px;
+        font-size: 0.75rem;
+    }
+
+    .match-map {
+        font-size: 0.7rem;
+    }
+
+    .match-score {
+        font-size: 0.875rem;
+    }
+
+    .match-stat-value {
+        font-size: 0.75rem;
+        min-width: 35px;
+    }
+	.social-link {
+    width: 40px;
+    height: 40px;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    padding: 0;
+    overflow: hidden;
+}
+
+.social-link:hover .social-icon {
+    filter: brightness(1.2);
+    transform: scale(1.1);
+}
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+		<!-- Search Bar Section -->
+<div class="search-section">
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
+        <button class="search-btn">
+    <img src="images/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
+</button>
+    </div>
+    <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
+</div>
+            <div class="avatar">NK</div>
+            <h1 class="nickname">NiKo_CS</h1>
+            <div class="social-links">
+    <a href="#" class="social-link">
+        <img src="images/steam.png" alt="Steam" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="images/faceit.png" alt="Faceit" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="images/leetify.png" alt="Leetify" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="images/csstats.png" alt="CS Stats" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+</div>
+            <div class="ratings">
+                <div class="rating-card">
+                    <div class="rating-title">CS2 Premier</div>
+                    <div class="rating-value premier-rating">24,687</div>
+                    <div class="rating-season">Season 1</div>
+                    <div class="ranking">
+                        <div class="ranking-item">
+                            <span class="ranking-label">World</span>
+                            <span class="ranking-value">#1,247</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-label">Europe</span>
+                            <span class="ranking-value">#856</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="rating-card">
+                    <div class="rating-title">Faceit</div>
+                    <div class="rating-value faceit-rating">2,834</div>
+                    <div class="rating-elo">Level 10</div>
+                    <div class="ranking">
+                        <div class="ranking-item">
+                            <span class="ranking-label">World</span>
+                            <span class="ranking-value">#2,156</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-label">Europe</span>
+                            <span class="ranking-value">#1,423</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <div class="stats-header">
+                <h2 class="section-title">Statistics Overview</h2>
+                <div class="stats-toggle">
+                    <button class="toggle-btn active" onclick="toggleStats('lifetime')">Lifetime</button>
+                    <button class="toggle-btn" onclick="toggleStats('recent')">Last 20 Matches</button>
+                </div>
+            </div>
+            <div class="stats-container">
+                <div class="stats-labels">
+                    <div class="platform-label premier-label">Premier</div>
+                    <div class="platform-label" style="color: #e2e8f0;">Statistics</div>
+                    <div class="platform-label faceit-label">Faceit</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-matches">247</div>
+                    <div class="stat-label">Matches</div>
+                    <div class="stat-value faceit-value" id="faceit-matches">189</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-winrate">73%</div>
+                    <div class="stat-label">Winrate</div>
+                    <div class="stat-value faceit-value" id="faceit-winrate">68%</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-kd">1.32</div>
+                    <div class="stat-label">K/D</div>
+                    <div class="stat-value faceit-value" id="faceit-kd">1.41</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-adr">89.2</div>
+                    <div class="stat-label">ADR</div>
+                    <div class="stat-value faceit-value" id="faceit-adr">91.7</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-aim">94.5</div>
+                    <div class="stat-label">Aim Rating</div>
+                    <div class="stat-value faceit-value" id="faceit-aim">96.1</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-hs">52.3%</div>
+                    <div class="stat-label">HS Percentage</div>
+                    <div class="stat-value faceit-value" id="faceit-hs">48.9%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Graph Section -->
+        <div class="performance-section">
+            <h2 class="section-title">Faceit ELO Over Last 20 Matches</h2>
+            <div class="chart-container">
+                <div class="elo-change" id="eloChange">+78 ELO</div>
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Matches Section -->
+<div class="matches-section">
+    <h2 class="section-title">Recent Matches</h2>
+    
+    <div class="matches-header">
+        <div>MAP</div>
+        <div>SCORE</div>
+        <div class="matches-header-stats">
+            <div>K/D</div>
+            <div>ADR</div>
+            <div>HS%</div>
+        </div>
+    </div>
+
+    <div class="matches-list">
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_mirage</div>
+            </div>
+            <div class="match-score">16 - 12</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.50</div>
+                <div class="match-stat-value">92.4</div>
+                <div class="match-stat-value">54%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_dust2</div>
+            </div>
+            <div class="match-score">13 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.90</div>
+                <div class="match-stat-value">78.9</div>
+                <div class="match-stat-value">47%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_inferno</div>
+            </div>
+            <div class="match-score">16 - 9</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.93</div>
+                <div class="match-stat-value">105.2</div>
+                <div class="match-stat-value">61%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_cache</div>
+            </div>
+            <div class="match-score">16 - 11</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.29</div>
+                <div class="match-stat-value">88.7</div>
+                <div class="match-stat-value">49%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_overpass</div>
+            </div>
+            <div class="match-score">14 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.05</div>
+                <div class="match-stat-value">82.1</div>
+                <div class="match-stat-value">45%</div>
+            </div>
+        </div>
+
+        <!-- Hidden matches -->
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_ancient</div>
+            </div>
+            <div class="match-score">16 - 8</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.67</div>
+                <div class="match-stat-value">98.3</div>
+                <div class="match-stat-value">56%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_vertigo</div>
+            </div>
+            <div class="match-score">12 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.85</div>
+                <div class="match-stat-value">74.6</div>
+                <div class="match-stat-value">43%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_nuke</div>
+            </div>
+            <div class="match-score">16 - 13</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.44</div>
+                <div class="match-stat-value">86.9</div>
+                <div class="match-stat-value">51%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_train</div>
+            </div>
+            <div class="match-score">16 - 10</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.75</div>
+                <div class="match-stat-value">102.1</div>
+                <div class="match-stat-value">58%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_anubis</div>
+            </div>
+            <div class="match-score">11 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.78</div>
+                <div class="match-stat-value">71.2</div>
+                <div class="match-stat-value">41%</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
+</div>
+    </div>
+
+    <script>
+        
+// Performance Chart - Faceit ELO
+const ctx = document.getElementById('performanceChart').getContext('2d');
+
+const performanceData = {
+    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
+    datasets: [{
+        label: 'Faceit ELO',
+        data: [2756, 2789, 2834, 2801, 2823, 2856, 2798, 2834, 2867, 2845, 2879, 2823, 2856, 2890, 2867, 2834, 2801, 2823, 2845, 2834],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#3b82f6',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 6
+    }]
+};
+
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: performanceData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 20, 25, 0.95)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: 'rgba(37, 99, 235, 0.3)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: false,
+                multiKeyBackground: 'transparent',
+                callbacks: {
+                    title: function(context) {
+                        return `Match ${context[0].label}`;
+                    },
+                    label: function(context) {
+                        const currentElo = context.parsed.y;
+                        const dataIndex = context.dataIndex;
+                        const data = context.dataset.data;
+                        
+                        if (dataIndex === 0) {
+                            return `ELO: ${currentElo}`;
+                        }
+                        
+                        const previousElo = data[dataIndex - 1];
+                        const change = currentElo - previousElo;
+                        const changeText = change >= 0 ? `+${change}` : `${change}`;
+                        
+                        return [
+                            `ELO: ${currentElo}`,
+                            `${changeText}`
+                        ];
+                    },
+                    labelTextColor: function(context) {
+                        const dataIndex = context.dataIndex;
+                        const data = context.dataset.data;
+                        
+                        if (dataIndex === 0) return '#ffffff';
+                        
+                        const currentElo = context.parsed.y;
+                        const previousElo = data[dataIndex - 1];
+                        const change = currentElo - previousElo;
+                        const label = context.label;
+                        
+                        // First line (ELO) is white, second line (change) is colored
+                        if (label && (label.includes('+') || label.includes('-'))) {
+                            return change >= 0 ? '#10b981' : '#ef4444';
+                        }
+                        return '#ffffff';
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 2750,
+                max: 2900,
+                grid: {
+                    color: 'rgba(37, 99, 235, 0.2)'
+                },
+                ticks: {
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter'
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(37, 99, 235, 0.2)'
+                },
+                ticks: {
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter'
+                    }
+                }
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    }
+});
+
+        // Calculate and update ELO change
+        function updateEloChange() {
+            const firstElo = performanceData.datasets[0].data[0];
+            const lastElo = performanceData.datasets[0].data[performanceData.datasets[0].data.length - 1];
+            const change = lastElo - firstElo;
+            const eloChangeElement = document.getElementById('eloChange');
+            
+            if (change >= 0) {
+                eloChangeElement.textContent = `+${change} ELO`;
+                eloChangeElement.className = 'elo-change elo-positive';
+            } else {
+                eloChangeElement.textContent = `${change} ELO`;
+                eloChangeElement.className = 'elo-change elo-negative';
+            }
+        }
+
+        // Initialize ELO change display
+        updateEloChange();
+
+        // Stats data for toggle functionality
+        const statsData = {
+            lifetime: {
+                premier: { matches: '247', winrate: '73%', kd: '1.32', adr: '89.2', aim: '94.5', hs: '52.3%' },
+                faceit: { matches: '189', winrate: '68%', kd: '1.41', adr: '91.7', aim: '96.1', hs: '48.9%' }
+            },
+            recent: {
+                premier: { matches: '20', winrate: '75%', kd: '1.45', adr: '92.1', aim: '96.2', hs: '54.1%' },
+                faceit: { matches: '20', winrate: '70%', kd: '1.52', adr: '94.3', aim: '97.8', hs: '50.2%' }
+            }
+        };
+
+        // Toggle stats functionality
+        function toggleStats(type) {
+            // Update button states
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update stats values
+            const data = statsData[type];
+            
+            // Premier stats
+            document.getElementById('premier-matches').textContent = data.premier.matches;
+            document.getElementById('premier-winrate').textContent = data.premier.winrate;
+            document.getElementById('premier-kd').textContent = data.premier.kd;
+            document.getElementById('premier-adr').textContent = data.premier.adr;
+            document.getElementById('premier-aim').textContent = data.premier.aim;
+            document.getElementById('premier-hs').textContent = data.premier.hs;
+            
+            // Faceit stats
+            document.getElementById('faceit-matches').textContent = data.faceit.matches;
+            document.getElementById('faceit-winrate').textContent = data.faceit.winrate;
+            document.getElementById('faceit-kd').textContent = data.faceit.kd;
+            document.getElementById('faceit-adr').textContent = data.faceit.adr;
+            document.getElementById('faceit-aim').textContent = data.faceit.aim;
+            document.getElementById('faceit-hs').textContent = data.faceit.hs;
+        }
+
+        // Toggle more matches functionality
+        function toggleMoreMatches() {
+            const btn = document.querySelector('.expand-btn');
+            const hiddenMatches = document.querySelectorAll('.hidden-matches');
+            
+            if (btn.textContent === 'Show More Matches') {
+                hiddenMatches.forEach(match => {
+                    match.style.display = 'grid';
+                });
+                btn.textContent = 'Show Less Matches';
+            } else {
+                hiddenMatches.forEach(match => {
+                    match.style.display = 'none';
+                });
+                btn.textContent = 'Show More Matches';
+            }
+        }
+    </script>
+</body>
+</html>
