@@ -1501,7 +1501,16 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
+// Fetch and update FACEIT World/Europe Rankings
+fetchFaceitRanking(playerData.player_id).then(ranking => {
+    if (ranking) {
+        const worldElement = document.querySelector('.rating-card:nth-child(2) .ranking-value:nth-child(2)');
+        const europeElement = document.querySelector('.rating-card:nth-child(2) .ranking-item:last-child .ranking-value');
 
+        if (worldElement) worldElement.textContent = `#${ranking.world.toLocaleString()}`;
+        if (europeElement) europeElement.textContent = `#${ranking.europe.toLocaleString()}`;
+    }
+});
 // Fixed updatePlayerProfile function with correct Faceit API structure
 function updatePlayerProfile(playerData, playerStats, matchHistory) {
     try {
