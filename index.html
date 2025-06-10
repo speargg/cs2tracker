@@ -908,13 +908,14 @@ body {
                     <div class="rating-season">Season 1</div>
                     <div class="ranking">
                         <div class="ranking-item">
-                            <span class="ranking-label">World</span>
-                            <span class="ranking-value">#1,247</span>
-                        </div>
-                        <div class="ranking-item">
-                            <span class="ranking-label">Europe</span>
-                            <span class="ranking-value">#856</span>
-                        </div>
+    <span class="ranking-label">World</span>
+    <span class="ranking-value">#2,156</span>
+</div>
+<div class="ranking-item">
+    <span class="ranking-label">Europe</span>
+    <span class="ranking-value">#1,423</span>
+</div>
+
                     </div>
                 </div>
                 <div class="rating-card">
@@ -1504,8 +1505,9 @@ async function fetchMatchHistory(playerId) {
 // Fetch and update FACEIT World/Europe Rankings
 fetchFaceitRanking(playerData.player_id).then(ranking => {
     if (ranking) {
-        const worldElement = document.querySelector('.rating-card:nth-child(2) .ranking-value:nth-child(2)');
-        const europeElement = document.querySelector('.rating-card:nth-child(2) .ranking-item:last-child .ranking-value');
+        const worldElement = document.getElementById('faceit-world-ranking');
+        const europeElement = document.getElementById('faceit-europe-ranking');
+
 
         if (worldElement) worldElement.textContent = `#${ranking.world.toLocaleString()}`;
         if (europeElement) europeElement.textContent = `#${ranking.europe.toLocaleString()}`;
