@@ -1755,35 +1755,56 @@ async function fetchDetailedMatchData(matchId, playerId) {
             playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
         };
         
-        // Extract map name from match details
-        if (matchDetails) {
-            // Map could be in different locations depending on API structure
-            if (matchDetails.voting && matchDetails.voting.map && matchDetails.voting.map.name) {
-                result.mapName = cleanMapName(matchDetails.voting.map.name);
-            } else if (matchDetails.map) {
-                result.mapName = cleanMapName(matchDetails.map);
-            } else if (matchDetails.maps && matchDetails.maps.length > 0) {
-                result.mapName = cleanMapName(matchDetails.maps[0]);
-            }
-            
-            // Extract proper round scores
-            if (matchDetails.rounds && matchDetails.rounds.length > 0) {
-                // Count rounds won by each team
-                const teamScores = { faction1: 0, faction2: 0 };
-                matchDetails.rounds.forEach(round => {
-                    if (round.winner) {
-                        teamScores[round.winner]++;
-                    }
-                });
-                result.score = `${teamScores.faction1}:${teamScores.faction2}`;
-            } else if (matchDetails.results && matchDetails.results.score) {
-                // Fallback to basic score
-                const scores = Object.values(matchDetails.results.score);
-                if (scores.length >= 2) {
-                    result.score = `${scores[0]}:${scores[1]}`;
-                }
-            }
+        async function fetchDetailedMatchData(matchId, playerId) {
+  const result = { map: '-', score: '-', playerStats: {} };
+
+  try {
+    const [matchDetailsRes, matchStatsRes] = await Promise.all([
+      fetch(`/api/match-details?matchId=${matchId}`),
+      fetch(`/api/match-stats?matchId=${matchId}`)
+    ]);
+
+    const matchDetails = await matchDetailsRes.json();
+    const matchStats = await matchStatsRes.json();
+
+    // ... kod pobierający dane ...
+
+    // poprawiony fragment:
+    if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
+      const teams = matchStats.rounds[0].teams;
+      let playerMatchStats = null;
+
+      for (const team of teams) {
+        const found = team.players.find(p => p.player_id === playerId);
+        if (found) {
+          playerMatchStats = found;
+          break;
         }
+      }
+
+      if (playerMatchStats && playerMatchStats.player_stats) {
+        const stats = playerMatchStats.player_stats;
+        result.playerStats = {
+          kills: stats.Kills || stats.kills || '-',
+          deaths: stats.Deaths || stats.deaths || '-',
+          adr: stats['Average Damage per Round']
+            ? Math.round(parseFloat(stats['Average Damage per Round']))
+            : '-',
+          hsPercent: stats['Headshots %']
+            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+            : '-'
+        };
+      }
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('Error fetching detailed match data:', error);
+    return null;
+  }
+}
+
         
         // Extract player stats
 if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
