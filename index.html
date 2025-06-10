@@ -1392,7 +1392,7 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 const API_BASE_URL = 'https://cs2tracker.vercel.app/api'; // or your GitHub Pages domain
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 
-// Fixed search functionality with proper error handling
+// Fixed search functionality with proper error handling and correct API structure
 async function searchPlayer() {
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
@@ -1430,93 +1430,6 @@ async function searchPlayer() {
         // Always restore the original button content
         searchBtn.innerHTML = originalContent;
     }
-}
-
-// Improved update function with better error checking
-function updatePlayerProfile(playerData, playerStats, matchHistory) {
-    try {
-        // Update header info
-        if (playerData && playerData.nickname) {
-            document.querySelector('.nickname').textContent = playerData.nickname;
-            document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
-        }
-        
-        // Check if playerStats has the expected structure
-        if (playerStats && playerStats.segments && playerStats.segments[0] && playerStats.segments[0].stats) {
-            const faceitStats = playerStats.segments[0].stats;
-            console.log('Faceit stats structure:', faceitStats); // Debug log
-            
-            // Safely update Faceit rating card with fallbacks
-            const eloElement = document.querySelector('.faceit-rating');
-            const levelElement = document.querySelector('.rating-elo');
-            
-            if (faceitStats['Faceit Elo'] && faceitStats['Faceit Elo'].value) {
-                eloElement.textContent = Math.round(faceitStats['Faceit Elo'].value).toLocaleString();
-            } else if (faceitStats.elo && faceitStats.elo.value) {
-                eloElement.textContent = Math.round(faceitStats.elo.value).toLocaleString();
-            } else {
-                eloElement.textContent = 'N/A';
-            }
-            
-            if (faceitStats['Faceit Level'] && faceitStats['Faceit Level'].value) {
-                levelElement.textContent = `Level ${faceitStats['Faceit Level'].value}`;
-            } else if (faceitStats.level && faceitStats.level.value) {
-                levelElement.textContent = `Level ${faceitStats.level.value}`;
-            } else {
-                levelElement.textContent = 'Level N/A';
-            }
-            
-            // Update stats with safe access
-            updateStatSafely('faceit-matches', faceitStats, ['Matches', 'matches'], 'N/A');
-            updateStatSafely('faceit-winrate', faceitStats, ['Win Rate %', 'winrate'], 'N/A', (val) => `${Math.round(val)}%`);
-            updateStatSafely('faceit-kd', faceitStats, ['Average K/D Ratio', 'kd', 'k_d_ratio'], 'N/A');
-            updateStatSafely('faceit-adr', faceitStats, ['Average Damage per Round', 'adr'], 'N/A', Math.round);
-            updateStatSafely('faceit-hs', faceitStats, ['Average Headshots %', 'headshots', 'hs_percent'], 'N/A', (val) => `${Math.round(val)}%`);
-        } else {
-            console.warn('PlayerStats structure not as expected:', playerStats);
-            // Set all Faceit stats to N/A
-            document.getElementById('faceit-matches').textContent = 'N/A';
-            document.getElementById('faceit-winrate').textContent = 'N/A';
-            document.getElementById('faceit-kd').textContent = 'N/A';
-            document.getElementById('faceit-adr').textContent = 'N/A';
-            document.getElementById('faceit-hs').textContent = 'N/A';
-        }
-        
-        // Update social links
-        if (playerData && playerData.nickname) {
-            const faceitLink = document.querySelector('.social-link:nth-child(2)');
-            if (faceitLink) {
-                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-            }
-        }
-        
-        // Update match history
-        if (matchHistory && matchHistory.items) {
-            updateMatchHistory(matchHistory.items);
-            // Update performance chart with ELO history
-            updatePerformanceChart(matchHistory.items, playerData.player_id);
-        }
-        
-    } catch (error) {
-        console.error('Error updating player profile:', error);
-        alert('Error displaying player data. Please try again.');
-    }
-}
-
-// Helper function to safely update stats
-function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = null) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    for (const key of possibleKeys) {
-        if (stats[key] && stats[key].value !== undefined) {
-            const value = stats[key].value;
-            element.textContent = transform ? transform(value) : value;
-            return;
-        }
-    }
-    
-    element.textContent = fallback;
 }
 
 // Enhanced fetch functions with better error handling
@@ -1576,6 +1489,189 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
+
+// Fixed updatePlayerProfile function with correct Faceit API structure
+function updatePlayerProfile(playerData, playerStats, matchHistory) {
+    try {
+        // Update header info
+        if (playerData && playerData.nickname) {
+            document.querySelector('.nickname').textContent = playerData.nickname;
+            document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
+        }
+        
+        // Handle player level and ELO from player data (CS2 specific)
+        if (playerData && playerData.games && playerData.games.cs2) {
+            const cs2Data = playerData.games.cs2;
+            
+            // Update Faceit rating card using player data
+            const eloElement = document.querySelector('.faceit-rating');
+            const levelElement = document.querySelector('.rating-elo');
+            
+            if (cs2Data.faceit_elo) {
+                eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
+            } else {
+                eloElement.textContent = 'N/A';
+            }
+            
+            if (cs2Data.skill_level) {
+                levelElement.textContent = `Level ${cs2Data.skill_level}`;
+            } else {
+                levelElement.textContent = 'Level N/A';
+            }
+        }
+        
+        // Handle stats from lifetime stats API response
+        if (playerStats && playerStats.lifetime) {
+            const lifetimeStats = playerStats.lifetime;
+            console.log('Lifetime stats structure:', lifetimeStats); // Debug log
+            
+            // Update stats with safe access using the correct Faceit API response structure
+            updateStatSafely('faceit-matches', lifetimeStats, ['Matches'], 'N/A');
+            updateStatSafely('faceit-winrate', lifetimeStats, ['Win Rate %'], 'N/A', (val) => `${Math.round(parseFloat(val))}%`);
+            updateStatSafely('faceit-kd', lifetimeStats, ['Average K/D Ratio'], 'N/A', (val) => parseFloat(val).toFixed(2));
+            updateStatSafely('faceit-adr', lifetimeStats, ['Average Damage per Round'], 'N/A', (val) => Math.round(parseFloat(val)));
+            updateStatSafely('faceit-hs', lifetimeStats, ['Average Headshots %'], 'N/A', (val) => `${Math.round(parseFloat(val))}%`);
+        } else {
+            console.warn('PlayerStats structure not as expected:', playerStats);
+            // Set all Faceit stats to N/A
+            document.getElementById('faceit-matches').textContent = 'N/A';
+            document.getElementById('faceit-winrate').textContent = 'N/A';
+            document.getElementById('faceit-kd').textContent = 'N/A';
+            document.getElementById('faceit-adr').textContent = 'N/A';
+            document.getElementById('faceit-hs').textContent = 'N/A';
+        }
+        
+        // Update social links
+        if (playerData && playerData.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+        
+        // Update match history
+        if (matchHistory && matchHistory.items) {
+            updateMatchHistory(matchHistory.items);
+            // Update performance chart with ELO history
+            updatePerformanceChart(matchHistory.items, playerData.player_id);
+        }
+        
+    } catch (error) {
+        console.error('Error updating player profile:', error);
+        alert('Error displaying player data. Please try again.');
+    }
+}
+
+// Helper function to safely update stats with the correct Faceit API structure
+function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = null) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    for (const key of possibleKeys) {
+        if (stats[key] !== undefined && stats[key] !== null && stats[key] !== '') {
+            const value = stats[key];
+            element.textContent = transform ? transform(value) : value;
+            return;
+        }
+    }
+    
+    element.textContent = fallback;
+}
+
+// Update match history display
+function updateMatchHistory(matches) {
+    const matchesList = document.querySelector('.matches-list');
+    // Clear existing matches except headers
+    const existingMatches = matchesList.querySelectorAll('.match-card');
+    existingMatches.forEach(match => match.remove());
+    
+    matches.slice(0, 10).forEach((match, index) => {
+        const matchCard = createMatchCard(match);
+        matchesList.appendChild(matchCard);
+    });
+    
+    // Add remaining matches as hidden
+    matches.slice(10).forEach((match, index) => {
+        const matchCard = createMatchCard(match);
+        matchCard.classList.add('hidden-matches');
+        matchCard.style.display = 'none';
+        matchesList.appendChild(matchCard);
+    });
+}
+
+// Create match card element with improved error handling
+function createMatchCard(match) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card';
+    
+    try {
+        // Safely determine match result
+        let result = 'L';
+        let resultClass = 'loss';
+        
+        if (match.results && match.results.winner && match.teams) {
+            // This logic might need adjustment based on actual API response structure
+            const playerTeam = match.teams.faction1 || match.teams.faction2;
+            if (playerTeam && match.results.winner === playerTeam.faction_id) {
+                result = 'W';
+                resultClass = 'win';
+            }
+        }
+        
+        // Safely get map name
+        const mapName = (match.voting && match.voting.map && match.voting.map.name) || 
+                       (match.map && match.map.name) || 
+                       'Unknown';
+        
+        // Safely get scores
+        let scoreDisplay = '- - -';
+        if (match.results && match.results.score && match.teams) {
+            const faction1Id = match.teams.faction1 ? match.teams.faction1.faction_id : null;
+            const faction2Id = match.teams.faction2 ? match.teams.faction2.faction_id : null;
+            
+            if (faction1Id && faction2Id && match.results.score[faction1Id] !== undefined && match.results.score[faction2Id] !== undefined) {
+                scoreDisplay = `${match.results.score[faction1Id]} - ${match.results.score[faction2Id]}`;
+            }
+        }
+        
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result ${resultClass}">${result}</div>
+                <div class="match-map">${mapName}</div>
+            </div>
+            <div class="match-score">${scoreDisplay}</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error creating match card:', error);
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">Unknown</div>
+            </div>
+            <div class="match-score">- - -</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+    }
+    
+    return matchCard;
+}
+
+// Placeholder function for performance chart update
+function updatePerformanceChart(matches, playerId) {
+    console.log('Updating performance chart with matches:', matches);
+    // TODO: Implement ELO tracking from match history
+    // This will depend on your API structure
+}
+
 // Debug helper function to understand API response structure
 async function debugApiStructure(nickname) {
     console.log('=== API DEBUG START ===');
@@ -1604,9 +1700,9 @@ async function debugApiStructure(nickname) {
                     console.log(JSON.stringify(statsData, null, 2));
                     
                     // Analyze stats structure
-                    if (statsData.segments && statsData.segments[0] && statsData.segments[0].stats) {
-                        console.log('\n3. Available stat keys:');
-                        console.log(Object.keys(statsData.segments[0].stats));
+                    if (statsData.lifetime) {
+                        console.log('\n3. Available lifetime stat keys:');
+                        console.log(Object.keys(statsData.lifetime));
                     }
                 } else {
                     const errorText = await statsResponse.text();
@@ -1646,140 +1742,6 @@ async function debugApiStructure(nickname) {
 
 // Call this function in the browser console to debug
 // Example: debugApiStructure('NiKo')
-
-// Alternative direct Faceit API test (if you want to try direct API calls)
-async function testDirectFaceitAPI(nickname) {
-    console.log('=== DIRECT FACEIT API TEST ===');
-    
-    // Note: You'll need to add your Faceit API key to your backend
-    // This is just to show what the structure should look like
-    
-    try {
-        // This won't work from frontend due to CORS, but shows the expected structure
-        const playerUrl = `https://open.faceit.com/data/v4/players?nickname=${nickname}`;
-        console.log('Expected player URL:', playerUrl);
-        
-        console.log('Expected player response structure:');
-        console.log(`{
-  "player_id": "uuid",
-  "nickname": "string",
-  "avatar": "url",
-  "country": "string",
-  "games": {
-    "csgo": {
-      "region": "string",
-      "game_player_id": "string",
-      "skill_level": 10,
-      "faceit_elo": 2000,
-      "game_player_name": "string"
-    }
-  }
-}`);
-        
-        console.log('Expected stats URL: https://open.faceit.com/data/v4/players/{player_id}/stats/csgo');
-        console.log('Expected stats response structure:');
-        console.log(`{
-  "player_id": "uuid",
-  "game_id": "csgo",
-  "lifetime": {
-    "Average Damage per Round": "82.45",
-    "Average Headshots %": "47.12",
-    "Average K/D Ratio": "1.23",
-    "Current Win Streak": "3",
-    "Faceit Elo": "1945",
-    "Faceit Level": "8",
-    "K/R Ratio": "0.67",
-    "Matches": "1234",
-    "Win Rate %": "65.2"
-  }
-}`);
-        
-    } catch (error) {
-        console.error('Direct API test error:', error);
-    }
-    
-    console.log('=== DIRECT FACEIT API TEST END ===');
-}
-// Placeholder function for performance chart update
-function updatePerformanceChart(matches, playerId) {
-    console.log('Updating performance chart with matches:', matches);
-    // TODO: Implement ELO tracking from match history
-    // This will depend on your API structure
-}
-
-// Update UI with real player data
-function updatePlayerProfile(playerData, playerStats, matchHistory) {
-    // Update header info
-    document.querySelector('.nickname').textContent = playerData.nickname;
-    document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
-    
-    // Update Faceit rating card
-    const faceitStats = playerStats.segments[0].stats;
-    document.querySelector('.faceit-rating').textContent = Math.round(faceitStats['Faceit Elo'].value).toLocaleString();
-    document.querySelector('.rating-elo').textContent = `Level ${faceitStats['Faceit Level'].value}`;
-    
-    // Update social links
-    const faceitLink = document.querySelector('.social-link:nth-child(2)');
-    faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-    
-    // Update stats (Faceit column only for now)
-    document.getElementById('faceit-matches').textContent = faceitStats['Matches'].value;
-    document.getElementById('faceit-winrate').textContent = `${Math.round(faceitStats['Win Rate %'].value)}%`;
-    document.getElementById('faceit-kd').textContent = faceitStats['Average K/D Ratio'].value;
-    document.getElementById('faceit-adr').textContent = Math.round(faceitStats['Average Damage per Round'].value);
-    document.getElementById('faceit-hs').textContent = `${Math.round(faceitStats['Average Headshots %'].value)}%`;
-    
-    // Update match history
-    updateMatchHistory(matchHistory.items);
-    
-    // Update performance chart with ELO history
-    updatePerformanceChart(matchHistory.items, playerData.player_id);
-}
-
-// Update match history display
-function updateMatchHistory(matches) {
-    const matchesList = document.querySelector('.matches-list');
-    // Clear existing matches except headers
-    const existingMatches = matchesList.querySelectorAll('.match-card');
-    existingMatches.forEach(match => match.remove());
-    
-    matches.slice(0, 10).forEach((match, index) => {
-        const matchCard = createMatchCard(match);
-        matchesList.appendChild(matchCard);
-    });
-    
-    // Add remaining matches as hidden
-    matches.slice(10).forEach((match, index) => {
-        const matchCard = createMatchCard(match);
-        matchCard.classList.add('hidden-matches');
-        matchCard.style.display = 'none';
-        matchesList.appendChild(matchCard);
-    });
-}
-
-// Create match card element
-function createMatchCard(match) {
-    const matchCard = document.createElement('div');
-    matchCard.className = 'match-card';
-    
-    const result = match.results.winner === match.teams[match.playing ? 'faction1' : 'faction2'].faction_id ? 'W' : 'L';
-    const resultClass = result === 'W' ? 'win' : 'loss';
-    
-    matchCard.innerHTML = `
-        <div class="match-left">
-            <div class="match-result ${resultClass}">${result}</div>
-            <div class="match-map">${match.voting.map.name || 'Unknown'}</div>
-        </div>
-        <div class="match-score">${match.results.score[match.teams.faction1.faction_id]} - ${match.results.score[match.teams.faction2.faction_id]}</div>
-        <div class="match-stats">
-            <div class="match-stat-value">-</div>
-            <div class="match-stat-value">-</div>
-            <div class="match-stat-value">-</div>
-        </div>
-    `;
-    
-    return matchCard;
-}
 
 // Add CSS for loading animation
 const style = document.createElement('style');
