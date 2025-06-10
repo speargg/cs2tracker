@@ -1145,6 +1145,14 @@ body {
     </div>
 
     <script>
+	    window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const nickname = params.get('nickname');
+    if (nickname) {
+        document.querySelector('.search-input').value = nickname;
+        searchPlayer(); // runs the actual player data fetch
+    }
+});
         // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // Create button
