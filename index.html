@@ -1419,6 +1419,18 @@ async function searchPlayer() {
         
         const matchHistory = await fetchMatchHistory(playerData.player_id);
         console.log('Match history:', matchHistory);
+	    
+	async function fetchFaceitRanking(playerId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rankings?playerId=${encodeURIComponent(playerId)}`);
+        if (!response.ok) throw new Error('Failed to fetch FACEIT rankings');
+        return await response.json();
+    } catch (error) {
+        console.error('Faceit ranking fetch error:', error);
+        return null;
+    }
+}
+
         
         // Update UI with real data
         updatePlayerProfile(playerData, playerStats, matchHistory);
