@@ -924,11 +924,11 @@ body {
                     <div class="ranking">
                         <div class="ranking-item">
                             <span class="ranking-label">World</span>
-                            <span class="ranking-value">#2,156</span>
+                            <span class="ranking-value" id="faceit-world-ranking">#2,156</span>
                         </div>
                         <div class="ranking-item">
                             <span class="ranking-label">Europe</span>
-                            <span class="ranking-value">#1,423</span>
+                            <span class="ranking-value" id="faceit-europe-ranking">#1,423</span>
                         </div>
                     </div>
                 </div>
@@ -1431,6 +1431,16 @@ async function searchPlayer() {
         searchBtn.innerHTML = originalContent;
     }
 }
+async function fetchFaceitRanking(playerId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rankings?playerId=${encodeURIComponent(playerId)}`);
+        if (!response.ok) throw new Error('Failed to fetch FACEIT rankings');
+        return await response.json();
+    } catch (error) {
+        console.error('Faceit ranking fetch error:', error);
+        return null;
+    }
+}
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
@@ -1519,7 +1529,25 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 levelElement.textContent = 'Level N/A';
             }
         }
-        
+        // Fetch and update FACEIT World/Europe Rankings
+fetchFaceitRanking(playerData.player_id).then(ranking => {
+    const worldElement = document.getElementById('faceit-world-ranking');
+    const europeElement = document.getElementById('faceit-europe-ranking');
+
+    if (worldElement) {
+        worldElement.textContent =
+            ranking && ranking.world && ranking.world > 0
+                ? `#${ranking.world.toLocaleString()}`
+                : 'Not Ranked';
+    }
+
+    if (europeElement) {
+        europeElement.textContent =
+            ranking && ranking.europe && ranking.europe > 0
+                ? `#${ranking.europe.toLocaleString()}`
+                : 'Not Ranked';
+    }
+});
         // Handle stats from lifetime stats API response
         if (playerStats && playerStats.lifetime) {
             const lifetimeStats = playerStats.lifetime;
