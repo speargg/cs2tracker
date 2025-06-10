@@ -1392,7 +1392,7 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 const API_BASE_URL = 'https://cs2tracker.vercel.app/api'; // or your GitHub Pages domain
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 
-// Search functionality
+// Fixed search functionality with proper error handling
 async function searchPlayer() {
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
@@ -1402,57 +1402,309 @@ async function searchPlayer() {
         return;
     }
     
+    // Get search button and store original content outside try block
+    const searchBtn = document.querySelector('.search-btn');
+    const originalContent = searchBtn.innerHTML;
+    
     try {
         // Show loading state
-        const searchBtn = document.querySelector('.search-btn');
-        const originalContent = searchBtn.innerHTML;
         searchBtn.innerHTML = '<div style="width: 16px; height: 16px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>';
         
         // Fetch player data
         const playerData = await fetchPlayerData(nickname);
+        console.log('Player data:', playerData); // Debug log
+        
         const playerStats = await fetchPlayerStats(playerData.player_id);
+        console.log('Player stats:', playerStats); // Debug log
+        
         const matchHistory = await fetchMatchHistory(playerData.player_id);
+        console.log('Match history:', matchHistory); // Debug log
         
         // Update UI with real data
         updatePlayerProfile(playerData, playerStats, matchHistory);
         
-        searchBtn.innerHTML = originalContent;
     } catch (error) {
         console.error('Error fetching player data:', error);
         alert('Player not found or API error. Please try again.');
-        document.querySelector('.search-btn').innerHTML = originalContent;
+    } finally {
+        // Always restore the original button content
+        searchBtn.innerHTML = originalContent;
     }
 }
 
-// Fetch player basic info
-async function fetchPlayerData(nickname) {
-    const response = await fetch(`${API_BASE_URL}/player?nickname=${nickname}`);
+// Improved update function with better error checking
+function updatePlayerProfile(playerData, playerStats, matchHistory) {
+    try {
+        // Update header info
+        if (playerData && playerData.nickname) {
+            document.querySelector('.nickname').textContent = playerData.nickname;
+            document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
+        }
+        
+        // Check if playerStats has the expected structure
+        if (playerStats && playerStats.segments && playerStats.segments[0] && playerStats.segments[0].stats) {
+            const faceitStats = playerStats.segments[0].stats;
+            console.log('Faceit stats structure:', faceitStats); // Debug log
+            
+            // Safely update Faceit rating card with fallbacks
+            const eloElement = document.querySelector('.faceit-rating');
+            const levelElement = document.querySelector('.rating-elo');
+            
+            if (faceitStats['Faceit Elo'] && faceitStats['Faceit Elo'].value) {
+                eloElement.textContent = Math.round(faceitStats['Faceit Elo'].value).toLocaleString();
+            } else if (faceitStats.elo && faceitStats.elo.value) {
+                eloElement.textContent = Math.round(faceitStats.elo.value).toLocaleString();
+            } else {
+                eloElement.textContent = 'N/A';
+            }
+            
+            if (faceitStats['Faceit Level'] && faceitStats['Faceit Level'].value) {
+                levelElement.textContent = `Level ${faceitStats['Faceit Level'].value}`;
+            } else if (faceitStats.level && faceitStats.level.value) {
+                levelElement.textContent = `Level ${faceitStats.level.value}`;
+            } else {
+                levelElement.textContent = 'Level N/A';
+            }
+            
+            // Update stats with safe access
+            updateStatSafely('faceit-matches', faceitStats, ['Matches', 'matches'], 'N/A');
+            updateStatSafely('faceit-winrate', faceitStats, ['Win Rate %', 'winrate'], 'N/A', (val) => `${Math.round(val)}%`);
+            updateStatSafely('faceit-kd', faceitStats, ['Average K/D Ratio', 'kd', 'k_d_ratio'], 'N/A');
+            updateStatSafely('faceit-adr', faceitStats, ['Average Damage per Round', 'adr'], 'N/A', Math.round);
+            updateStatSafely('faceit-hs', faceitStats, ['Average Headshots %', 'headshots', 'hs_percent'], 'N/A', (val) => `${Math.round(val)}%`);
+        } else {
+            console.warn('PlayerStats structure not as expected:', playerStats);
+            // Set all Faceit stats to N/A
+            document.getElementById('faceit-matches').textContent = 'N/A';
+            document.getElementById('faceit-winrate').textContent = 'N/A';
+            document.getElementById('faceit-kd').textContent = 'N/A';
+            document.getElementById('faceit-adr').textContent = 'N/A';
+            document.getElementById('faceit-hs').textContent = 'N/A';
+        }
+        
+        // Update social links
+        if (playerData && playerData.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+        
+        // Update match history
+        if (matchHistory && matchHistory.items) {
+            updateMatchHistory(matchHistory.items);
+            // Update performance chart with ELO history
+            updatePerformanceChart(matchHistory.items, playerData.player_id);
+        }
+        
+    } catch (error) {
+        console.error('Error updating player profile:', error);
+        alert('Error displaying player data. Please try again.');
+    }
+}
+
+// Helper function to safely update stats
+function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = null) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
     
-    if (!response.ok) {
-        throw new Error('Player not found');
+    for (const key of possibleKeys) {
+        if (stats[key] && stats[key].value !== undefined) {
+            const value = stats[key].value;
+            element.textContent = transform ? transform(value) : value;
+            return;
+        }
     }
     
-    return await response.json();
+    element.textContent = fallback;
+}
+
+// Enhanced fetch functions with better error handling
+async function fetchPlayerData(nickname) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error Response:', errorText);
+            throw new Error(`Player not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw player data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch player data error:', error);
+        throw error;
+    }
 }
 
 async function fetchPlayerStats(playerId) {
-    const response = await fetch(`${API_BASE_URL}/stats?playerId=${playerId}`);
-    
-    if (!response.ok) {
-        throw new Error('Stats not found');
+    try {
+        const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Stats API Error Response:', errorText);
+            throw new Error(`Stats not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw stats data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch player stats error:', error);
+        throw error;
     }
-    
-    return await response.json();
 }
 
 async function fetchMatchHistory(playerId) {
-    const response = await fetch(`${API_BASE_URL}/matches?playerId=${playerId}`);
+    try {
+        const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Matches API Error Response:', errorText);
+            throw new Error(`Match history not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw match data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch match history error:', error);
+        throw error;
+    }
+}
+// Debug helper function to understand API response structure
+async function debugApiStructure(nickname) {
+    console.log('=== API DEBUG START ===');
+    console.log('Testing with nickname:', nickname);
     
-    if (!response.ok) {
-        throw new Error('Match history not found');
+    try {
+        // Test player endpoint
+        console.log('\n1. Testing player endpoint...');
+        const playerResponse = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+        console.log('Player response status:', playerResponse.status);
+        
+        if (playerResponse.ok) {
+            const playerData = await playerResponse.json();
+            console.log('Player data structure:');
+            console.log(JSON.stringify(playerData, null, 2));
+            
+            if (playerData.player_id) {
+                // Test stats endpoint
+                console.log('\n2. Testing stats endpoint...');
+                const statsResponse = await fetch(`${API_BASE_URL}/stats?playerId=${playerData.player_id}`);
+                console.log('Stats response status:', statsResponse.status);
+                
+                if (statsResponse.ok) {
+                    const statsData = await statsResponse.json();
+                    console.log('Stats data structure:');
+                    console.log(JSON.stringify(statsData, null, 2));
+                    
+                    // Analyze stats structure
+                    if (statsData.segments && statsData.segments[0] && statsData.segments[0].stats) {
+                        console.log('\n3. Available stat keys:');
+                        console.log(Object.keys(statsData.segments[0].stats));
+                    }
+                } else {
+                    const errorText = await statsResponse.text();
+                    console.log('Stats error response:', errorText);
+                }
+                
+                // Test matches endpoint
+                console.log('\n4. Testing matches endpoint...');
+                const matchesResponse = await fetch(`${API_BASE_URL}/matches?playerId=${playerData.player_id}`);
+                console.log('Matches response status:', matchesResponse.status);
+                
+                if (matchesResponse.ok) {
+                    const matchesData = await matchesResponse.json();
+                    console.log('Matches data structure (first item only):');
+                    if (matchesData.items && matchesData.items[0]) {
+                        console.log(JSON.stringify(matchesData.items[0], null, 2));
+                    } else {
+                        console.log(JSON.stringify(matchesData, null, 2));
+                    }
+                } else {
+                    const errorText = await matchesResponse.text();
+                    console.log('Matches error response:', errorText);
+                }
+            } else {
+                console.log('No player_id found in response');
+            }
+        } else {
+            const errorText = await playerResponse.text();
+            console.log('Player error response:', errorText);
+        }
+    } catch (error) {
+        console.error('Debug error:', error);
     }
     
-    return await response.json();
+    console.log('=== API DEBUG END ===');
+}
+
+// Call this function in the browser console to debug
+// Example: debugApiStructure('NiKo')
+
+// Alternative direct Faceit API test (if you want to try direct API calls)
+async function testDirectFaceitAPI(nickname) {
+    console.log('=== DIRECT FACEIT API TEST ===');
+    
+    // Note: You'll need to add your Faceit API key to your backend
+    // This is just to show what the structure should look like
+    
+    try {
+        // This won't work from frontend due to CORS, but shows the expected structure
+        const playerUrl = `https://open.faceit.com/data/v4/players?nickname=${nickname}`;
+        console.log('Expected player URL:', playerUrl);
+        
+        console.log('Expected player response structure:');
+        console.log(`{
+  "player_id": "uuid",
+  "nickname": "string",
+  "avatar": "url",
+  "country": "string",
+  "games": {
+    "csgo": {
+      "region": "string",
+      "game_player_id": "string",
+      "skill_level": 10,
+      "faceit_elo": 2000,
+      "game_player_name": "string"
+    }
+  }
+}`);
+        
+        console.log('Expected stats URL: https://open.faceit.com/data/v4/players/{player_id}/stats/csgo');
+        console.log('Expected stats response structure:');
+        console.log(`{
+  "player_id": "uuid",
+  "game_id": "csgo",
+  "lifetime": {
+    "Average Damage per Round": "82.45",
+    "Average Headshots %": "47.12",
+    "Average K/D Ratio": "1.23",
+    "Current Win Streak": "3",
+    "Faceit Elo": "1945",
+    "Faceit Level": "8",
+    "K/R Ratio": "0.67",
+    "Matches": "1234",
+    "Win Rate %": "65.2"
+  }
+}`);
+        
+    } catch (error) {
+        console.error('Direct API test error:', error);
+    }
+    
+    console.log('=== DIRECT FACEIT API TEST END ===');
+}
+// Placeholder function for performance chart update
+function updatePerformanceChart(matches, playerId) {
+    console.log('Updating performance chart with matches:', matches);
+    // TODO: Implement ELO tracking from match history
+    // This will depend on your API structure
 }
 
 // Update UI with real player data
