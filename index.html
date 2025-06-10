@@ -1855,11 +1855,14 @@ function showMatchDetails(matchId) {
     // For now, just log the action
 }
 
-// Function to fetch detailed match statistics
+// Fixed match handling functions with correct API calls and data structure
+
+// Function to fetch detailed match details
 async function fetchMatchDetails(matchId) {
     try {
         console.log('Fetching match details for:', matchId);
-        const response = await fetch(`${API_BASE_URL}/match?matchId=${encodeURIComponent(matchId)}`);
+        // Fixed endpoint to match your API structure
+        const response = await fetch(`${API_BASE_URL}/match-details?matchId=${encodeURIComponent(matchId)}`);
         
         if (!response.ok) {
             console.error('Match details API error:', response.status);
@@ -1876,9 +1879,10 @@ async function fetchMatchDetails(matchId) {
 }
 
 // Function to fetch match statistics for a specific player
-async function fetchMatchStats(matchId, playerId) {
+async function fetchMatchStats(matchId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/match/${encodeURIComponent(matchId)}/stats`);
+        // Fixed endpoint to match your API structure
+        const response = await fetch(`${API_BASE_URL}/match-stats?matchId=${encodeURIComponent(matchId)}`);
         
         if (!response.ok) {
             console.error('Match stats API error:', response.status);
@@ -1891,6 +1895,339 @@ async function fetchMatchStats(matchId, playerId) {
     } catch (error) {
         console.error('Error fetching match stats:', error);
         return null;
+    }
+}
+
+// Improved function to fetch detailed match data with proper Faceit API structure
+async function fetchDetailedMatchData(matchId, playerId) {
+    try {
+        console.log('Fetching detailed data for match:', matchId, 'player:', playerId);
+        
+        // Fetch match details and stats in parallel
+        const [matchDetails, matchStats] = await Promise.all([
+            fetchMatchDetails(matchId),
+            fetchMatchStats(matchId)
+        ]);
+        
+        let result = {
+            mapName: 'Unknown',
+            score: '- - -',
+            playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
+        };
+        
+        // Extract map name from match details
+        if (matchDetails) {
+            console.log('Match details structure:', matchDetails);
+            
+            // Try different possible locations for map name in Faceit API
+            if (matchDetails.voting && matchDetails.voting.map && matchDetails.voting.map.name) {
+                result.mapName = cleanMapName(matchDetails.voting.map.name);
+            } else if (matchDetails.voting && matchDetails.voting.voted_entity_types && matchDetails.voting.voted_entity_types.map) {
+                result.mapName = cleanMapName(matchDetails.voting.voted_entity_types.map);
+            } else if (matchDetails.voting && matchDetails.voting.voted_entity_types && matchDetails.voting.voted_entity_types.pick) {
+                result.mapName = cleanMapName(matchDetails.voting.voted_entity_types.pick);
+            } else {
+                // Fallback to a more generic name
+                result.mapName = 'CS2 Match';
+            }
+            
+            // Extract scores from match results
+            if (matchDetails.results && matchDetails.results.score) {
+                const teams = Object.keys(matchDetails.results.score);
+                if (teams.length >= 2) {
+                    const score1 = matchDetails.results.score[teams[0]] || 0;
+                    const score2 = matchDetails.results.score[teams[1]] || 0;
+                    result.score = `${score1}:${score2}`;
+                }
+            }
+        }
+        
+        // Extract player stats from match stats
+        if (matchStats && matchStats.rounds) {
+            console.log('Match stats structure:', matchStats);
+            
+            let playerMatchStats = null;
+            
+            // Look through teams to find player stats
+            for (const team of matchStats.rounds) {
+                if (team.teams) {
+                    // Handle nested teams structure
+                    for (const teamData of team.teams) {
+                        if (teamData.players) {
+                            playerMatchStats = teamData.players.find(p => p.player_id === playerId);
+                            if (playerMatchStats) break;
+                        }
+                    }
+                } else if (team.players) {
+                    // Handle direct players array
+                    playerMatchStats = team.players.find(p => p.player_id === playerId);
+                }
+                
+                if (playerMatchStats) break;
+            }
+            
+            // Extract stats if found
+            if (playerMatchStats && playerMatchStats.player_stats) {
+                const stats = playerMatchStats.player_stats;
+                console.log('Player stats found:', stats);
+                
+                result.playerStats = {
+                    kills: stats.Kills || stats.kills || '-',
+                    deaths: stats.Deaths || stats.deaths || '-',
+                    adr: stats.ADR ? Math.round(parseFloat(stats.ADR)) : (stats.adr ? Math.round(parseFloat(stats.adr)) : '-'),
+                    hsPercent: stats['Headshots %'] ? `${Math.round(parseFloat(stats['Headshots %']))}%` : 
+                              (stats.headshots_percentage ? `${Math.round(parseFloat(stats.headshots_percentage))}%` : '-')
+                };
+            } else {
+                console.warn('Player stats not found for player ID:', playerId);
+            }
+        }
+        
+        console.log('Final processed match result:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('Error fetching detailed match data:', error);
+        return null;
+    }
+}
+
+// Improved match card creation with better error handling
+async function createMatchCard(match, playerId) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card';
+    
+    try {
+        console.log('Processing match:', match);
+        
+        // Extract basic match info
+        const matchId = match.match_id || match.id;
+        const status = match.status || 'unknown';
+        
+        // Determine which team the player was on and match result
+        let playerTeam = null;
+        let result = { symbol: 'L', class: 'loss' };
+        
+        if (match.teams && match.teams.faction1 && match.teams.faction2) {
+            // Check if player is in faction1 or faction2
+            const inFaction1 = match.teams.faction1.players && 
+                              match.teams.faction1.players.some(player => player.player_id === playerId);
+            const inFaction2 = match.teams.faction2.players && 
+                              match.teams.faction2.players.some(player => player.player_id === playerId);
+            
+            if (inFaction1) {
+                playerTeam = 'faction1';
+            } else if (inFaction2) {
+                playerTeam = 'faction2';
+            }
+            
+            // Determine result based on match results and player team
+            if (status === 'finished' && match.results && match.results.winner && playerTeam) {
+                if (match.results.winner === playerTeam) {
+                    result = { symbol: 'W', class: 'win' };
+                } else {
+                    result = { symbol: 'L', class: 'loss' };
+                }
+            }
+        }
+        
+        // Handle other match statuses
+        if (status === 'ongoing') {
+            result = { symbol: '?', class: 'ongoing' };
+        } else if (status === 'cancelled' || status === 'aborted') {
+            result = { symbol: '-', class: 'cancelled' };
+        }
+        
+        // Format date
+        const dateDisplay = formatMatchDate(match);
+        
+        // Create initial card with loading state
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result ${result.class}">${result.symbol}</div>
+                <div class="match-map">Loading...</div>
+                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+            </div>
+            <div class="match-score">- - -</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-/-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+        
+        // Fetch detailed match data for finished matches
+        if (status === 'finished' && matchId) {
+            try {
+                const details = await fetchDetailedMatchData(matchId, playerId);
+                if (details) {
+                    updateMatchCardWithDetails(matchCard, details, result, dateDisplay);
+                } else {
+                    // Fallback to basic info if detailed fetch fails
+                    updateMatchCardBasic(matchCard, match, result, dateDisplay);
+                }
+            } catch (error) {
+                console.error('Error loading match details for', matchId, ':', error);
+                updateMatchCardBasic(matchCard, match, result, dateDisplay);
+            }
+        } else {
+            // For non-finished matches, use basic info
+            updateMatchCardBasic(matchCard, match, result, dateDisplay);
+        }
+        
+        // Add click handler for expanded details
+        if (matchId) {
+            matchCard.addEventListener('click', () => showMatchDetails(matchId));
+        }
+        
+    } catch (error) {
+        console.error('Error creating match card:', error, match);
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">Error Loading</div>
+            </div>
+            <div class="match-score">- - -</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-/-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+    }
+    
+    return matchCard;
+}
+
+// Function to update match card with detailed information
+function updateMatchCardWithDetails(matchCard, details, result, dateDisplay) {
+    matchCard.innerHTML = `
+        <div class="match-left">
+            <div class="match-result ${result.class}">${result.symbol}</div>
+            <div class="match-map">${details.mapName}</div>
+            ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+        </div>
+        <div class="match-score">${details.score}</div>
+        <div class="match-stats">
+            <div class="match-stat-value">${details.playerStats.kills}/${details.playerStats.deaths}</div>
+            <div class="match-stat-value">${details.playerStats.adr}</div>
+            <div class="match-stat-value">${details.playerStats.hsPercent}</div>
+        </div>
+    `;
+}
+
+// Function to update match card with basic information when detailed fetch fails
+function updateMatchCardBasic(matchCard, match, result, dateDisplay) {
+    let scoreDisplay = '- - -';
+    let mapName = 'CS2 Match';
+    
+    // Try to extract basic score info
+    if (match.results && match.results.score) {
+        const scores = Object.values(match.results.score);
+        if (scores.length >= 2) {
+            scoreDisplay = `${scores[0]}:${scores[1]}`;
+        }
+    }
+    
+    matchCard.innerHTML = `
+        <div class="match-left">
+            <div class="match-result ${result.class}">${result.symbol}</div>
+            <div class="match-map">${mapName}</div>
+            ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+        </div>
+        <div class="match-score">${scoreDisplay}</div>
+        <div class="match-stats">
+            <div class="match-stat-value">-/-</div>
+            <div class="match-stat-value">-</div>
+            <div class="match-stat-value">-</div>
+        </div>
+    `;
+}
+
+// Helper function to format match date (unchanged)
+function formatMatchDate(match) {
+    if (match.started_at || match.finished_at) {
+        const timestamp = match.started_at || match.finished_at;
+        const matchDate = new Date(timestamp * 1000);
+        return matchDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    return '';
+}
+
+// Function to clean up map names (unchanged)
+function cleanMapName(mapName) {
+    if (!mapName || mapName === 'Unknown') return 'Unknown';
+    
+    // Remove common prefixes and clean up
+    let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+    
+    // Capitalize first letter of each word
+    cleaned = cleaned.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+    
+    return cleaned;
+}
+
+// Update match history display (improved)
+async function updateMatchHistory(matches, playerId) {
+    const matchesList = document.querySelector('.matches-list');
+    
+    // Clear existing matches except headers
+    const existingMatches = matchesList.querySelectorAll('.match-card');
+    existingMatches.forEach(match => match.remove());
+    
+    console.log('Processing', matches.length, 'matches for player', playerId);
+    
+    // Process matches sequentially to avoid overwhelming the API
+    const visibleMatches = Math.min(10, matches.length);
+    
+    for (let i = 0; i < visibleMatches; i++) {
+        try {
+            const matchCard = await createMatchCard(matches[i], playerId);
+            matchesList.appendChild(matchCard);
+            
+            // Add small delay between requests to avoid rate limiting
+            if (i < visibleMatches - 1) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        } catch (error) {
+            console.error('Error creating match card for match', i, ':', error);
+        }
+    }
+    
+    // Add remaining matches as hidden (without detailed data)
+    for (let i = visibleMatches; i < matches.length; i++) {
+        try {
+            const matchCard = document.createElement('div');
+            matchCard.className = 'match-card hidden-matches';
+            matchCard.style.display = 'none';
+            
+            // Create basic match card without detailed API calls
+            const result = { symbol: 'L', class: 'loss' }; // Default
+            const dateDisplay = formatMatchDate(matches[i]);
+            
+            matchCard.innerHTML = `
+                <div class="match-left">
+                    <div class="match-result ${result.class}">${result.symbol}</div>
+                    <div class="match-map">CS2 Match</div>
+                    ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+                </div>
+                <div class="match-score">- - -</div>
+                <div class="match-stats">
+                    <div class="match-stat-value">-/-</div>
+                    <div class="match-stat-value">-</div>
+                    <div class="match-stat-value">-</div>
+                </div>
+            `;
+            
+            matchesList.appendChild(matchCard);
+        } catch (error) {
+            console.error('Error creating hidden match card for match', i, ':', error);
+        }
     }
 }
 
