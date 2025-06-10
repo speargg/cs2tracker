@@ -1722,71 +1722,93 @@ function formatMatchDate(match) {
     return '';
 }
 
-// Function to fetch detailed match data (map, scores, stats)
+// Enhanced frontend functions
 async function fetchDetailedMatchData(matchId, playerId) {
     try {
-        // Fetch match details and stats in parallel
-        const [matchDetails, matchStats] = await Promise.all([
-            fetchMatchDetails(matchId),
-            fetchMatchStats(matchId, playerId)
+        console.log('Fetching detailed data for match:', matchId);
+        
+        // Fetch both match details and stats in parallel
+        const [detailsResponse, statsResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/match-details?matchId=${encodeURIComponent(matchId)}`),
+            fetch(`${API_BASE_URL}/match-stats?matchId=${encodeURIComponent(matchId)}`)
         ]);
         
         let result = {
             mapName: 'Unknown',
             score: '- - -',
-            playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
+            playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kd: '-' },
+            duration: '-',
+            serverRegion: 'Unknown'
         };
         
-        // Extract map name from match details
-        if (matchDetails) {
-            // Map could be in different locations depending on API structure
-            if (matchDetails.voting && matchDetails.voting.map && matchDetails.voting.map.name) {
-                result.mapName = cleanMapName(matchDetails.voting.map.name);
-            } else if (matchDetails.map) {
-                result.mapName = cleanMapName(matchDetails.map);
-            } else if (matchDetails.maps && matchDetails.maps.length > 0) {
-                result.mapName = cleanMapName(matchDetails.maps[0]);
+        // Process match details
+        if (detailsResponse.ok) {
+            const matchDetails = await detailsResponse.json();
+            console.log('Match details received:', matchDetails);
+            
+            // Extract map name (FACEIT stores it in voting.map.name or voting.map.pick)
+            if (matchDetails.voting && matchDetails.voting.map) {
+                if (matchDetails.voting.map.name) {
+                    result.mapName = cleanMapName(matchDetails.voting.map.name);
+                } else if (matchDetails.voting.map.pick) {
+                    result.mapName = cleanMapName(matchDetails.voting.map.pick);
+                }
             }
             
-            // Extract proper round scores
-            if (matchDetails.rounds && matchDetails.rounds.length > 0) {
-                // Count rounds won by each team
-                const teamScores = { faction1: 0, faction2: 0 };
-                matchDetails.rounds.forEach(round => {
-                    if (round.winner) {
-                        teamScores[round.winner]++;
-                    }
-                });
-                result.score = `${teamScores.faction1}:${teamScores.faction2}`;
-            } else if (matchDetails.results && matchDetails.results.score) {
-                // Fallback to basic score
-                const scores = Object.values(matchDetails.results.score);
-                if (scores.length >= 2) {
-                    result.score = `${scores[0]}:${scores[1]}`;
-                }
+            // Extract server region
+            if (matchDetails.region) {
+                result.serverRegion = matchDetails.region.toUpperCase();
+            }
+            
+            // Calculate match duration
+            if (matchDetails.started_at && matchDetails.finished_at) {
+                const duration = matchDetails.finished_at - matchDetails.started_at;
+                result.duration = formatDuration(duration);
             }
         }
         
-        // Extract player stats
-        if (matchStats && matchStats.rounds) {
-            // Find player stats in the match stats
-            let playerMatchStats = null;
+        // Process match stats for scores and player performance
+        if (statsResponse.ok) {
+            const matchStats = await statsResponse.json();
+            console.log('Match stats received:', matchStats);
             
-            // Look through teams to find player stats
-            for (const team of matchStats.rounds) {
-                if (team.players) {
-                    playerMatchStats = team.players.find(p => p.player_id === playerId);
-                    if (playerMatchStats) break;
+            // Extract round scores from match stats
+            if (matchStats.rounds && matchStats.rounds.length >= 2) {
+                const team1Rounds = matchStats.rounds[0].team_stats ? 
+                    parseInt(matchStats.rounds[0].team_stats['Final Score']) : 0;
+                const team2Rounds = matchStats.rounds[1].team_stats ? 
+                    parseInt(matchStats.rounds[1].team_stats['Final Score']) : 0;
+                
+                result.score = `${team1Rounds}:${team2Rounds}`;
+            }
+            
+            // Find player stats
+            let playerMatchStats = null;
+            if (matchStats.rounds) {
+                for (const team of matchStats.rounds) {
+                    if (team.players) {
+                        playerMatchStats = team.players.find(p => p.player_id === playerId);
+                        if (playerMatchStats) break;
+                    }
                 }
             }
             
+            // Extract detailed player statistics
             if (playerMatchStats && playerMatchStats.player_stats) {
                 const stats = playerMatchStats.player_stats;
+                const kills = parseInt(stats.Kills || stats.kills || 0);
+                const deaths = parseInt(stats.Deaths || stats.deaths || 0);
+                const assists = parseInt(stats.Assists || stats.assists || 0);
+                
                 result.playerStats = {
-                    kills: stats.Kills || stats.kills || '-',
-                    deaths: stats.Deaths || stats.deaths || '-',
-                    adr: Math.round(parseFloat(stats.ADR || stats.adr || '0')) || '-',
-                    hsPercent: `${Math.round(parseFloat(stats['Headshots %'] || stats.headshots_percentage || '0'))}%` || '-'
+                    kills: kills,
+                    deaths: deaths,
+                    assists: assists,
+                    kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
+                    adr: Math.round(parseFloat(stats.ADR || stats.adr || 0)),
+                    hsPercent: Math.round(parseFloat(stats['Headshots %'] || stats.headshots_percentage || 0)),
+                    mvps: parseInt(stats.MVPs || stats.mvps || 0),
+                    score: parseInt(stats.Result || stats.score || 0)
                 };
             }
         }
@@ -1799,12 +1821,37 @@ async function fetchDetailedMatchData(matchId, playerId) {
     }
 }
 
-// Function to clean up map names
+// Improved map name cleaning
 function cleanMapName(mapName) {
     if (!mapName || mapName === 'Unknown') return 'Unknown';
     
-    // Remove common prefixes and clean up
-    let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+    // Handle common FACEIT map naming patterns
+    let cleaned = mapName;
+    
+    // Remove file extensions and prefixes
+    cleaned = cleaned.replace(/\.(bsp|vpk)$/, '');
+    cleaned = cleaned.replace(/^(de_|cs_|ar_|aim_|fy_|gg_)/, '');
+    cleaned = cleaned.replace(/_/g, ' ');
+    
+    // Handle special cases for popular maps
+    const mapAliases = {
+        'mirage': 'Mirage',
+        'inferno': 'Inferno',
+        'cache': 'Cache',
+        'overpass': 'Overpass',
+        'train': 'Train',
+        'nuke': 'Nuke',
+        'dust2': 'Dust2',
+        'cobblestone': 'Cobblestone',
+        'ancient': 'Ancient',
+        'vertigo': 'Vertigo',
+        'anubis': 'Anubis'
+    };
+    
+    const lowerCleaned = cleaned.toLowerCase();
+    if (mapAliases[lowerCleaned]) {
+        return mapAliases[lowerCleaned];
+    }
     
     // Capitalize first letter of each word
     cleaned = cleaned.split(' ').map(word => 
@@ -1814,84 +1861,126 @@ function cleanMapName(mapName) {
     return cleaned;
 }
 
-// Function to update match card with detailed information
-function updateMatchCardWithDetails(matchCard, details, result) {
+// Format duration helper
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Enhanced match card creation with better error handling
+async function createMatchCard(match, playerId) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card';
+    
+    try {
+        const matchId = match.match_id || match.id;
+        const status = match.status || 'unknown';
+        
+        // Determine player team and result
+        let playerTeam = null;
+        if (match.teams && match.teams.faction1 && match.teams.faction2) {
+            const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
+            if (inFaction1) {
+                playerTeam = 'faction1';
+            } else {
+                playerTeam = 'faction2';
+            }
+        }
+        
+        const result = determineMatchResult(match, playerTeam, status);
+        const dateDisplay = formatMatchDate(match);
+        
+        // Create initial loading state
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result ${result.class}">${result.symbol}</div>
+                <div class="match-map">Loading...</div>
+                <div class="match-date">${dateDisplay}</div>
+            </div>
+            <div class="match-center">
+                <div class="match-score">Loading...</div>
+                <div class="match-duration">-</div>
+            </div>
+            <div class="match-stats">
+                <div class="stat-group">
+                    <span class="stat-label">K/D/A</span>
+                    <span class="stat-value">-/-/-</span>
+                </div>
+                <div class="stat-group">
+                    <span class="stat-label">ADR</span>
+                    <span class="stat-value">-</span>
+                </div>
+                <div class="stat-group">
+                    <span class="stat-label">HS%</span>
+                    <span class="stat-value">-</span>
+                </div>
+            </div>
+        `;
+        
+        // Load detailed data asynchronously
+        if (status === 'finished') {
+            fetchDetailedMatchData(matchId, playerId).then(details => {
+                if (details) {
+                    updateMatchCardWithDetails(matchCard, details, result, dateDisplay);
+                }
+            }).catch(error => {
+                console.error('Error loading match details:', error);
+                updateMatchCardBasic(matchCard, match, result, dateDisplay);
+            });
+        } else {
+            updateMatchCardBasic(matchCard, match, result, dateDisplay);
+        }
+        
+        // Add click handler
+        matchCard.addEventListener('click', () => showMatchDetails(matchId));
+        
+    } catch (error) {
+        console.error('Error creating match card:', error);
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">Error loading match</div>
+            </div>
+            <div class="match-center">
+                <div class="match-score">- - -</div>
+            </div>
+            <div class="match-stats">
+                <div class="stat-value">Error</div>
+            </div>
+        `;
+    }
+    
+    return matchCard;
+}
+
+// Update match card with detailed information
+function updateMatchCardWithDetails(matchCard, details, result, dateDisplay) {
     matchCard.innerHTML = `
         <div class="match-left">
             <div class="match-result ${result.class}">${result.symbol}</div>
             <div class="match-map">${details.mapName}</div>
-            ${matchCard.querySelector('.match-date') ? `<div class="match-date">${matchCard.querySelector('.match-date').textContent}</div>` : ''}
+            <div class="match-date">${dateDisplay}</div>
         </div>
-        <div class="match-score">${details.score}</div>
+        <div class="match-center">
+            <div class="match-score">${details.score}</div>
+            <div class="match-duration">${details.duration}</div>
+        </div>
         <div class="match-stats">
-            <div class="match-stat-value">${details.playerStats.kills}/${details.playerStats.deaths}</div>
-            <div class="match-stat-value">${details.playerStats.adr}</div>
-            <div class="match-stat-value">${details.playerStats.hsPercent}</div>
+            <div class="stat-group">
+                <span class="stat-label">K/D/A</span>
+                <span class="stat-value">${details.playerStats.kills}/${details.playerStats.deaths}/${details.playerStats.assists || 0}</span>
+            </div>
+            <div class="stat-group">
+                <span class="stat-label">ADR</span>
+                <span class="stat-value">${details.playerStats.adr}</span>
+            </div>
+            <div class="stat-group">
+                <span class="stat-label">HS%</span>
+                <span class="stat-value">${details.playerStats.hsPercent}%</span>
+            </div>
         </div>
     `;
-}
-
-// Function to update match card with basic information when detailed fetch fails
-function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
-    let scoreDisplay = '- - -';
-    
-    if (match.results && match.results.score && playerTeam && enemyTeam) {
-        const playerScore = match.results.score[playerTeam] || 0;
-        const enemyScore = match.results.score[enemyTeam] || 0;
-        scoreDisplay = `${playerScore}:${enemyScore}`;
-    }
-    
-    const mapElement = matchCard.querySelector('.match-map');
-    const scoreElement = matchCard.querySelector('.match-score');
-    
-    if (mapElement) mapElement.textContent = '5v5 Matchmaking';
-    if (scoreElement) scoreElement.textContent = scoreDisplay;
-}
-
-// Function to show detailed match information (for click handler)
-function showMatchDetails(matchId) {
-    console.log('Showing detailed view for match:', matchId);
-    // This could open a modal or navigate to a detailed match page
-    // For now, just log the action
-}
-
-// Function to fetch detailed match statistics
-async function fetchMatchDetails(matchId) {
-    try {
-        console.log('Fetching match details for:', matchId);
-        const response = await fetch(`${API_BASE_URL}/match?matchId=${encodeURIComponent(matchId)}`);
-        
-        if (!response.ok) {
-            console.error('Match details API error:', response.status);
-            return null;
-        }
-        
-        const matchDetails = await response.json();
-        console.log('Match details:', matchDetails);
-        return matchDetails;
-    } catch (error) {
-        console.error('Error fetching match details:', error);
-        return null;
-    }
-}
-
-// Function to fetch match statistics for a specific player
-async function fetchMatchStats(matchId, playerId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/match/${encodeURIComponent(matchId)}/stats`);
-        
-        if (!response.ok) {
-            console.error('Match stats API error:', response.status);
-            return null;
-        }
-        
-        const matchStats = await response.json();
-        console.log('Match stats:', matchStats);
-        return matchStats;
-    } catch (error) {
-        console.error('Error fetching match stats:', error);
-        return null;
-    }
 }
 // Quick debug function to analyze just the match structure
 async function debugMatchStructure(nickname) {
