@@ -1389,7 +1389,7 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
             }
         }
 // Faceit API configuration
-const FACEIT_API_KEY = 'dfadd23a-d6e2-45d4-9921-b7ecb9096d81'; // Replace with your actual API key
+const API_BASE_URL = 'https://speargg.github.io/cs2tracker.vercel.app/api'; // or your GitHub Pages domain
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 
 // Search functionality
@@ -1426,11 +1426,7 @@ async function searchPlayer() {
 
 // Fetch player basic info
 async function fetchPlayerData(nickname) {
-    const response = await fetch(`${FACEIT_BASE_URL}/players?nickname=${nickname}`, {
-        headers: {
-            'Authorization': `Bearer ${FACEIT_API_KEY}`
-        }
-    });
+    const response = await fetch(`${API_BASE_URL}/player?nickname=${nickname}`);
     
     if (!response.ok) {
         throw new Error('Player not found');
@@ -1439,13 +1435,8 @@ async function fetchPlayerData(nickname) {
     return await response.json();
 }
 
-// Fetch player CS2 stats
 async function fetchPlayerStats(playerId) {
-    const response = await fetch(`${FACEIT_BASE_URL}/players/${playerId}/stats/cs2`, {
-        headers: {
-            'Authorization': `Bearer ${FACEIT_API_KEY}`
-        }
-    });
+    const response = await fetch(`${API_BASE_URL}/stats?playerId=${playerId}`);
     
     if (!response.ok) {
         throw new Error('Stats not found');
@@ -1454,13 +1445,8 @@ async function fetchPlayerStats(playerId) {
     return await response.json();
 }
 
-// Fetch match history
 async function fetchMatchHistory(playerId) {
-    const response = await fetch(`${FACEIT_BASE_URL}/players/${playerId}/history?game=cs2&offset=0&limit=20`, {
-        headers: {
-            'Authorization': `Bearer ${FACEIT_API_KEY}`
-        }
-    });
+    const response = await fetch(`${API_BASE_URL}/matches?playerId=${playerId}`);
     
     if (!response.ok) {
         throw new Error('Match history not found');
