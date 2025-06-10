@@ -25,7 +25,123 @@
     margin-bottom: 2rem;
     text-align: center;
 }
+/* Theme Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(26, 35, 50, 0.8);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
 
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    background: rgba(37, 99, 235, 0.3);
+}
+
+/* Black Theme - OLED Style */
+body.black-theme {
+    background: linear-gradient(135deg, #000000 0%, #0d0d0d 25%, #1a1a1a 50%, #0d0d0d 75%, #000000 100%);
+}
+
+body.black-theme .rating-card,
+body.black-theme .stats-container,
+body.black-theme .chart-container,
+body.black-theme .matches-header,
+body.black-theme .matches-list {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .stats-toggle {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .toggle-btn.active {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(40, 40, 40, 0.4);
+}
+
+body.black-theme .search-container {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .social-link {
+    background: rgba(8, 8, 8, 0.8);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .social-link:hover {
+    background: rgba(25, 25, 25, 0.8);
+    box-shadow: 0 5px 15px rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .match-card:hover {
+    background: rgba(15, 15, 15, 0.8);
+}
+
+body.black-theme .ranking-item {
+    background: rgba(15, 15, 15, 0.6);
+    border-left: 3px solid rgba(80, 80, 80, 0.7);
+}
+
+body.black-theme .stat-row {
+    border-bottom: 1px solid rgba(30, 30, 30, 0.5);
+}
+
+body.black-theme .stats-labels {
+    border-bottom: 1px solid rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .match-card {
+    border-bottom: 1px solid rgba(25, 25, 25, 0.4);
+}
+
+body.black-theme .expand-btn {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 1px solid rgba(40, 40, 40, 0.4);
+}
+
+body.black-theme .expand-btn:hover {
+    box-shadow: 0 10px 25px rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .theme-toggle {
+    background: rgba(8, 8, 8, 0.9);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .theme-toggle:hover {
+    background: rgba(25, 25, 25, 0.9);
+    box-shadow: 0 8px 20px rgba(40, 40, 40, 0.6);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
 .search-container {
     display: flex;
     max-width: 500px;
@@ -591,6 +707,46 @@
                 gap: 0.5rem;
             }
         }
+		/* Theme Toggle Button - Non-interfering */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    background: rgba(26, 35, 50, 0.8);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Reset all potentially interfering properties */
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    clear: none !important;
+    transform: none;
+}
+
+.theme-toggle:hover {
+    background: rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+/* Ensure body and container are not affected */
+body {
+    position: relative;
+}
+
+.container {
+    position: static;
+}
 		/* Mobile Responsive Design */
 @media (max-width: 768px) {
     .matches-header {
@@ -979,7 +1135,53 @@
     </div>
 
     <script>
-        
+        // Create and inject theme toggle button
+document.addEventListener('DOMContentLoaded', function() {
+    // Create button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'theme-toggle';
+    toggleBtn.onclick = toggleTheme;
+    toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
+    
+    // Add to body
+    document.body.appendChild(toggleBtn);
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = toggleBtn.querySelector('.theme-icon');
+    
+    if (savedTheme === 'black') {
+        document.body.classList.add('black-theme');
+        themeIcon.textContent = '☀️';
+    }
+});
+// Theme toggle functionality
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.querySelector('.theme-icon');
+    
+    body.classList.toggle('black-theme');
+    
+    // Change icon based on theme
+    if (body.classList.contains('black-theme')) {
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'black');
+    } else {
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'blue');
+    }
+}
+
+// Load saved theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = document.querySelector('.theme-icon');
+    
+    if (savedTheme === 'black') {
+        document.body.classList.add('black-theme');
+        themeIcon.textContent = '☀️';
+    }
+});
 // Performance Chart - Faceit ELO
 const ctx = document.getElementById('performanceChart').getContext('2d');
 
