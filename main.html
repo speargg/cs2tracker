@@ -1394,25 +1394,24 @@ const API_BASE_URL = 'https://cs2tracker.vercel.app/api';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 
 window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const nickname = params.get('nickname');
-    
-    console.log("Loaded page with nickname:", nickname);
+  const params = new URLSearchParams(window.location.search);
+  const nickname = params.get('nickname');
+  const input = document.querySelector('.search-input');
 
-    // próbujemy znaleźć input
-    const input = document.querySelector('.search-input');
-    if (input) {
-        input.value = nickname;
-        console.log("Set input value to:", input.value);
-    } else {
-        console.error("⚠️ .search-input not found in DOM");
-    }
+  console.log("Nickname in URL:", nickname);
+  console.log("Input found?", !!input);
 
-    if (typeof searchPlayer === 'function') {
-        searchPlayer();
-    } else {
-        console.error("⚠️ searchPlayer() is not defined");
-    }
+  if (nickname && input) {
+    input.value = nickname;
+
+    // Add a small delay to let DOM update input value before running search
+    setTimeout(() => {
+      console.log("Input value before searchPlayer:", input.value);
+      searchPlayer();
+    }, 200);
+  } else {
+    console.warn("Nickname missing or input field not found");
+  }
 });
 
 
