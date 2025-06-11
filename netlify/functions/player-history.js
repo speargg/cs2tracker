@@ -1,4 +1,4 @@
-// player-history.js - New Netlify function
+// player-stats.js - Netlify function for player statistics
 exports.handler = async function(event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -8,7 +8,6 @@ exports.handler = async function(event, context) {
 
   try {
     const playerId = event.queryStringParameters.playerId;
-    const limit = event.queryStringParameters.limit || 20;
     const FACEIT_API_KEY = process.env.FACEIT_API_KEY;
 
     if (!playerId || !FACEIT_API_KEY) {
@@ -19,8 +18,7 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // Try the player match history endpoint
-    const response = await fetch(`https://open.faceit.com/data/v4/players/${playerId}/history?game=csgo&limit=${limit}`, {
+    const response = await fetch(`https://open.faceit.com/data/v4/players/${playerId}`, {
       headers: {
         Authorization: `Bearer ${FACEIT_API_KEY}`
       }
@@ -30,20 +28,20 @@ exports.handler = async function(event, context) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const historyData = await response.json();
+    const playerData = await response.json();
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(historyData)
+      body: JSON.stringify(playerData)
     };
 
   } catch (error) {
-    console.error('Player history API Error:', error);
+    console.error('Player stats API Error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to fetch player history' })
+      body: JSON.stringify({ error: 'Failed to fetch player stats' })
     };
   }
 };
