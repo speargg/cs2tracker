@@ -1453,50 +1453,39 @@ async function searchPlayer() {
         return;
     }
 
-    // 👇 Pokaż loader, ukryj kontent
     const loader = document.getElementById('loader');
     const content = document.getElementById('content');
     if (loader && content) {
-        loader.style.display = 'none';
-        content.style.display = 'block';
-        document.body.classList.remove('loading');
+        loader.style.display = 'flex'; // 🔄 Pokaż loader
+        content.style.display = 'none'; // ❌ Ukryj treść
+        document.body.classList.add('loading');
     }
 
-    // Get search button and store original content outside try block
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
 
     try {
-        // Show loading state on button
-        searchBtn.innerHTML = '<div style="width: 16px; height: 16px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>';
+        searchBtn.innerHTML = '<div style="...spinner style..."></div>';
 
-        // Fetch player data
         const playerData = await fetchPlayerData(nickname);
-        console.log('Player data:', playerData);
-
         const playerStats = await fetchPlayerStats(playerData.player_id);
-        console.log('Player stats:', playerStats);
-
         const matchHistory = await fetchMatchHistory(playerData.player_id);
-        console.log('Match history:', matchHistory);
 
-        // Update UI with real data
         updatePlayerProfile(playerData, playerStats, matchHistory);
 
     } catch (error) {
-        console.error('Error fetching player data:', error);
+        console.error(error);
         alert('Player not found or API error. Please try again.');
     } finally {
-        // Restore original button content
         searchBtn.innerHTML = originalContent;
-
-        // ✅ Ukryj loader, pokaż kontent
         if (loader && content) {
-            loader.style.display = 'none';
-            content.style.display = 'block';
+            loader.style.display = 'none'; // ✅ Ukryj loader
+            content.style.display = 'block'; // ✅ Pokaż treść
+            document.body.classList.remove('loading');
         }
     }
 }
+
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
