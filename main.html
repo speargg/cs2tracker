@@ -1951,6 +1951,10 @@ async function fetchDetailedMatchData(matchId, playerId) {
           adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
           hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
             ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
+            : '-',
+          // Dodajemy K/D ratio
+          kdRatio: (stats.Kills || stats.kills) && (stats.Deaths || stats.deaths)
+            ? ((stats.Kills || stats.kills) / (stats.Deaths || stats.deaths)).toFixed(2)
             : '-'
         };
         
@@ -1991,7 +1995,7 @@ function updateMatchCardWithDetails(matchCard, details, result) {
         </div>
         <div class="match-score">${details.score}</div>
         <div class="match-stats">
-            <div class="match-stat-value">${details.playerStats.kills}/${details.playerStats.deaths}</div>
+            <div class="match-stat-value">${details.playerStats.kdRatio}</div>
             <div class="match-stat-value">${details.playerStats.adr}</div>
             <div class="match-stat-value">${details.playerStats.hsPercent}</div>
         </div>
