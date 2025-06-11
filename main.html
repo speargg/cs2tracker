@@ -1640,7 +1640,6 @@ async function updateMatchHistory(matches, playerId) {
         matchesList.appendChild(matchCard);
     }
 }
-
 // Create match card element with improved error handling and correct Faceit API structure
 async function createMatchCard(match, playerId) {
     const matchCard = document.createElement('div');
@@ -1679,13 +1678,13 @@ async function createMatchCard(match, playerId) {
         
         // Create initial card with loading state
         const result = determineMatchResult(match, playerTeam, status);
-        const dateDisplay = formatMatchDate(match);
+        const eloDisplay = createEloDisplay(match);
         
         matchCard.innerHTML = `
             <div class="match-left">
                 <div class="match-result ${result.class}">${result.symbol}</div>
                 <div class="match-map">${mapName}</div>
-                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+                ${eloDisplay ? `<div class="${eloDisplay.class}">${eloDisplay.formatted}</div>` : ''}
             </div>
             <div class="match-score">${scoreDisplay}</div>
             <div class="match-stats">
