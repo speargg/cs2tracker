@@ -1259,17 +1259,6 @@ function toggleTheme() {
         localStorage.setItem('theme', 'blue');
     }
 }
-
-// Load saved theme on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const savedTheme = localStorage.getItem('theme');
-    const themeIcon = document.querySelector('.theme-icon');
-    
-    if (savedTheme === 'black') {
-        document.body.classList.add('black-theme');
-        themeIcon.textContent = '☀️';
-    }
-});
 // Performance Chart - Faceit ELO
 const ctx = document.getElementById('performanceChart').getContext('2d');
 
