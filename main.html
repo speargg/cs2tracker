@@ -1583,56 +1583,56 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         // Update header info
         if (playerData && playerData.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
-            const avatarContainer = document.querySelector('.avatar');
-if (avatarContainer) {
-    avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
-}
 
-        
+            const avatarContainer = document.querySelector('.avatar');
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
+            }
+        }
+
         // Handle player level and ELO from player data (CS2 specific)
         if (playerData && playerData.games && playerData.games.cs2) {
             const cs2Data = playerData.games.cs2;
-            
-            // Update Faceit rating card using player data
+
             const eloElement = document.querySelector('.faceit-rating');
             const levelElement = document.querySelector('.rating-elo');
-            
+
             if (cs2Data.faceit_elo) {
                 eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
             } else {
                 eloElement.textContent = 'N/A';
             }
-	// 🔄 Fetch estimated ranking based on ELO from your Vercel API
-fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
-  .then(res => res.json())
-  .then(ranking => {
-      const world = document.getElementById('faceit-world-ranking');
-      const europe = document.getElementById('faceit-europe-ranking');
 
-      if (world) {
-          world.textContent = ranking?.world ? `#${ranking.world.toLocaleString()}` : 'Not Ranked';
-      }
-      if (europe) {
-          europe.textContent = ranking?.europe ? `#${ranking.europe.toLocaleString()}` : 'Not Ranked';
-      }
-  })
-  .catch(err => {
-      console.error('Failed to fetch estimated ranking:', err);
-  });
+            // 🔄 Fetch estimated ranking based on ELO from your Netlify/Vercel API
+            fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
+                .then(res => res.json())
+                .then(ranking => {
+                    const world = document.getElementById('faceit-world-ranking');
+                    const europe = document.getElementById('faceit-europe-ranking');
 
-            
+                    if (world) {
+                        world.textContent = ranking?.world ? `#${ranking.world.toLocaleString()}` : 'Not Ranked';
+                    }
+                    if (europe) {
+                        europe.textContent = ranking?.europe ? `#${ranking.europe.toLocaleString()}` : 'Not Ranked';
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to fetch estimated ranking:', err);
+                });
+
             if (cs2Data.skill_level) {
                 levelElement.textContent = `Level ${cs2Data.skill_level}`;
             } else {
                 levelElement.textContent = 'Level N/A';
             }
         }
+
         // Handle stats from lifetime stats API response
         if (playerStats && playerStats.lifetime) {
             const lifetimeStats = playerStats.lifetime;
             console.log('Lifetime stats structure:', lifetimeStats);
-            
-            // Update stats with safe access using the correct Faceit API response structure
+
             updateStatSafely('faceit-matches', lifetimeStats, ['Matches'], 'N/A');
             updateStatSafely('faceit-winrate', lifetimeStats, ['Win Rate %'], 'N/A', (val) => `${Math.round(parseFloat(val))}%`);
             updateStatSafely('faceit-kd', lifetimeStats, ['Average K/D Ratio'], 'N/A', (val) => parseFloat(val).toFixed(2));
@@ -1640,29 +1640,27 @@ fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
             updateStatSafely('faceit-hs', lifetimeStats, ['Average Headshots %'], 'N/A', (val) => `${Math.round(parseFloat(val))}%`);
         } else {
             console.warn('PlayerStats structure not as expected:', playerStats);
-            // Set all Faceit stats to N/A
             document.getElementById('faceit-matches').textContent = 'N/A';
             document.getElementById('faceit-winrate').textContent = 'N/A';
             document.getElementById('faceit-kd').textContent = 'N/A';
             document.getElementById('faceit-adr').textContent = 'N/A';
             document.getElementById('faceit-hs').textContent = 'N/A';
         }
-        
-        // Update social links
+
+        // Update Faceit profile link
         if (playerData && playerData.nickname) {
             const faceitLink = document.querySelector('.social-link:nth-child(2)');
             if (faceitLink) {
                 faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
             }
         }
-        
-        // Update match history with player ID for win/loss determination
+
+        // Match history + chart
         if (matchHistory && matchHistory.items) {
             updateMatchHistory(matchHistory.items, playerData.player_id);
-            // Update performance chart with ELO history
             updatePerformanceChart(matchHistory.items, playerData.player_id);
         }
-        
+
     } catch (error) {
         console.error('Error updating player profile:', error);
         alert('Error displaying player data. Please try again.');
