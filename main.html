@@ -1495,12 +1495,20 @@ async function searchPlayer() {
     } catch (error) {
         console.error(error);
         alert('Player not found or API error. Please try again.');
-    } finally {
-        // Przywrócenie treści przycisku
-        searchBtn.innerHTML = originalContent;
+} finally {
+    // Przywrócenie treści przycisku
+    searchBtn.innerHTML = originalContent;
+
+    // ⛑️ Ukryj loader i pokaż zawartość
+    const loader = document.getElementById('loader');
+    const content = document.getElementById('content');
+
+    if (loader && content) {
+        loader.style.display = 'none';
+        content.style.display = 'block';
+        document.body.classList.remove('loading');
     }
 }
-
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
