@@ -1192,21 +1192,32 @@ body.loading {
     <script>
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
-    document.body.classList.add('loading'); // ⬅️ TO DODAJ TUTAJ
+    // 🧠 Czy mamy pokazać loader?
+    const shouldShowLoader = localStorage.getItem('showLoader') === 'true';
 
-    // Create button
+    const loader = document.getElementById('loader');
+    const content = document.getElementById('content');
+
+    if (shouldShowLoader && loader && content) {
+        loader.style.display = 'flex';
+        content.style.display = 'none';
+        document.body.classList.add('loading');
+    }
+
+    // 🧹 Usuwamy flagę, żeby nie działała przy kolejnym odświeżeniu
+    localStorage.removeItem('showLoader');
+
+    // 🌗 Utwórz przycisk do zmiany motywu
     const toggleBtn = document.createElement('button');
     toggleBtn.className = 'theme-toggle';
     toggleBtn.onclick = toggleTheme;
     toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
-    
-    // Add to body
     document.body.appendChild(toggleBtn);
-    
-    // Load saved theme
+
+    // 🎨 Ustaw zapamiętany motyw
     const savedTheme = localStorage.getItem('theme');
     const themeIcon = toggleBtn.querySelector('.theme-icon');
-    
+
     if (savedTheme === 'black') {
         document.body.classList.add('black-theme');
         themeIcon.textContent = '☀️';
