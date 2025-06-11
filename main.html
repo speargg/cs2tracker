@@ -930,7 +930,7 @@ body.loading {
     </div>
     <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
 </div>
-            <div class="avatar">NK</div>
+            <img id="player-avatar" class="avatar-img" src="img/default-avatar.jpg" alt="Avatar" />
             <h1 class="nickname">NiKo_CS</h1>
             <div class="social-links">
     <a href="#" class="social-link">
@@ -1577,8 +1577,10 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         // Update header info
         if (playerData && playerData.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
-            document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
-        }
+            const avatarEl = document.getElementById('player-avatar');
+if (avatarEl) {
+    avatarEl.src = playerData.avatar || 'img/default-avatar.jpg';
+}
         
         // Handle player level and ELO from player data (CS2 specific)
         if (playerData && playerData.games && playerData.games.cs2) {
