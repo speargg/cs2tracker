@@ -1537,7 +1537,7 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 eloElement.textContent = 'N/A';
             }
 	// 🔄 Fetch estimated ranking based on ELO from your Vercel API
-fetch(`https://cs2tracker.vercel.app/api/rankings?elo=${cs2Data.faceit_elo}`)
+fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
   .then(res => res.json())
   .then(ranking => {
       const world = document.getElementById('faceit-world-ranking');
