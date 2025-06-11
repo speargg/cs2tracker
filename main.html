@@ -1622,23 +1622,30 @@ function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = 
 // Update match history display with player ID for win/loss determination
 async function updateMatchHistory(matches, playerId) {
     const matchesList = document.querySelector('.matches-list');
-    // Clear existing matches except headers
+
+    // Wyczyść istniejące karty meczów
     const existingMatches = matchesList.querySelectorAll('.match-card');
     existingMatches.forEach(match => match.remove());
-    
-    // Process matches with async/await
-    for (let i = 0; i < Math.min(10, matches.length); i++) {
-        const matchCard = await createMatchCard(matches[i], playerId);
-        matchesList.appendChild(matchCard);
-    }
-    
-    // Add remaining matches as hidden
-    for (let i = 10; i < matches.length; i++) {
-        const matchCard = await createMatchCard(matches[i], playerId);
-        matchCard.classList.add('hidden-matches');
-        matchCard.style.display = 'none';
-        matchesList.appendChild(matchCard);
-    }
+
+    // Podziel dane na widoczne i ukryte
+    const visibleMatches = matches.slice(0, 5);
+    const hiddenMatches = matches.slice(5, 10); // Maksymalnie 10 razem
+
+    // Utwórz widoczne karty równolegle
+    const visibleMatchCards = await Promise.all(
+        visibleMatches.map(m => createMatchCard(m, playerId))
+    );
+    visibleMatchCards.forEach(card => matchesList.appendChild(card));
+
+    // Utwórz ukryte karty równolegle
+    const hiddenMatchCards = await Promise.all(
+        hiddenMatches.map(m => createMatchCard(m, playerId))
+    );
+    hiddenMatchCards.forEach(card => {
+        card.classList.add('hidden-matches');
+        card.style.display = 'none';
+        matchesList.appendChild(card);
+    });
 }
 
 // Create match card element with improved error handling and correct Faceit API structure
