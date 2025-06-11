@@ -2006,6 +2006,41 @@ function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
     if (scoreElement) scoreElement.textContent = scoreDisplay;
 }
 
+// Tymczasowa funkcja debug - dodaj ją do swojego kodu
+async function debugMatchDetailsAPI(matchId) {
+    try {
+        console.log('🔍 Debugging match-details API for:', matchId);
+        
+        const response = await fetch(`/.netlify/functions/match-details?matchId=${matchId}`);
+        const matchDetails = await response.json();
+        
+        console.log('🚀 RAW match-details response:');
+        console.log(JSON.stringify(matchDetails, null, 2));
+        
+        console.log('\n📋 Available top-level keys:');
+        console.log(Object.keys(matchDetails));
+        
+        // Sprawdź głębiej każde pole które może zawierać mapę
+        const fieldsToCheck = ['voting', 'map', 'maps', 'game', 'competition', 'rounds'];
+        
+        fieldsToCheck.forEach(field => {
+            if (matchDetails[field]) {
+                console.log(`\n🔎 ${field}:`, matchDetails[field]);
+                if (typeof matchDetails[field] === 'object' && matchDetails[field] !== null) {
+                    console.log(`   ${field} keys:`, Object.keys(matchDetails[field]));
+                }
+            }
+        });
+        
+        return matchDetails;
+    } catch (error) {
+        console.error('❌ Debug error:', error);
+        return null;
+    }
+}
+
+// Użyj tej funkcji w konsoli z prawdziwym matchId:
+// debugMatchDetailsAPI('1-some-real-match-id-here');
 // Function to fetch detailed match statistics
 async function fetchMatchDetails(matchId) {
     try {
