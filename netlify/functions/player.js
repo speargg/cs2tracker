@@ -8,13 +8,13 @@ exports.handler = async function(event, context) {
   try {
     const nickname = event.queryStringParameters.nickname;
 
-    const res = await fetch(`https://open.faceit.com/data/v4/players?nickname=${nickname}`, {
+    const response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${nickname}`, {
       headers: {
         Authorization: `Bearer ${process.env.FACEIT_API_KEY}`
       }
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
     return {
       statusCode: 200,
