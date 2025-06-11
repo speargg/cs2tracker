@@ -1695,7 +1695,21 @@ async function createMatchCard(match, playerId) {
                 }
             });
         }
-        
+        async function getPlayerEloFromStats(playerId) {
+  try {
+    const response = await fetch(`/.netlify/functions/player-stats?playerId=${playerId}`);
+    const playerData = await response.json();
+    
+    // Get current ELO/level
+    const currentElo = playerData.games?.csgo?.faceit_elo || playerData.games?.csgo?.skill_level || null;
+    
+    console.log('Current player ELO:', currentElo);
+    return currentElo;
+  } catch (error) {
+    console.error('Error fetching player stats:', error);
+    return null;
+  }
+}
         // Create initial card
         const result = determineMatchResult(match, playerTeam, status);
         const eloDisplay = initialEloChange !== null ? {
