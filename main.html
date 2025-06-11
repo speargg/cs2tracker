@@ -1945,20 +1945,6 @@ async function fetchDetailedMatchData(matchId, playerId) {
           'AvgDamagePerRound': stats['AvgDamagePerRound']
         });
         
-        // Sprawdź czy są dane o ELO
-        console.log('🏆 ELO candidates:', {
-          'Elo': stats['Elo'],
-          'ELO': stats['ELO'],
-          'elo': stats['elo'],
-          'Rating Change': stats['Rating Change'],
-          'Faceit Elo': stats['Faceit Elo'],
-          'elo_change': stats['elo_change']
-        });
-        
-        const eloChange = stats['Elo'] || stats['ELO'] || stats['elo'] || 
-                         stats['Rating Change'] || stats['Faceit Elo'] || 
-                         stats['elo_change'];
-        
         result.playerStats = {
           kills: stats.Kills || stats.kills || '-',
           deaths: stats.Deaths || stats.deaths || '-',
@@ -1969,9 +1955,7 @@ async function fetchDetailedMatchData(matchId, playerId) {
           // Dodajemy K/D ratio
           kdRatio: (stats.Kills || stats.kills) && (stats.Deaths || stats.deaths)
             ? ((stats.Kills || stats.kills) / (stats.Deaths || stats.deaths)).toFixed(2)
-            : '-',
-          // Dodajemy ELO change
-          eloChange: eloChange || null
+            : '-'
         };
         
         console.log('✅ Final player stats:', result.playerStats);
@@ -1986,32 +1970,28 @@ async function fetchDetailedMatchData(matchId, playerId) {
     return null;
   }
 }
+// Function to clean up map names
+function cleanMapName(mapName) {
+    if (!mapName || mapName === 'Unknown') return 'Unknown';
+    
+    // Remove common prefixes and clean up
+    let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+    
+    // Capitalize first letter of each word
+    cleaned = cleaned.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+    
+    return cleaned;
+}
 
 // Function to update match card with detailed information
 function updateMatchCardWithDetails(matchCard, details, result) {
-    // Funkcja pomocnicza do formatowania ELO
-    function formatEloChange(eloChange) {
-        if (!eloChange || eloChange === '-' || eloChange === null) {
-            return '<div class="elo-change">N/A</div>';
-        }
-        
-        const elo = parseFloat(eloChange);
-        const sign = elo > 0 ? '+' : '';
-        const eloClass = elo > 0 ? 'elo-positive' : 'elo-negative';
-        
-        return `<div class="elo-change ${eloClass}">${sign}${elo}</div>`;
-    }
-    
-    // Sprawdź czy mamy dane o ELO
-    const eloDisplay = details.playerStats?.eloChange 
-        ? formatEloChange(details.playerStats.eloChange)
-        : `<div class="match-date">${matchCard.querySelector('.match-date')?.textContent || ''}</div>`;
-    
     matchCard.innerHTML = `
         <div class="match-left">
             <div class="match-result ${result.class}">${result.symbol}</div>
             <div class="match-map">${details.mapName}</div>
-            ${eloDisplay}
+            ${matchCard.querySelector('.match-date') ? `<div class="match-date">${matchCard.querySelector('.match-date').textContent}</div>` : ''}
         </div>
         <div class="match-score">${details.score}</div>
         <div class="match-stats">
