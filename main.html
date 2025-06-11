@@ -1965,7 +1965,6 @@ function updateMatchCardWithDetails(matchCard, details, result) {
 }
 
 // Function to update match card with basic information when detailed fetch fails
-// Function to update match card with basic information when detailed fetch fails
 function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
     let scoreDisplay = '- - -';
     
@@ -2000,7 +1999,10 @@ function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
     const mapElement = matchCard.querySelector('.match-map');
     const scoreElement = matchCard.querySelector('.match-score');
     
-    if (mapElement) mapElement.textContent = mapName;
+    // Nie nadpisuj mapy jeśli już została ustawiona przez fetchDetailedMatchData
+    if (mapElement && mapElement.textContent === 'Unknown') {
+        mapElement.textContent = mapName;
+    }
     if (scoreElement) scoreElement.textContent = scoreDisplay;
 }
 
