@@ -1766,15 +1766,14 @@ function formatMatchDate(match) {
 async function fetchDetailedMatchData(matchId, playerId) {
   try {
     console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
-
     const [matchDetails, matchStats] = await Promise.all([
       fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
       fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
     ]);
-
+    
     console.log('📦 matchDetails:', matchDetails);
     console.log('📊 matchStats:', matchStats);
-
+    
     const result = {
       mapName: 'Unknown',
       score: '- - -',
@@ -1790,45 +1789,77 @@ async function fetchDetailedMatchData(matchId, playerId) {
       result.mapName = cleanMapName(matchDetails.voting.map.name);
     }
 
-    // === Score ===
+    // === Score - poprawiona logika ===
     try {
       let score1 = null;
       let score2 = null;
 
-      // 1. Factions (standard)
-      if (
-        matchDetails?.factions?.faction1?.score != null &&
-        matchDetails?.factions?.faction2?.score != null
-      ) {
-        score1 = matchDetails.factions.faction1.score;
-        score2 = matchDetails.factions.faction2.score;
+      // Najpierw spróbuj wyciągnąć wynik z matchStats (szczegółowe statystyki)
+      if (matchStats?.rounds?.[0]?.teams) {
+        const teams = matchStats.rounds[0].teams;
+        console.log('🏆 Teams data from matchStats:', teams);
+        
+        if (teams.length >= 2) {
+          // Sprawdź czy teams mają pole z wynikiem rundowym
+          if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
+            score1 = parseInt(teams[0].team_stats['Final Score']);
+            score2 = parseInt(teams[1].team_stats['Final Score']);
+            console.log('✅ Score from team_stats Final Score:', score1, ':', score2);
+          }
+          // Alternatywnie sprawdź inne możliwe pola
+          else if (teams[0].team_stats?.Score && teams[1].team_stats?.Score) {
+            score1 = parseInt(teams[0].team_stats.Score);
+            score2 = parseInt(teams[1].team_stats.Score);
+            console.log('✅ Score from team_stats Score:', score1, ':', score2);
+          }
+          // Sprawdź czy są pola rounds won/lost
+          else if (teams[0].team_stats?.['Rounds Won'] && teams[1].team_stats?.['Rounds Won']) {
+            score1 = parseInt(teams[0].team_stats['Rounds Won']);
+            score2 = parseInt(teams[1].team_stats['Rounds Won']);
+            console.log('✅ Score from Rounds Won:', score1, ':', score2);
+          }
+        }
       }
 
-      // 2. detailed_results fallback
-      else if (
-        matchDetails?.detailed_results?.[0]?.factions?.faction1?.score != null &&
-        matchDetails?.detailed_results?.[0]?.factions?.faction2?.score != null
-      ) {
-        score1 = matchDetails.detailed_results[0].factions.faction1.score;
-        score2 = matchDetails.detailed_results[0].factions.faction2.score;
+      // Jeśli nie udało się z matchStats, spróbuj z matchDetails (ale tylko jako fallback)
+      if (score1 === null || score2 === null) {
+        console.log('⚠️ Trying fallback methods for score...');
+        
+        // 1. Sprawdź czy w matchDetails są szczegółowe wyniki rundowe
+        if (matchDetails?.rounds && Array.isArray(matchDetails.rounds)) {
+          console.log('📊 Counting rounds from matchDetails.rounds:', matchDetails.rounds.length);
+          score1 = 0;
+          score2 = 0;
+          
+          matchDetails.rounds.forEach((round, index) => {
+            console.log(`Round ${index + 1}:`, round.winner);
+            if (round?.winner === 'faction1') score1++;
+            else if (round?.winner === 'faction2') score2++;
+          });
+          
+          if (score1 > 0 || score2 > 0) {
+            console.log('✅ Score from round counting:', score1, ':', score2);
+          }
+        }
+        
+        // 2. Jako ostatnia opcja - sprawdź factions (ale to prawdopodobnie da 1:0)
+        else if (
+          matchDetails?.factions?.faction1?.score != null &&
+          matchDetails?.factions?.faction2?.score != null
+        ) {
+          score1 = matchDetails.factions.faction1.score;
+          score2 = matchDetails.factions.faction2.score;
+          console.log('⚠️ Using factions score (might be 1:0):', score1, ':', score2);
+        }
       }
 
-      // 3. Rounds fallback
-      else if (Array.isArray(matchDetails?.rounds)) {
-        score1 = 0;
-        score2 = 0;
-        matchDetails.rounds.forEach(round => {
-          if (round?.winner === 'faction1') score1++;
-          else if (round?.winner === 'faction2') score2++;
-        });
-      }
-
-      if (score1 != null && score2 != null) {
+      if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
         result.score = `${score1}:${score2}`;
+        console.log('🏆 Final score set to:', result.score);
       } else {
-        console.warn('⚠️ Could not determine score from any method');
+        console.warn('⚠️ Could not determine valid round score, scores were:', score1, ':', score2);
+        result.score = 'N/A';
       }
-
     } catch (err) {
       console.warn('❌ Error determining score:', err);
     }
@@ -1849,6 +1880,7 @@ async function fetchDetailedMatchData(matchId, playerId) {
       if (playerMatchStats?.player_stats) {
         const stats = playerMatchStats.player_stats;
         console.log('🎯 Player match stats:', stats);
+        
         result.playerStats = {
           kills: stats.Kills || stats.kills || '-',
           deaths: stats.Deaths || stats.deaths || '-',
@@ -1862,6 +1894,7 @@ async function fetchDetailedMatchData(matchId, playerId) {
       }
     }
 
+    console.log('🎉 Final result:', result);
     return result;
 
   } catch (error) {
