@@ -2062,6 +2062,16 @@ function updateMatchCardWithDetails(matchCard, details, result) {
         </div>
     `;
 }
+  // Helper function to create ELO display for initial card creation
+function createEloDisplay(match) {
+    const eloChange = match.elo_change;
+    if (eloChange !== undefined && eloChange !== null && !isNaN(eloChange)) {
+        const eloChangeFormatted = formatEloChange(eloChange);
+        const eloChangeClass = getEloChangeClass(eloChange);
+        return { formatted: eloChangeFormatted, class: eloChangeClass };
+    }
+    return null;
+}
 
 // Function to update match card with basic information when detailed fetch fails
 function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
