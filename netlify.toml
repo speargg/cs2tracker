@@ -1,0 +1,5 @@
+# netlify.toml
+[[redirects]]
+  from = "/:nickname"
+  to = "/main.html?nickname=:nickname"
+  status = 200
