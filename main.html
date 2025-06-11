@@ -1786,54 +1786,80 @@ async function fetchDetailedMatchData(matchId, playerId) {
       result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
     } else if (matchDetails?.map) {
       result.mapName = cleanMapName(matchDetails.map);
+    } else if (matchDetails?.voting?.map?.name) {
+      result.mapName = cleanMapName(matchDetails.voting.map.name);
     }
 
-    // === Score and player stats ===
+    // === Score ===
     try {
-  const faction1Score = matchDetails?.factions?.faction1?.score;
-  const faction2Score = matchDetails?.factions?.faction2?.score;
+      let score1 = null;
+      let score2 = null;
 
-  if (typeof faction1Score === 'number' && typeof faction2Score === 'number') {
-    result.score = `${faction1Score}:${faction2Score}`;
-  } else {
-    console.warn('⚠️ Score not available in factions');
-  }
-} catch (err) {
-  console.warn('❌ Error reading score from factions:', err);
-}
+      // 1. Factions (standard)
+      if (
+        matchDetails?.factions?.faction1?.score != null &&
+        matchDetails?.factions?.faction2?.score != null
+      ) {
+        score1 = matchDetails.factions.faction1.score;
+        score2 = matchDetails.factions.faction2.score;
+      }
 
-      // player stats
-      if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
-        const teams = matchStats.rounds[0].teams;
-        let playerMatchStats = null;
+      // 2. detailed_results fallback
+      else if (
+        matchDetails?.detailed_results?.[0]?.factions?.faction1?.score != null &&
+        matchDetails?.detailed_results?.[0]?.factions?.faction2?.score != null
+      ) {
+        score1 = matchDetails.detailed_results[0].factions.faction1.score;
+        score2 = matchDetails.detailed_results[0].factions.faction2.score;
+      }
 
-        for (const team of teams) {
-          const found = team.players.find(p => p.player_id === playerId);
-          if (found) {
-            playerMatchStats = found;
-            break;
-          }
-        }
+      // 3. Rounds fallback
+      else if (Array.isArray(matchDetails?.rounds)) {
+        score1 = 0;
+        score2 = 0;
+        matchDetails.rounds.forEach(round => {
+          if (round?.winner === 'faction1') score1++;
+          else if (round?.winner === 'faction2') score2++;
+        });
+      }
 
-        if (playerMatchStats && playerMatchStats.player_stats) {
-          console.log('Player stats:', playerMatchStats.player_stats);
-
-          const stats = playerMatchStats.player_stats;
-          result.playerStats = {
-            kills: stats.Kills || stats.kills || '-',
-            deaths: stats.Deaths || stats.deaths || '-',
-            adr: stats['Average Damage per Round']
-              ? Math.round(parseFloat(stats['Average Damage per Round']))
-              : '-',
-            hsPercent: stats['Headshots %']
-              ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-              : '-'
-          };
-        }
+      if (score1 != null && score2 != null) {
+        result.score = `${score1}:${score2}`;
+      } else {
+        console.warn('⚠️ Could not determine score from any method');
       }
 
     } catch (err) {
-      console.warn('❌ Error extracting score or stats:', err);
+      console.warn('❌ Error determining score:', err);
+    }
+
+    // === Player stats ===
+    if (matchStats?.rounds?.[0]?.teams) {
+      const teams = matchStats.rounds[0].teams;
+      let playerMatchStats = null;
+
+      for (const team of teams) {
+        const found = team.players.find(p => p.player_id === playerId);
+        if (found) {
+          playerMatchStats = found;
+          break;
+        }
+      }
+
+      if (playerMatchStats?.player_stats) {
+        const stats = playerMatchStats.player_stats;
+        console.log('🎯 Player match stats:', stats);
+        result.playerStats = {
+          kills: stats.Kills || stats.kills || '-',
+          deaths: stats.Deaths || stats.deaths || '-',
+          adr: stats['Average Damage per Round']
+            ? Math.round(parseFloat(stats['Average Damage per Round']))
+            : '-',
+          hsPercent: stats['Headshots %']
+            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+            : '-'
+        };
+      }
     }
 
     return result;
