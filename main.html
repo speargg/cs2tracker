@@ -54,7 +54,13 @@
     to {
       transform: rotate(360deg);
     }
-  }	    
+  }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
 /* Theme Toggle Button */
 .theme-toggle {
     position: fixed;
@@ -1577,8 +1583,11 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         // Update header info
         if (playerData && playerData.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
-            document.querySelector('.avatar').textContent = playerData.nickname.substring(0, 2).toUpperCase();
-        }
+            const avatarContainer = document.querySelector('.avatar');
+if (avatarContainer) {
+    avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
+}
+
         
         // Handle player level and ELO from player data (CS2 specific)
         if (playerData && playerData.games && playerData.games.cs2) {
