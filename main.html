@@ -1792,11 +1792,11 @@ async function fetchDetailedMatchData(matchId, playerId) {
     try {
       // score
       if (
-  matchDetails?.detailed_results?.[0]?.factions?.faction1?.score != null &&
-  matchDetails?.detailed_results?.[0]?.factions?.faction2?.score != null
+  matchDetails?.factions?.faction1?.score != null &&
+  matchDetails?.factions?.faction2?.score != null
 ) {
-  const faction1 = matchDetails.detailed_results[0].factions.faction1.score;
-  const faction2 = matchDetails.detailed_results[0].factions.faction2.score;
+  const faction1 = matchDetails.factions.faction1.score;
+  const faction2 = matchDetails.factions.faction2.score;
   result.score = `${faction1}:${faction2}`;
 }
 
