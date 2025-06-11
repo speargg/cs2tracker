@@ -1640,7 +1640,8 @@ async function updateMatchHistory(matches, playerId) {
         matchesList.appendChild(matchCard);
     }
 }
-// Enhanced createMatchCard with better ELO handling
+
+// Create match card element with improved error handling and correct Faceit API structure
 async function createMatchCard(match, playerId) {
     const matchCard = document.createElement('div');
     matchCard.className = 'match-card';
@@ -1658,6 +1659,7 @@ async function createMatchCard(match, playerId) {
         let enemyTeam = null;
         
         if (match.teams && match.teams.faction1 && match.teams.faction2) {
+            // Check if player is in faction1
             const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
             const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
             
@@ -1670,58 +1672,20 @@ async function createMatchCard(match, playerId) {
             }
         }
         
-        // Initial values
+        // Fetch detailed match information for map name and proper scores
         let mapName = 'Loading...';
         let scoreDisplay = '- - -';
         let playerStats = { kills: '-', deaths: '-', adr: '-', hsPercent: '-' };
-        let initialEloChange = null;
         
-        // Try to get ELO change from initial match data first
-        console.log('🏅 Checking for ELO in initial match data...');
-        if (match.elo_change !== undefined && match.elo_change !== null) {
-            initialEloChange = parseInt(match.elo_change);
-            console.log('✅ Found ELO in initial match data:', initialEloChange);
-        }
-        
-        // Check if ELO is in player-specific data within match
-        if (!initialEloChange && match.teams) {
-            ['faction1', 'faction2'].forEach(faction => {
-                if (match.teams[faction]?.players) {
-                    const player = match.teams[faction].players.find(p => p.player_id === playerId);
-                    if (player && player.elo_change !== undefined) {
-                        initialEloChange = parseInt(player.elo_change);
-                        console.log(`✅ Found ELO in ${faction} player data:`, initialEloChange);
-                    }
-                }
-            });
-        }
-        async function getPlayerEloFromStats(playerId) {
-  try {
-    const response = await fetch(`/.netlify/functions/player-stats?playerId=${playerId}`);
-    const playerData = await response.json();
-    
-    // Get current ELO/level
-    const currentElo = playerData.games?.csgo?.faceit_elo || playerData.games?.csgo?.skill_level || null;
-    
-    console.log('Current player ELO:', currentElo);
-    return currentElo;
-  } catch (error) {
-    console.error('Error fetching player stats:', error);
-    return null;
-  }
-}
-        // Create initial card
+        // Create initial card with loading state
         const result = determineMatchResult(match, playerTeam, status);
-        const eloDisplay = initialEloChange !== null ? {
-            formatted: formatEloChange(initialEloChange),
-            class: getEloChangeClass(initialEloChange)
-        } : null;
+        const dateDisplay = formatMatchDate(match);
         
         matchCard.innerHTML = `
             <div class="match-left">
                 <div class="match-result ${result.class}">${result.symbol}</div>
                 <div class="match-map">${mapName}</div>
-                ${eloDisplay ? `<div class="${eloDisplay.class}">${eloDisplay.formatted}</div>` : '<div class="elo-placeholder" style="min-height: 1em;"></div>'}
+                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
             </div>
             <div class="match-score">${scoreDisplay}</div>
             <div class="match-stats">
@@ -1733,36 +1697,17 @@ async function createMatchCard(match, playerId) {
         
         // Fetch detailed match data asynchronously
         if (status === 'finished') {
-            try {
-                const details = await fetchDetailedMatchData(matchId, playerId);
+            fetchDetailedMatchData(matchId, playerId).then(details => {
                 if (details) {
                     updateMatchCardWithDetails(matchCard, details, result);
-                } else {
-                    updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
                 }
-                
-                // If we still don't have ELO, try the player history API
-                if (details && details.eloChange === null && initialEloChange === null) {
-                    console.log('🔍 Trying player history as last resort for ELO...');
-                    tryPlayerHistoryForElo(playerId, matchId).then(historyElo => {
-                        if (historyElo !== null) {
-                            console.log('✅ Found ELO in player history:', historyElo);
-                            updateEloInCard(matchCard, historyElo);
-                        } else {
-                            console.log('❌ No ELO found even in player history');
-                            hideEloPlaceholder(matchCard);
-                        }
-                    }).catch(error => {
-                        console.error('Error fetching player history:', error);
-                        hideEloPlaceholder(matchCard);
-                    });
-                }
-                
-            } catch (error) {
+            }).catch(error => {
                 console.error('Error loading match details:', error);
+                // Update with basic info if detailed fetch fails
                 updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
-            }
+            });
         } else {
+            // For non-finished matches, use basic info
             updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
         }
         
@@ -1787,99 +1732,6 @@ async function createMatchCard(match, playerId) {
     
     return matchCard;
 }
-// Helper function to update ELO in an existing card
-function updateEloInCard(matchCard, eloChange) {
-    const eloChangeFormatted = formatEloChange(eloChange);
-    const eloChangeClass = getEloChangeClass(eloChange);
-    
-    if (eloChangeFormatted) {
-        let eloElement = matchCard.querySelector('.elo-change');
-        const eloPlaceholder = matchCard.querySelector('.elo-placeholder');
-        
-        if (eloPlaceholder) {
-            // Replace placeholder
-            eloPlaceholder.className = eloChangeClass;
-            eloPlaceholder.textContent = eloChangeFormatted;
-        } else if (!eloElement) {
-            // Add new ELO element
-            const matchLeft = matchCard.querySelector('.match-left');
-            if (matchLeft) {
-                eloElement = document.createElement('div');
-                eloElement.className = eloChangeClass;
-                eloElement.textContent = eloChangeFormatted;
-                matchLeft.appendChild(eloElement);
-            }
-        } else {
-            // Update existing ELO element
-            eloElement.className = eloChangeClass;
-            eloElement.textContent = eloChangeFormatted;
-        }
-    }
-}
-
-// Helper function to hide ELO placeholder when no ELO is available
-function hideEloPlaceholder(matchCard) {
-    const eloPlaceholder = matchCard.querySelector('.elo-placeholder');
-    if (eloPlaceholder) {
-        eloPlaceholder.style.display = 'none';
-    }
-}
-
-// Enhanced player history function with better error handling
-async function tryPlayerHistoryForElo(playerId, matchId) {
-  try {
-    console.log('🔍 Trying player history API for ELO data...');
-    
-    const response = await fetch(`/.netlify/functions/player-history?playerId=${playerId}&limit=20`);
-    
-    if (!response.ok) {
-      console.warn('Player history API not available or returned error:', response.status);
-      return null;
-    }
-    
-    const historyData = await response.json();
-    console.log('📊 Player history data received');
-    
-    // Look for the specific match in history
-    if (historyData?.items && Array.isArray(historyData.items)) {
-      const matchInHistory = historyData.items.find(item => 
-        item.match_id === matchId || item.id === matchId
-      );
-      
-      if (matchInHistory) {
-        console.log('🎯 Found match in player history:', matchInHistory);
-        
-        // Check various possible ELO fields in history
-        const possibleEloFields = [
-          'elo_change',
-          'rating_change', 
-          'elo',
-          'rating',
-          'skill_level_change'
-        ];
-        
-        for (const field of possibleEloFields) {
-          if (matchInHistory[field] !== undefined && matchInHistory[field] !== null) {
-            const eloValue = parseInt(matchInHistory[field]);
-            if (!isNaN(eloValue)) {
-              console.log(`✅ Found ELO change in history.${field}:`, eloValue);
-              return eloValue;
-            }
-          }
-        }
-      } else {
-        console.log('❌ Match not found in player history');
-      }
-    } else {
-      console.log('❌ Invalid history data structure');
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('❌ Error fetching player history:', error);
-    return null;
-  }
-}
 
 // Helper function to determine match result
 function determineMatchResult(match, playerTeam, status) {
@@ -1898,31 +1750,17 @@ function determineMatchResult(match, playerTeam, status) {
     }
 }
 
-// Helper function to format ELO change
-function formatEloChange(eloChange) {
-    if (eloChange === null || eloChange === undefined || isNaN(eloChange)) {
-        return null;
+// Helper function to format match date
+function formatMatchDate(match) {
+    if (match.started_at || match.finished_at) {
+        const timestamp = match.started_at || match.finished_at;
+        const matchDate = new Date(timestamp * 1000);
+        return matchDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
     }
-    
-    const change = parseInt(eloChange);
-    const sign = change >= 0 ? '+' : '';
-    return `${sign}${change}`;
-}
-
-// Helper function to get ELO change class
-function getEloChangeClass(eloChange) {
-    if (eloChange === null || eloChange === undefined || isNaN(eloChange)) {
-        return 'elo-change';
-    }
-    
-    const change = parseInt(eloChange);
-    if (change > 0) {
-        return 'elo-change elo-positive';
-    } else if (change < 0) {
-        return 'elo-change elo-negative';
-    } else {
-        return 'elo-change';
-    }
+    return '';
 }
 
 async function fetchDetailedMatchData(matchId, playerId) {
@@ -1936,120 +1774,143 @@ async function fetchDetailedMatchData(matchId, playerId) {
     console.log('📦 matchDetails:', matchDetails);
     console.log('📊 matchStats:', matchStats);
     
-    // === COMPREHENSIVE ELO DEBUGGING ===
-    console.log('🏅 === COMPREHENSIVE ELO DEBUGGING START ===');
-    
-    // 1. Check top-level matchDetails for any ELO-related fields
+    // Dodajmy głębszy debug dla matchDetails
     if (matchDetails) {
-      console.log('🔍 Top-level matchDetails keys:', Object.keys(matchDetails));
-      
-      // Check for any keys containing 'elo', 'rating', or 'rank'
-      const eloRelatedKeys = Object.keys(matchDetails).filter(key => 
-        key.toLowerCase().includes('elo') || 
-        key.toLowerCase().includes('rating') || 
-        key.toLowerCase().includes('rank')
-      );
-      console.log('🎯 ELO-related keys in matchDetails:', eloRelatedKeys);
-      eloRelatedKeys.forEach(key => {
-        console.log(`   ${key}:`, matchDetails[key]);
-      });
-    }
-    
-    // 2. Check matchStats structure deeply
-    if (matchStats) {
-      console.log('🔍 Top-level matchStats keys:', Object.keys(matchStats));
-      
-      // Check rounds structure
-      if (matchStats.rounds && Array.isArray(matchStats.rounds)) {
-        console.log('📊 Number of rounds in matchStats:', matchStats.rounds.length);
-        
-        matchStats.rounds.forEach((round, roundIndex) => {
-          console.log(`🔄 Round ${roundIndex} keys:`, Object.keys(round));
-          
-          if (round.teams && Array.isArray(round.teams)) {
-            round.teams.forEach((team, teamIndex) => {
-              console.log(`   Team ${teamIndex} keys:`, Object.keys(team));
-              
-              if (team.players && Array.isArray(team.players)) {
-                team.players.forEach((player, playerIndex) => {
-                  if (player.player_id === playerId) {
-                    console.log(`🎯 FOUND TARGET PLAYER at Round ${roundIndex}, Team ${teamIndex}, Player ${playerIndex}`);
-                    console.log('   Player keys:', Object.keys(player));
-                    
-                    // Check all ELO-related fields
-                    const eloKeys = Object.keys(player).filter(key => 
-                      key.toLowerCase().includes('elo') || 
-                      key.toLowerCase().includes('rating') || 
-                      key.toLowerCase().includes('rank')
-                    );
-                    console.log('   🏅 ELO-related keys for target player:', eloKeys);
-                    eloKeys.forEach(key => {
-                      console.log(`      ${key}:`, player[key]);
-                    });
-                    
-                    // Check player_stats if it exists
-                    if (player.player_stats) {
-                      console.log('   📊 Player stats keys:', Object.keys(player.player_stats));
-                      
-                      const statsEloKeys = Object.keys(player.player_stats).filter(key => 
-                        key.toLowerCase().includes('elo') || 
-                        key.toLowerCase().includes('rating') || 
-                        key.toLowerCase().includes('rank')
-                      );
-                      console.log('   🏅 ELO-related keys in player_stats:', statsEloKeys);
-                      statsEloKeys.forEach(key => {
-                        console.log(`      ${key}:`, player.player_stats[key]);
-                      });
-                    }
-                  }
-                });
-              }
-            });
-          }
-        });
+      console.log('🔍 Full matchDetails structure:');
+      console.log('- Keys:', Object.keys(matchDetails));
+      if (matchDetails.voting) {
+        console.log('- voting keys:', Object.keys(matchDetails.voting));
+        if (matchDetails.voting.map) {
+          console.log('- voting.map keys:', Object.keys(matchDetails.voting.map));
+        }
+      }
+      if (matchDetails.maps) {
+        console.log('- maps:', matchDetails.maps);
+      }
+      if (matchDetails.game) {
+        console.log('- game:', matchDetails.game);
       }
     }
-    
-    // 3. Check if there are any other endpoints we should be calling
-    console.log('💡 Potential solutions:');
-    console.log('   1. Check if FACEIT API has a different endpoint for ELO changes');
-    console.log('   2. ELO changes might only be available in player history, not match details');
-    console.log('   3. ELO changes might be calculated client-side based on before/after ratings');
-    console.log('   4. Check if the match needs to be "processed" before ELO is available');
-    
-    console.log('🏅 === COMPREHENSIVE ELO DEBUGGING END ===');
     
     const result = {
       mapName: 'Unknown',
       score: '- - -',
-      playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' },
-      eloChange: null
+      playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
     };
 
-    // === Map name logic (unchanged) ===
+    // === Map name ===
+    console.log('🗺️ Looking for map name...');
+    console.log('matchDetails.rounds?.[0]?.round_stats?.Map:', matchDetails?.rounds?.[0]?.round_stats?.Map);
+    console.log('matchDetails.map:', matchDetails?.map);
+    console.log('matchDetails.voting?.map?.name:', matchDetails?.voting?.map?.name);
+    console.log('matchDetails.voting?.map?.entities?.[0]?.game_map_id:', matchDetails?.voting?.map?.entities?.[0]?.game_map_id);
+    console.log('matchDetails.voting:', matchDetails?.voting);
+    
     if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
       result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
+      console.log('✅ Map name from voting.map.entities[0].game_map_id:', result.mapName);
     } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
       result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
+      console.log('✅ Map name from rounds:', result.mapName);
     } else if (matchDetails?.map) {
       result.mapName = cleanMapName(matchDetails.map);
+      console.log('✅ Map name from map field:', result.mapName);
     } else if (matchDetails?.voting?.map?.name) {
       result.mapName = cleanMapName(matchDetails.voting.map.name);
+      console.log('✅ Map name from voting:', result.mapName);
+    } else if (matchDetails?.voting?.map?.pick?.[0]) {
+      result.mapName = cleanMapName(matchDetails.voting.map.pick[0]);
+      console.log('✅ Map name from voting pick:', result.mapName);
+    } else if (matchDetails?.maps?.[0]) {
+      result.mapName = cleanMapName(matchDetails.maps[0]);
+      console.log('✅ Map name from maps array:', result.mapName);
+    } else if (matchDetails?.game_mode?.map) {
+      result.mapName = cleanMapName(matchDetails.game_mode.map);
+      console.log('✅ Map name from game_mode:', result.mapName);
+    } else {
+      console.warn('⚠️ Could not find map name in any expected location');
+      console.log('Available matchDetails keys:', Object.keys(matchDetails || {}));
+      
+      // Sprawdźmy czy mapa nie jest w oryginalnych danych meczu (przed wywołaniem API)
+      console.log('🤔 Consider checking if map name is available in original match data before API calls');
     }
 
-    // === Score logic (unchanged but simplified) ===
-    if (matchStats?.rounds?.[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      if (teams.length >= 2) {
-        const score1 = parseInt(teams[0].team_stats?.['Final Score'] || teams[0].team_stats?.Score || 0);
-        const score2 = parseInt(teams[1].team_stats?.['Final Score'] || teams[1].team_stats?.Score || 0);
-        if (score1 > 0 || score2 > 0) {
-          result.score = `${score1}:${score2}`;
+    // === Score - poprawiona logika ===
+    try {
+      let score1 = null;
+      let score2 = null;
+
+      // Najpierw spróbuj wyciągnąć wynik z matchStats (szczegółowe statystyki)
+      if (matchStats?.rounds?.[0]?.teams) {
+        const teams = matchStats.rounds[0].teams;
+        console.log('🏆 Teams data from matchStats:', teams);
+        
+        if (teams.length >= 2) {
+          // Sprawdź czy teams mają pole z wynikiem rundowym
+          if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
+            score1 = parseInt(teams[0].team_stats['Final Score']);
+            score2 = parseInt(teams[1].team_stats['Final Score']);
+            console.log('✅ Score from team_stats Final Score:', score1, ':', score2);
+          }
+          // Alternatywnie sprawdź inne możliwe pola
+          else if (teams[0].team_stats?.Score && teams[1].team_stats?.Score) {
+            score1 = parseInt(teams[0].team_stats.Score);
+            score2 = parseInt(teams[1].team_stats.Score);
+            console.log('✅ Score from team_stats Score:', score1, ':', score2);
+          }
+          // Sprawdź czy są pola rounds won/lost
+          else if (teams[0].team_stats?.['Rounds Won'] && teams[1].team_stats?.['Rounds Won']) {
+            score1 = parseInt(teams[0].team_stats['Rounds Won']);
+            score2 = parseInt(teams[1].team_stats['Rounds Won']);
+            console.log('✅ Score from Rounds Won:', score1, ':', score2);
+          }
         }
       }
+
+      // Jeśli nie udało się z matchStats, spróbuj z matchDetails (ale tylko jako fallback)
+      if (score1 === null || score2 === null) {
+        console.log('⚠️ Trying fallback methods for score...');
+        
+        // 1. Sprawdź czy w matchDetails są szczegółowe wyniki rundowe
+        if (matchDetails?.rounds && Array.isArray(matchDetails.rounds)) {
+          console.log('📊 Counting rounds from matchDetails.rounds:', matchDetails.rounds.length);
+          score1 = 0;
+          score2 = 0;
+          
+          matchDetails.rounds.forEach((round, index) => {
+            console.log(`Round ${index + 1}:`, round.winner);
+            if (round?.winner === 'faction1') score1++;
+            else if (round?.winner === 'faction2') score2++;
+          });
+          
+          if (score1 > 0 || score2 > 0) {
+            console.log('✅ Score from round counting:', score1, ':', score2);
+          }
+        }
+        
+        // 2. Jako ostatnia opcja - sprawdź factions (ale to prawdopodobnie da 1:0)
+        else if (
+          matchDetails?.factions?.faction1?.score != null &&
+          matchDetails?.factions?.faction2?.score != null
+        ) {
+          score1 = matchDetails.factions.faction1.score;
+          score2 = matchDetails.factions.faction2.score;
+          console.log('⚠️ Using factions score (might be 1:0):', score1, ':', score2);
+        }
+      }
+
+      if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
+        result.score = `${score1}:${score2}`;
+        console.log('🏆 Final score set to:', result.score);
+      } else {
+        console.warn('⚠️ Could not determine valid round score, scores were:', score1, ':', score2);
+        result.score = 'N/A';
+      }
+    } catch (err) {
+      console.warn('❌ Error determining score:', err);
     }
 
-    // === Player stats logic (unchanged) ===
+    // === Player stats ===
     if (matchStats?.rounds?.[0]?.teams) {
       const teams = matchStats.rounds[0].teams;
       let playerMatchStats = null;
@@ -2064,11 +1925,25 @@ async function fetchDetailedMatchData(matchId, playerId) {
 
       if (playerMatchStats?.player_stats) {
         const stats = playerMatchStats.player_stats;
+        console.log('🎯 Player match stats:', stats);
+        console.log('Available stat keys:', Object.keys(stats));
         
+        // Sprawdź różne możliwe nazwy pól dla ADR
         const adrValue = stats['Average Damage per Round'] || 
                         stats['ADR'] || 
                         stats['adr'] || 
-                        stats['Damage/Round'];
+                        stats['Damage/Round'] || 
+                        stats['DamagePerRound'] ||
+                        stats['AvgDamagePerRound'];
+        
+        console.log('🎯 ADR candidates:', {
+          'Average Damage per Round': stats['Average Damage per Round'],
+          'ADR': stats['ADR'],
+          'adr': stats['adr'],
+          'Damage/Round': stats['Damage/Round'],
+          'DamagePerRound': stats['DamagePerRound'],
+          'AvgDamagePerRound': stats['AvgDamagePerRound']
+        });
         
         result.playerStats = {
           kills: stats.Kills || stats.kills || '-',
@@ -2077,88 +1952,14 @@ async function fetchDetailedMatchData(matchId, playerId) {
           hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
             ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
             : '-',
+          // Dodajemy K/D ratio
           kdRatio: (stats.Kills || stats.kills) && (stats.Deaths || stats.deaths)
             ? ((stats.Kills || stats.kills) / (stats.Deaths || stats.deaths)).toFixed(2)
             : '-'
         };
+        
+        console.log('✅ Final player stats:', result.playerStats);
       }
-    }
-
-    // === ELO Change - Enhanced Detection ===
-    console.log('🏅 Enhanced ELO detection starting...');
-    
-    // Try all possible locations again with better debugging
-    const eloSources = [
-      { name: 'matchDetails.elo_change', value: matchDetails?.elo_change },
-      { name: 'matchDetails.rating_change', value: matchDetails?.rating_change },
-      { name: 'matchDetails.elo', value: matchDetails?.elo },
-      { name: 'matchDetails.rating', value: matchDetails?.rating },
-    ];
-    
-    // Check in player-specific data within matchDetails
-    if (matchDetails?.teams) {
-      ['faction1', 'faction2'].forEach(faction => {
-        if (matchDetails.teams[faction]?.players) {
-          const player = matchDetails.teams[faction].players.find(p => p.player_id === playerId);
-          if (player) {
-            eloSources.push(
-              { name: `matchDetails.teams.${faction}.player.elo_change`, value: player.elo_change },
-              { name: `matchDetails.teams.${faction}.player.rating_change`, value: player.rating_change }
-            );
-          }
-        }
-      });
-    }
-    
-    // Check in matchStats player data (already done above but let's be explicit)
-    if (matchStats?.rounds?.[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      for (const team of teams) {
-        const player = team.players.find(p => p.player_id === playerId);
-        if (player) {
-          eloSources.push(
-            { name: 'matchStats.player.elo_change', value: player.elo_change },
-            { name: 'matchStats.player.rating_change', value: player.rating_change }
-          );
-          
-          if (player.player_stats) {
-            Object.keys(player.player_stats).forEach(key => {
-              if (key.toLowerCase().includes('elo') || key.toLowerCase().includes('rating')) {
-                eloSources.push({
-                  name: `matchStats.player.player_stats.${key}`,
-                  value: player.player_stats[key]
-                });
-              }
-            });
-          }
-        }
-      }
-    }
-    
-    console.log('🎯 All ELO sources checked:');
-    eloSources.forEach(source => {
-      console.log(`   ${source.name}: ${source.value}`);
-    });
-    
-    // Find the first valid ELO value
-    const validEloSource = eloSources.find(source => 
-      source.value !== undefined && 
-      source.value !== null && 
-      source.value !== '' &&
-      !isNaN(parseFloat(source.value))
-    );
-    
-    if (validEloSource) {
-      result.eloChange = parseInt(validEloSource.value);
-      console.log('✅ ELO change found from:', validEloSource.name, '=', result.eloChange);
-    } else {
-      console.log('❌ No valid ELO change found in any source');
-      
-      // Suggest alternative approaches
-      console.log('💡 Alternative approaches to consider:');
-      console.log('   1. Use FACEIT Player History API to get ELO before/after');
-      console.log('   2. Check if match needs more time to process ELO changes');
-      console.log('   3. Check FACEIT API documentation for ELO-specific endpoints');
     }
 
     console.log('🎉 Final result:', result);
@@ -2169,34 +1970,6 @@ async function fetchDetailedMatchData(matchId, playerId) {
     return null;
   }
 }
-
-// Helper function to check if we should try the player history API
-async function tryPlayerHistoryForElo(playerId, matchId) {
-  try {
-    console.log('🔍 Trying player history API for ELO data...');
-    
-    // This would require a new Netlify function to call the player history endpoint
-    const response = await fetch(`/.netlify/functions/player-history?playerId=${playerId}&limit=10`);
-    const historyData = await response.json();
-    
-    console.log('📊 Player history data:', historyData);
-    
-    // Look for the specific match in history to get before/after ELO
-    if (historyData?.items) {
-      const matchInHistory = historyData.items.find(item => item.match_id === matchId);
-      if (matchInHistory) {
-        console.log('🎯 Found match in player history:', matchInHistory);
-        return matchInHistory.elo_change || null;
-      }
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('❌ Error fetching player history:', error);
-    return null;
-  }
-}
-
 // Function to clean up map names
 function cleanMapName(mapName) {
     if (!mapName || mapName === 'Unknown') return 'Unknown';
@@ -2214,14 +1987,11 @@ function cleanMapName(mapName) {
 
 // Function to update match card with detailed information
 function updateMatchCardWithDetails(matchCard, details, result) {
-    const eloChangeFormatted = formatEloChange(details.eloChange);
-    const eloChangeClass = getEloChangeClass(details.eloChange);
-    
     matchCard.innerHTML = `
         <div class="match-left">
             <div class="match-result ${result.class}">${result.symbol}</div>
             <div class="match-map">${details.mapName}</div>
-            ${eloChangeFormatted ? `<div class="${eloChangeClass}">${eloChangeFormatted}</div>` : ''}
+            ${matchCard.querySelector('.match-date') ? `<div class="match-date">${matchCard.querySelector('.match-date').textContent}</div>` : ''}
         </div>
         <div class="match-score">${details.score}</div>
         <div class="match-stats">
@@ -2230,16 +2000,6 @@ function updateMatchCardWithDetails(matchCard, details, result) {
             <div class="match-stat-value">${details.playerStats.hsPercent}</div>
         </div>
     `;
-}
-  // Helper function to create ELO display for initial card creation
-function createEloDisplay(match) {
-    const eloChange = match.elo_change;
-    if (eloChange !== undefined && eloChange !== null && !isNaN(eloChange)) {
-        const eloChangeFormatted = formatEloChange(eloChange);
-        const eloChangeClass = getEloChangeClass(eloChange);
-        return { formatted: eloChangeFormatted, class: eloChangeClass };
-    }
-    return null;
 }
 
 // Function to update match card with basic information when detailed fetch fails
@@ -2274,13 +2034,6 @@ function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
         mapName = '5v5 Matchmaking'; // fallback tylko gdy nic nie znajdziemy
     }
     
-    // Sprawdź czy ELO change jest dostępne w oryginalnych danych meczu
-    let eloChange = null;
-    if (match.elo_change !== undefined) {
-        eloChange = parseInt(match.elo_change);
-        console.log('✅ ELO change from original match data:', eloChange);
-    }
-    
     const mapElement = matchCard.querySelector('.match-map');
     const scoreElement = matchCard.querySelector('.match-score');
     
@@ -2289,27 +2042,43 @@ function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
         mapElement.textContent = mapName;
     }
     if (scoreElement) scoreElement.textContent = scoreDisplay;
-    
-    // Dodaj ELO change jeśli dostępne
-    if (eloChange !== null) {
-        const eloChangeFormatted = formatEloChange(eloChange);
-        const eloChangeClass = getEloChangeClass(eloChange);
+}
+
+// Tymczasowa funkcja debug - dodaj ją do swojego kodu
+async function debugMatchDetailsAPI(matchId) {
+    try {
+        console.log('🔍 Debugging match-details API for:', matchId);
         
-        if (eloChangeFormatted) {
-            const existingEloElement = matchCard.querySelector('.elo-change');
-            if (!existingEloElement) {
-                const matchLeft = matchCard.querySelector('.match-left');
-                if (matchLeft) {
-                    const eloElement = document.createElement('div');
-                    eloElement.className = eloChangeClass;
-                    eloElement.textContent = eloChangeFormatted;
-                    matchLeft.appendChild(eloElement);
+        const response = await fetch(`/.netlify/functions/match-details?matchId=${matchId}`);
+        const matchDetails = await response.json();
+        
+        console.log('🚀 RAW match-details response:');
+        console.log(JSON.stringify(matchDetails, null, 2));
+        
+        console.log('\n📋 Available top-level keys:');
+        console.log(Object.keys(matchDetails));
+        
+        // Sprawdź głębiej każde pole które może zawierać mapę
+        const fieldsToCheck = ['voting', 'map', 'maps', 'game', 'competition', 'rounds'];
+        
+        fieldsToCheck.forEach(field => {
+            if (matchDetails[field]) {
+                console.log(`\n🔎 ${field}:`, matchDetails[field]);
+                if (typeof matchDetails[field] === 'object' && matchDetails[field] !== null) {
+                    console.log(`   ${field} keys:`, Object.keys(matchDetails[field]));
                 }
             }
-        }
+        });
+        
+        return matchDetails;
+    } catch (error) {
+        console.error('❌ Debug error:', error);
+        return null;
     }
 }
 
+// Użyj tej funkcji w konsoli z prawdziwym matchId:
+// debugMatchDetailsAPI('1-some-real-match-id-here');
 // Function to fetch detailed match statistics
 async function fetchMatchDetails(matchId) {
     try {
@@ -2348,7 +2117,36 @@ async function fetchMatchStats(matchId, playerId) {
         return null;
     }
 }
-
+// Quick debug function to analyze just the match structure
+async function debugMatchStructure(nickname) {
+    try {
+        const playerData = await fetchPlayerData(nickname);
+        const matchHistory = await fetchMatchHistory(playerData.player_id);
+        
+        if (matchHistory && matchHistory.items && matchHistory.items.length > 0) {
+            console.log('=== MATCH STRUCTURE ANALYSIS ===');
+            console.log('Total matches:', matchHistory.items.length);
+            console.log('First match full structure:');
+            console.log(JSON.stringify(matchHistory.items[0], null, 2));
+            
+            // Analyze first few matches for patterns
+            console.log('\n=== PATTERN ANALYSIS ===');
+            matchHistory.items.slice(0, 3).forEach((match, index) => {
+                console.log(`\nMatch ${index + 1}:`);
+                console.log('- Status:', match.status);
+                console.log('- Map info:', {
+                    voting: match.voting?.map,
+                    map: match.map,
+                    maps: match.maps
+                });
+                console.log('- Results:', match.results);
+                console.log('- Teams:', match.teams ? Object.keys(match.teams) : 'No teams');
+            });
+        }
+    } catch (error) {
+        console.error('Debug match structure error:', error);
+    }
+}
 // Placeholder function for performance chart update
 function updatePerformanceChart(matches, playerId) {
     console.log('Updating performance chart with matches:', matches);
