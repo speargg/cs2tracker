@@ -1965,6 +1965,7 @@ function updateMatchCardWithDetails(matchCard, details, result) {
 }
 
 // Function to update match card with basic information when detailed fetch fails
+// Function to update match card with basic information when detailed fetch fails
 function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
     let scoreDisplay = '- - -';
     
@@ -1974,18 +1975,33 @@ function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
         scoreDisplay = `${playerScore}:${enemyScore}`;
     }
     
+    // Spróbuj wyciągnąć mapę z oryginalnych danych meczu
+    let mapName = 'Unknown';
+    
+    console.log('🗺️ Trying to get map from original match data:', match);
+    
+    if (match.voting?.map?.name) {
+        mapName = cleanMapName(match.voting.map.name);
+        console.log('✅ Map from voting.map.name:', mapName);
+    } else if (match.voting?.map?.pick?.[0]) {
+        mapName = cleanMapName(match.voting.map.pick[0]);
+        console.log('✅ Map from voting.map.pick[0]:', mapName);
+    } else if (match.map) {
+        mapName = cleanMapName(match.map);
+        console.log('✅ Map from match.map:', mapName);
+    } else if (match.maps?.[0]) {
+        mapName = cleanMapName(match.maps[0]);
+        console.log('✅ Map from match.maps[0]:', mapName);
+    } else {
+        console.warn('⚠️ Could not find map in original match data, using fallback');
+        mapName = '5v5 Matchmaking'; // fallback tylko gdy nic nie znajdziemy
+    }
+    
     const mapElement = matchCard.querySelector('.match-map');
     const scoreElement = matchCard.querySelector('.match-score');
     
-    if (mapElement) mapElement.textContent = '5v5 Matchmaking';
+    if (mapElement) mapElement.textContent = mapName;
     if (scoreElement) scoreElement.textContent = scoreDisplay;
-}
-
-// Function to show detailed match information (for click handler)
-function showMatchDetails(matchId) {
-    console.log('Showing detailed view for match:', matchId);
-    // This could open a modal or navigate to a detailed match page
-    // For now, just log the action
 }
 
 // Function to fetch detailed match statistics
