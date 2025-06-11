@@ -1791,19 +1791,14 @@ async function fetchDetailedMatchData(matchId, playerId) {
     // === Score and player stats ===
     try {
       // score
-      if (matchDetails?.faction1?.score != null && matchDetails?.faction2?.score != null) {
-        result.score = `${matchDetails.faction1.score}:${matchDetails.faction2.score}`;
-      } else if (Array.isArray(matchDetails?.rounds)) {
-        let faction1Score = 0;
-        let faction2Score = 0;
-
-        matchDetails.rounds.forEach(round => {
-          if (round?.winner === 'faction1') faction1Score++;
-          else if (round?.winner === 'faction2') faction2Score++;
-        });
-
-        result.score = `${faction1Score}:${faction2Score}`;
-      }
+      if (
+  matchDetails?.detailed_results?.[0]?.factions?.faction1?.score != null &&
+  matchDetails?.detailed_results?.[0]?.factions?.faction2?.score != null
+) {
+  const faction1 = matchDetails.detailed_results[0].factions.faction1.score;
+  const faction2 = matchDetails.detailed_results[0].factions.faction2.score;
+  result.score = `${faction1}:${faction2}`;
+}
 
       // player stats
       if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
