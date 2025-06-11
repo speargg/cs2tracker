@@ -1781,12 +1781,24 @@ async function fetchDetailedMatchData(matchId, playerId) {
     };
 
     // === Map name ===
+    console.log('🗺️ Looking for map name...');
+    console.log('matchDetails.rounds?.[0]?.round_stats?.Map:', matchDetails?.rounds?.[0]?.round_stats?.Map);
+    console.log('matchDetails.map:', matchDetails?.map);
+    console.log('matchDetails.voting?.map?.name:', matchDetails?.voting?.map?.name);
+    console.log('matchDetails.voting:', matchDetails?.voting);
+    
     if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
       result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
+      console.log('✅ Map name from rounds:', result.mapName);
     } else if (matchDetails?.map) {
       result.mapName = cleanMapName(matchDetails.map);
+      console.log('✅ Map name from map field:', result.mapName);
     } else if (matchDetails?.voting?.map?.name) {
       result.mapName = cleanMapName(matchDetails.voting.map.name);
+      console.log('✅ Map name from voting:', result.mapName);
+    } else {
+      console.warn('⚠️ Could not find map name in any expected location');
+      console.log('Available matchDetails keys:', Object.keys(matchDetails || {}));
     }
 
     // === Score - poprawiona logika ===
@@ -1880,17 +1892,35 @@ async function fetchDetailedMatchData(matchId, playerId) {
       if (playerMatchStats?.player_stats) {
         const stats = playerMatchStats.player_stats;
         console.log('🎯 Player match stats:', stats);
+        console.log('Available stat keys:', Object.keys(stats));
+        
+        // Sprawdź różne możliwe nazwy pól dla ADR
+        const adrValue = stats['Average Damage per Round'] || 
+                        stats['ADR'] || 
+                        stats['adr'] || 
+                        stats['Damage/Round'] || 
+                        stats['DamagePerRound'] ||
+                        stats['AvgDamagePerRound'];
+        
+        console.log('🎯 ADR candidates:', {
+          'Average Damage per Round': stats['Average Damage per Round'],
+          'ADR': stats['ADR'],
+          'adr': stats['adr'],
+          'Damage/Round': stats['Damage/Round'],
+          'DamagePerRound': stats['DamagePerRound'],
+          'AvgDamagePerRound': stats['AvgDamagePerRound']
+        });
         
         result.playerStats = {
           kills: stats.Kills || stats.kills || '-',
           deaths: stats.Deaths || stats.deaths || '-',
-          adr: stats['Average Damage per Round']
-            ? Math.round(parseFloat(stats['Average Damage per Round']))
-            : '-',
-          hsPercent: stats['Headshots %']
-            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+          adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
+          hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
+            ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
             : '-'
         };
+        
+        console.log('✅ Final player stats:', result.playerStats);
       }
     }
 
@@ -1902,8 +1932,6 @@ async function fetchDetailedMatchData(matchId, playerId) {
     return null;
   }
 }
-
-
 // Function to clean up map names
 function cleanMapName(mapName) {
     if (!mapName || mapName === 'Unknown') return 'Unknown';
