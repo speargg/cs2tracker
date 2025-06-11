@@ -1231,7 +1231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const input = document.querySelector('.search-input');
             if (input) {
                 input.value = nickname;
-                searchPlayer();
+                searchPlayer(false); // 👈 nie pokazuj mini-spinnera w przycisku
             }
         } else {
             // ⛑ Brak nicku – awaryjnie pokaż stronę
@@ -1393,7 +1393,7 @@ const performanceChart = new Chart(ctx, {
 // Add enter key support for search
 document.querySelector('.search-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
-        searchPlayer();
+        searchPlayer(); // domyślnie true – spinner się pokazuje
     }
 });
         // Initialize ELO change display
@@ -1461,7 +1461,7 @@ const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 	    
 // Fixed search functionality with proper error handling and correct API structure
-async function searchPlayer() {
+async function searchPlayer(showSpinner = true) {
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
 
@@ -1474,17 +1474,20 @@ async function searchPlayer() {
     const originalContent = searchBtn.innerHTML;
 
     try {
-        // Pokazanie mini-spinnera w przycisku
-        searchBtn.innerHTML = `
-            <div style="
-                width: 16px;
-                height: 16px;
-                border: 2px solid #fff;
-                border-top: 2px solid transparent;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            "></div>
-        `;
+        if (showSpinner) {
+            // Pokazanie mini-spinnera tylko jeśli trzeba
+            searchBtn.innerHTML = `
+                <div style="
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid #fff;
+                    border-top: 2px solid transparent;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                "></div>
+            `;
+            await new Promise(requestAnimationFrame);
+        }
 
         const playerData = await fetchPlayerData(nickname);
         const playerStats = await fetchPlayerStats(playerData.player_id);
@@ -1496,10 +1499,8 @@ async function searchPlayer() {
         console.error(error);
         alert('Player not found or API error. Please try again.');
     } finally {
-        // Przywrócenie treści przycisku
         searchBtn.innerHTML = originalContent;
 
-        // ⛑️ Ukryj loader i pokaż zawartość
         const loader = document.getElementById('loader');
         const content = document.getElementById('content');
 
@@ -1510,6 +1511,7 @@ async function searchPlayer() {
         }
     }
 }
+
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
