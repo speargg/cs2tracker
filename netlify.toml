@@ -1,4 +1,7 @@
-# netlify.toml
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
 [[redirects]]
   from = "/:nickname"
   to = "/main.html?nickname=:nickname"
