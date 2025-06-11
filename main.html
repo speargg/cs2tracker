@@ -1765,9 +1765,8 @@ function formatMatchDate(match) {
 
 async function fetchDetailedMatchData(matchId, playerId) {
   try {
-    console.log('Fetching detailed data for match:', matchId, 'and player:', playerId);
+    console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
 
-    // Fetch match details and match stats from Netlify Functions
     const [matchDetails, matchStats] = await Promise.all([
       fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
       fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
@@ -1782,67 +1781,70 @@ async function fetchDetailedMatchData(matchId, playerId) {
       playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
     };
 
-    // === Extract map name ===
-    if (matchDetails) {
-      if (matchDetails.rounds?.[0]?.round_stats?.Map) {
-        result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
-      } else if (matchDetails.voting?.map?.name) {
-        result.mapName = cleanMapName(matchDetails.voting.map.name);
-      } else if (matchDetails.map) {
-        result.mapName = cleanMapName(matchDetails.map);
-      } else if (matchDetails.maps && matchDetails.maps.length > 0) {
-        result.mapName = cleanMapName(matchDetails.maps[0]);
-      }
-
-// === Extract score and player stats ===
-try {
-  // === Extract score ===
-  if (matchDetails?.faction1?.score != null && matchDetails?.faction2?.score != null) {
-    result.score = `${matchDetails.faction1.score}:${matchDetails.faction2.score}`;
-  } else if (Array.isArray(matchDetails?.rounds)) {
-    let faction1Score = 0;
-    let faction2Score = 0;
-
-    matchDetails.rounds.forEach(round => {
-      if (round?.winner === 'faction1') faction1Score++;
-      else if (round?.winner === 'faction2') faction2Score++;
-    });
-
-    result.score = `${faction1Score}:${faction2Score}`;
-  }
-
-  // === Extract player stats ===
-  if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
-    const teams = matchStats.rounds[0].teams;
-    let playerMatchStats = null;
-
-    for (const team of teams) {
-      const found = team.players.find(p => p.player_id === playerId);
-      if (found) {
-        playerMatchStats = found;
-        break;
-      }
+    // === Map name ===
+    if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
+      result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
+    } else if (matchDetails?.map) {
+      result.mapName = cleanMapName(matchDetails.map);
     }
 
-    if (playerMatchStats && playerMatchStats.player_stats) {
-      console.log('Player stats:', playerMatchStats.player_stats);
+    // === Score and player stats ===
+    try {
+      // score
+      if (matchDetails?.faction1?.score != null && matchDetails?.faction2?.score != null) {
+        result.score = `${matchDetails.faction1.score}:${matchDetails.faction2.score}`;
+      } else if (Array.isArray(matchDetails?.rounds)) {
+        let faction1Score = 0;
+        let faction2Score = 0;
 
-      const stats = playerMatchStats.player_stats;
-      result.playerStats = {
-        kills: stats.Kills || stats.kills || '-',
-        deaths: stats.Deaths || stats.deaths || '-',
-        adr: stats['Average Damage per Round']
-          ? Math.round(parseFloat(stats['Average Damage per Round']))
-          : '-',
-        hsPercent: stats['Headshots %']
-          ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-          : '-'
-      };
+        matchDetails.rounds.forEach(round => {
+          if (round?.winner === 'faction1') faction1Score++;
+          else if (round?.winner === 'faction2') faction2Score++;
+        });
+
+        result.score = `${faction1Score}:${faction2Score}`;
+      }
+
+      // player stats
+      if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
+        const teams = matchStats.rounds[0].teams;
+        let playerMatchStats = null;
+
+        for (const team of teams) {
+          const found = team.players.find(p => p.player_id === playerId);
+          if (found) {
+            playerMatchStats = found;
+            break;
+          }
+        }
+
+        if (playerMatchStats && playerMatchStats.player_stats) {
+          console.log('Player stats:', playerMatchStats.player_stats);
+
+          const stats = playerMatchStats.player_stats;
+          result.playerStats = {
+            kills: stats.Kills || stats.kills || '-',
+            deaths: stats.Deaths || stats.deaths || '-',
+            adr: stats['Average Damage per Round']
+              ? Math.round(parseFloat(stats['Average Damage per Round']))
+              : '-',
+            hsPercent: stats['Headshots %']
+              ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+              : '-'
+          };
+        }
+      }
+
+    } catch (err) {
+      console.warn('❌ Error extracting score or stats:', err);
     }
-  }
 
-} catch (err) {
-  console.warn('❌ Error extracting match details or stats:', err);
+    return result;
+
+  } catch (error) {
+    console.error('❌ Error fetching detailed match data:', error);
+    return null;
+  }
 }
 
 
