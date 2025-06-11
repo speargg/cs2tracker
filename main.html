@@ -26,6 +26,7 @@
     margin-bottom: 2rem;
     text-align: center;
 }
+	    
 /* Theme Toggle Button */
 .theme-toggle {
     position: fixed;
@@ -52,6 +53,25 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
     background: rgba(37, 99, 235, 0.3);
+}
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #3b82f6; /* niebieski odcień */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Black Theme - OLED Style */
@@ -875,9 +895,9 @@ body {
 <body>
 
   <!-- Loader -->
-  <div id="loader" style="color:white; font-size:1.2rem; text-align:center; margin-top:2rem;">
-    Ładowanie statystyk...
-  </div>
+  <div id="loader" class="spinner-container">
+  <div class="spinner"></div>
+</div>
 
   <!-- Ukryty kontent gracza -->
   <div id="content" style="display: none;">
