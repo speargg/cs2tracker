@@ -1461,19 +1461,21 @@ async function searchPlayer() {
         return;
     }
 
-    const loader = document.getElementById('loader');
-    const content = document.getElementById('content');
-    if (loader && content) {
-        loader.style.display = 'flex'; // 🔄 Pokaż loader
-        content.style.display = 'none'; // ❌ Ukryj treść
-        document.body.classList.add('loading');
-    }
-
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
 
     try {
-        searchBtn.innerHTML = '<div style="...spinner style..."></div>';
+        // Pokazanie mini-spinnera w przycisku (opcjonalnie)
+        searchBtn.innerHTML = `
+            <div style="
+                width: 16px;
+                height: 16px;
+                border: 2px solid #fff;
+                border-top: 2px solid transparent;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            "></div>
+        `;
 
         const playerData = await fetchPlayerData(nickname);
         const playerStats = await fetchPlayerStats(playerData.player_id);
@@ -1485,12 +1487,8 @@ async function searchPlayer() {
         console.error(error);
         alert('Player not found or API error. Please try again.');
     } finally {
+        // Przywrócenie treści przycisku
         searchBtn.innerHTML = originalContent;
-        if (loader && content) {
-            loader.style.display = 'none'; // ✅ Ukryj loader
-            content.style.display = 'block'; // ✅ Pokaż treść
-            document.body.classList.remove('loading');
-        }
     }
 }
 
