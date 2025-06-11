@@ -1794,8 +1794,9 @@ async function fetchDetailedMatchData(matchId, playerId) {
         result.mapName = cleanMapName(matchDetails.maps[0]);
       }
 
-// === Extract score ===
+// === Extract score and player stats ===
 try {
+  // === Extract score ===
   if (matchDetails?.faction1?.score != null && matchDetails?.faction2?.score != null) {
     result.score = `${matchDetails.faction1.score}:${matchDetails.faction2.score}`;
   } else if (Array.isArray(matchDetails?.rounds)) {
@@ -1809,46 +1810,39 @@ try {
 
     result.score = `${faction1Score}:${faction2Score}`;
   }
-} catch (err) {
-  console.warn('❌ Error extracting score:', err);
-}
 
-    // === Extract player stats ===
-    if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      let playerMatchStats = null;
+  // === Extract player stats ===
+  if (matchStats && matchStats.rounds && matchStats.rounds[0]?.teams) {
+    const teams = matchStats.rounds[0].teams;
+    let playerMatchStats = null;
 
-      for (const team of teams) {
-        const found = team.players.find(p => p.player_id === playerId);
-        if (found) {
-          playerMatchStats = found;
-          break;
-        }
-      }
-
-      if (playerMatchStats && playerMatchStats.player_stats) {
-        console.log('Player stats:', playerMatchStats.player_stats);
-
-        const stats = playerMatchStats.player_stats;
-        result.playerStats = {
-          kills: stats.Kills || stats.kills || '-',
-          deaths: stats.Deaths || stats.deaths || '-',
-          adr: stats['Average Damage per Round']
-            ? Math.round(parseFloat(stats['Average Damage per Round']))
-            : '-',
-          hsPercent: stats['Headshots %']
-            ? `${Math.round(parseFloat(stats['Headshots %']))}%`
-            : '-'
-        };
+    for (const team of teams) {
+      const found = team.players.find(p => p.player_id === playerId);
+      if (found) {
+        playerMatchStats = found;
+        break;
       }
     }
 
-    return result;
+    if (playerMatchStats && playerMatchStats.player_stats) {
+      console.log('Player stats:', playerMatchStats.player_stats);
 
-  } catch (error) {
-    console.error('Error fetching detailed match data:', error);
-    return null;
+      const stats = playerMatchStats.player_stats;
+      result.playerStats = {
+        kills: stats.Kills || stats.kills || '-',
+        deaths: stats.Deaths || stats.deaths || '-',
+        adr: stats['Average Damage per Round']
+          ? Math.round(parseFloat(stats['Average Damage per Round']))
+          : '-',
+        hsPercent: stats['Headshots %']
+          ? `${Math.round(parseFloat(stats['Headshots %']))}%`
+          : '-'
+      };
+    }
   }
+
+} catch (err) {
+  console.warn('❌ Error extracting match details or stats:', err);
 }
 
 
