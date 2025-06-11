@@ -1,36 +1,48 @@
-import {
+exports.handler = async function(event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   };
- get } from '@vercel/edge-config';
 
-exports.handler = async function(event, context) {
-  const { elo } = req.query;
-  if (!elo) return return { statusCode: 400, body: JSON.stringify({ error: 'Missing ELO' } };
+  try {
+    const elo = event.queryStringParameters.elo;
+    const FACEIT_API_KEY = process.env.FACEIT_API_KEY;
 
-  const eloValue = parseInt(elo };
-
-  const estimateRank = (leaderboard) => {
-    for (let i = 1; i < leaderboard.length; i++) {
-      const current = leaderboard[i];
-      const prev = leaderboard[i - 1];
-      if (eloValue >= current.elo && eloValue <= prev.elo) {
-        const ratio = (eloValue - current.elo) / (prev.elo - current.elo };
-        return Math.round(current.position + ratio * (prev.position - current.position) };
-      }
+    if (!elo || !FACEIT_API_KEY) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing elo or API key' })
+      };
     }
-    return leaderboard[leaderboard.length - 1]?.position + 1 || 99999;
-  };
 
-  const worldBoard = await get('world' };
-  const europeBoard = await get('europe' };
+    const res = await fetch(`https://open.faceit.com/data/v4/rankings/games/cs2/regions/EU?elo=${elo}&limit=1`, {
+      headers: {
+        Authorization: `Bearer ${FACEIT_API_KEY}`
+      }
+    });
 
-  const result = {
-    world: estimateRank(worldBoard),
-    europe: estimateRank(europeBoard)
-  };
+    const data = await res.json();
 
-  res.json(result };
-}
+    // Sample response manipulation — adjust as needed
+    const ranking = {
+      europe: data.position || null,
+      world: null // If you don't have global ranking data
+    };
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(ranking)
+    };
+
+  } catch (error) {
+    console.error('Ranking API error:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to fetch ranking' })
+    };
+  }
+};
