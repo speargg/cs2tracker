@@ -1774,6 +1774,24 @@ async function fetchDetailedMatchData(matchId, playerId) {
     console.log('📦 matchDetails:', matchDetails);
     console.log('📊 matchStats:', matchStats);
     
+    // Dodajmy głębszy debug dla matchDetails
+    if (matchDetails) {
+      console.log('🔍 Full matchDetails structure:');
+      console.log('- Keys:', Object.keys(matchDetails));
+      if (matchDetails.voting) {
+        console.log('- voting keys:', Object.keys(matchDetails.voting));
+        if (matchDetails.voting.map) {
+          console.log('- voting.map keys:', Object.keys(matchDetails.voting.map));
+        }
+      }
+      if (matchDetails.maps) {
+        console.log('- maps:', matchDetails.maps);
+      }
+      if (matchDetails.game) {
+        console.log('- game:', matchDetails.game);
+      }
+    }
+    
     const result = {
       mapName: 'Unknown',
       score: '- - -',
@@ -1785,9 +1803,13 @@ async function fetchDetailedMatchData(matchId, playerId) {
     console.log('matchDetails.rounds?.[0]?.round_stats?.Map:', matchDetails?.rounds?.[0]?.round_stats?.Map);
     console.log('matchDetails.map:', matchDetails?.map);
     console.log('matchDetails.voting?.map?.name:', matchDetails?.voting?.map?.name);
+    console.log('matchDetails.voting?.map?.entities?.[0]?.game_map_id:', matchDetails?.voting?.map?.entities?.[0]?.game_map_id);
     console.log('matchDetails.voting:', matchDetails?.voting);
     
-    if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
+    if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
+      result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
+      console.log('✅ Map name from voting.map.entities[0].game_map_id:', result.mapName);
+    } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
       result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
       console.log('✅ Map name from rounds:', result.mapName);
     } else if (matchDetails?.map) {
@@ -1796,9 +1818,21 @@ async function fetchDetailedMatchData(matchId, playerId) {
     } else if (matchDetails?.voting?.map?.name) {
       result.mapName = cleanMapName(matchDetails.voting.map.name);
       console.log('✅ Map name from voting:', result.mapName);
+    } else if (matchDetails?.voting?.map?.pick?.[0]) {
+      result.mapName = cleanMapName(matchDetails.voting.map.pick[0]);
+      console.log('✅ Map name from voting pick:', result.mapName);
+    } else if (matchDetails?.maps?.[0]) {
+      result.mapName = cleanMapName(matchDetails.maps[0]);
+      console.log('✅ Map name from maps array:', result.mapName);
+    } else if (matchDetails?.game_mode?.map) {
+      result.mapName = cleanMapName(matchDetails.game_mode.map);
+      console.log('✅ Map name from game_mode:', result.mapName);
     } else {
       console.warn('⚠️ Could not find map name in any expected location');
       console.log('Available matchDetails keys:', Object.keys(matchDetails || {}));
+      
+      // Sprawdźmy czy mapa nie jest w oryginalnych danych meczu (przed wywołaniem API)
+      console.log('🤔 Consider checking if map name is available in original match data before API calls');
     }
 
     // === Score - poprawiona logika ===
