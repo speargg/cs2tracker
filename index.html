@@ -163,21 +163,26 @@
       }
     });
 
-    // ✅ Now globally defined
-    function redirectToMainPage() {
-      const nickname = document.querySelector('.search-input').value.trim();
-      if (!nickname) {
-        alert('Please enter a nickname');
-        return;
-      }
-      window.location.href = `/${encodeURIComponent(nickname)}`;
-    }
+// ✅ Now globally defined
+function redirectToMainPage() {
+  const nickname = document.querySelector('.search-input').value.trim();
+  if (!nickname) {
+    alert('Please enter a nickname');
+    return;
+  }
 
-    document.querySelector('.search-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        redirectToMainPage();
-      }
-    });
+  // 🔄 Ustawiamy flagę, że mamy pokazać loader na stronie głównej
+  localStorage.setItem('showLoader', 'true');
+
+  window.location.href = `/${encodeURIComponent(nickname)}`;
+}
+
+document.querySelector('.search-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    redirectToMainPage();
+  }
+});
+
   </script>
 </body>
 </html>
