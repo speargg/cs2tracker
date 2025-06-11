@@ -1204,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('loading');
     }
 
-    // 🧹 Usuwamy flagę, żeby nie działała przy kolejnym odświeżeniu
+    // 🧹 Usuń flagę, żeby nie działała przy kolejnym odświeżeniu
     localStorage.removeItem('showLoader');
 
     // 🌗 Utwórz przycisk do zmiany motywu
@@ -1221,6 +1221,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedTheme === 'black') {
         document.body.classList.add('black-theme');
         themeIcon.textContent = '☀️';
+    }
+
+    // 🚀 Jeśli przyszedł z index.html z ?nickname=... → uruchom wyszukiwanie
+    if (shouldShowLoader) {
+        const params = new URLSearchParams(window.location.search);
+        const nickname = params.get('nickname');
+
+        if (nickname) {
+            const input = document.querySelector('.search-input');
+            if (input) {
+                input.value = nickname;
+                searchPlayer();
+            }
+        }
     }
 });
 // Theme toggle functionality
