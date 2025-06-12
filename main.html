@@ -2223,53 +2223,71 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
-// Updated function to work with the new Netlify function
+// Direct implementation to fetch ELO history without a Netlify function
 async function updatePerformanceChart(_, playerId) {
   console.log("📈 Updating ELO chart for player ID:", playerId)
 
   try {
-    // Show loading state on chart if possible
-    if (performanceChart) {
-      const ctx = document.getElementById("performanceChart").getContext("2d")
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    // Show loading state on chart
+    const canvas = document.getElementById("performanceChart")
+    if (canvas) {
+      const ctx = canvas.getContext("2d")
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.font = "16px Inter"
       ctx.fillStyle = "#94a3b8"
       ctx.textAlign = "center"
-      ctx.fillText("Loading ELO data...", ctx.canvas.width / 2, ctx.canvas.height / 2)
+      ctx.fillText("Loading ELO data...", canvas.width / 2, canvas.height / 2)
     }
 
-    // Call the updated Netlify function
-    const response = await fetch(`/.netlify/functions/faceit-elo-history?playerId=${playerId}&size=100`)
+    // Calculate time range (default: last year)
+    const currentTime = Math.floor(Date.now() / 1000)
+    const oneYearAgo = currentTime - 365 * 24 * 60 * 60
+
+    // Direct call to the unofficial Faceit API
+    // Using a CORS proxy to avoid CORS issues
+    const corsProxy = "https://corsproxy.io/?"
+    const faceitApiUrl = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=100&from=${oneYearAgo}000&to=${currentTime}000`
+
+    const response = await fetch(corsProxy + encodeURIComponent(faceitApiUrl))
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status} ${response.statusText}`)
     }
 
     const data = await response.json()
-    console.log("📊 ELO history response:", data)
+    console.log("📊 Raw ELO data:", data)
 
-    if (!data.items || data.items.length === 0) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
       console.warn("⚠️ No ELO history data available")
 
       // Show no data message on chart
-      const ctx = document.getElementById("performanceChart").getContext("2d")
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      ctx.font = "16px Inter"
-      ctx.fillStyle = "#94a3b8"
-      ctx.textAlign = "center"
-      ctx.fillText("No ELO history data available", ctx.canvas.width / 2, ctx.canvas.height / 2)
+      if (canvas) {
+        const ctx = canvas.getContext("2d")
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.font = "16px Inter"
+        ctx.fillStyle = "#94a3b8"
+        ctx.textAlign = "center"
+        ctx.fillText("No ELO history data available", canvas.width / 2, canvas.height / 2)
+      }
 
       return
     }
 
-    // Get the last 20 matches (or fewer if less data is available)
-    const recentMatches = data.items.slice(-20)
+    // Process the data - this API returns an array of matches with ELO information
+    const eloHistory = data
+      .filter((match) => match.elo !== undefined && match.elo !== null)
+      .map((match) => ({
+        elo: match.elo,
+        date: new Date(match.date),
+        label: new Date(match.date).toLocaleDateString(),
+      }))
+      .sort((a, b) => a.date - b.date) // Sort by date ascending
+      .slice(-20) // Get last 20 matches
 
-    // Format data for the chart
-    const eloHistory = recentMatches.map((match) => ({
-      elo: match.elo,
-      label: new Date(match.date).toLocaleDateString(),
-    }))
+    if (eloHistory.length === 0) {
+      console.warn("⚠️ No valid ELO data points found")
+      return
+    }
 
     console.log("✅ Processed ELO history:", eloHistory)
 
@@ -2282,17 +2300,15 @@ async function updatePerformanceChart(_, playerId) {
     const padding = Math.max((maxElo - minElo) * 0.2, 100)
 
     // Update chart
-    if (performanceChart) {
-      performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding))
-      performanceChart.options.scales.y.max = Math.ceil(maxElo + padding)
-      performanceChart.data.labels = labels
-      performanceChart.data.datasets[0].data = values
-      performanceChart.update()
-    }
+    if (window.performanceChart) {
+      window.performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding))
+      window.performanceChart.options.scales.y.max = Math.ceil(maxElo + padding)
+      window.performanceChart.data.labels = labels
+      window.performanceChart.data.datasets[0].data = values
+      window.performanceChart.update()
 
-    // Update ELO change display
-    if (typeof updateEloChange === "function") {
-      updateEloChange()
+      // Update ELO change display
+      window.updateEloChange()
     }
 
     console.log("✅ Chart updated successfully")
@@ -2300,14 +2316,17 @@ async function updatePerformanceChart(_, playerId) {
     console.error("❌ Error updating ELO chart:", error)
 
     // Show error message on chart
-    const ctx = document.getElementById("performanceChart").getContext("2d")
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    ctx.font = "16px Inter"
-    ctx.fillStyle = "#ef4444"
-    ctx.textAlign = "center"
-    ctx.fillText("Error loading ELO data", ctx.canvas.width / 2, ctx.canvas.height / 2)
-    ctx.font = "14px Inter"
-    ctx.fillText("Check console for details", ctx.canvas.width / 2, ctx.canvas.height / 2 + 25)
+    const canvas = document.getElementById("performanceChart")
+    if (canvas) {
+      const ctx = canvas.getContext("2d")
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.font = "16px Inter"
+      ctx.fillStyle = "#ef4444"
+      ctx.textAlign = "center"
+      ctx.fillText("Error loading ELO data", canvas.width / 2, canvas.height / 2)
+      ctx.font = "14px Inter"
+      ctx.fillText("Check console for details", canvas.width / 2, canvas.height / 2 + 25)
+    }
   }
 }
 // Test script to verify the ELO history function
