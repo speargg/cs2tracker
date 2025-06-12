@@ -2265,20 +2265,30 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
     try {
+        console.log("📡 Fetching ELO history (stats API) for:", playerId);
         const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Faceit stats API error");
+        console.log("🔍 Response status:", res.status);
+
+        if (!res.ok) {
+            console.error("❌ Faceit stats API error:", res.status, res.statusText);
+            throw new Error(`Faceit stats API error: ${res.status}`);
+        }
 
         const json = await res.json();
+        console.log("✅ JSON z API:", json);
 
-        const items = json.items;
+        const items = json.items || [];
+        console.log("➡️ items.length:", items.length);
 
         const data = items
-            .filter(item => item.i1 && item.c) // musi mieć ELO i czas
+            .filter(item => item.i1 && item.c)
             .map((item, index) => ({
                 elo: item.i1,
                 label: `Match ${items.length - index}`
             }))
-            .reverse(); // od najstarszego do najnowszego
+            .reverse();
+
+        console.log("📊 Parsed ELO data:", data);
 
         return data;
     } catch (err) {
@@ -2295,21 +2305,26 @@ async function updatePerformanceChart(_, playerId) {
 
     try {
         const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Faceit stats API error");
+        console.log("🔍 response.status:", res.status);
+
+        if (!res.ok) {
+            console.error("❌ Faceit stats API error:", res.status, res.statusText);
+            throw new Error(`Faceit stats API error: ${res.status}`);
+        }
 
         const json = await res.json();
         console.log("✅ JSON z Faceit Stats API:", json);
 
-        const items = json.items;
-        console.log("➡️ items.length:", items?.length);
+        const items = json.items || [];
+        console.log("➡️ items.length:", items.length);
 
         const eloHistory = items
-            ?.filter(item => item.i1 && item.c)
+            .filter(item => item.i1 && item.c)
             .map(item => ({
                 elo: item.i1,
                 label: new Date(item.c).toLocaleDateString("pl-PL")
             }))
-            .reverse() || [];
+            .reverse();
 
         if (eloHistory.length === 0) {
             console.warn("⚠️ Brak danych ELO do wyświetlenia.");
@@ -2322,11 +2337,11 @@ async function updatePerformanceChart(_, playerId) {
         console.log("🎯 Wartości ELO:", values);
         console.log("📅 Daty:", labels);
 
-        // Dynamiczny zakres z większym marginesem
+        // Dynamiczny zakres
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
         const range = maxElo - minElo;
-        const padding = Math.max(range * 0.2, 200); // 20% lub min. 200 ELO
+        const padding = Math.max(range * 0.2, 200);
 
         performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
         performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
