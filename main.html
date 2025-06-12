@@ -1397,19 +1397,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 interaction: { intersect: false, mode: 'index' }
             }
         });
-// Add this to your page to debug the chart
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(() => {
-    if (window.performanceChart) {
-      console.log("Chart current state:", {
-        labels: window.performanceChart.data.labels,
-        data: window.performanceChart.data.datasets[0].data,
-        yMin: window.performanceChart.options.scales.y.min,
-        yMax: window.performanceChart.options.scales.y.max
-      });
-    }
-  }, 1000);
-});
+
         console.log('✅ Wykres został zainicjowany');
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
@@ -2235,7 +2223,7 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
-// Improved updatePerformanceChart function
+// Direct implementation to fetch ELO history without a Netlify function
 async function updatePerformanceChart(_, playerId) {
   console.log("📈 Updating ELO chart for player ID:", playerId)
 
@@ -2255,11 +2243,10 @@ async function updatePerformanceChart(_, playerId) {
     const currentTime = Math.floor(Date.now() / 1000)
     const oneYearAgo = currentTime - 365 * 24 * 60 * 60
 
-    // Direct call to the unofficial Faceit API with CORS proxy
+    // Direct call to the unofficial Faceit API
+    // Using a CORS proxy to avoid CORS issues
     const corsProxy = "https://corsproxy.io/?"
     const faceitApiUrl = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=100&from=${oneYearAgo}000&to=${currentTime}000`
-
-    console.log("🔗 Fetching ELO data from URL:", corsProxy + encodeURIComponent(faceitApiUrl))
 
     const response = await fetch(corsProxy + encodeURIComponent(faceitApiUrl))
 
@@ -2268,7 +2255,7 @@ async function updatePerformanceChart(_, playerId) {
     }
 
     const data = await response.json()
-    console.log("📊 Raw ELO data received:", data)
+    console.log("📊 Raw ELO data:", data)
 
     if (!data || !Array.isArray(data) || data.length === 0) {
       console.warn("⚠️ No ELO history data available")
@@ -2286,11 +2273,11 @@ async function updatePerformanceChart(_, playerId) {
       return
     }
 
-    // Process the data - extract ELO values correctly
+    // Process the data - this API returns an array of matches with ELO information
     const eloHistory = data
       .filter((match) => match.elo !== undefined && match.elo !== null)
       .map((match) => ({
-        elo: Number.parseInt(match.elo),
+        elo: match.elo,
         date: new Date(match.date),
         label: new Date(match.date).toLocaleDateString(),
       }))
@@ -2307,43 +2294,24 @@ async function updatePerformanceChart(_, playerId) {
     const labels = eloHistory.map((item) => item.label)
     const values = eloHistory.map((item) => item.elo)
 
-    console.log("📊 Chart labels:", labels)
-    console.log("📊 Chart values:", values)
-
     // Calculate appropriate Y-axis range
     const minElo = Math.min(...values)
     const maxElo = Math.max(...values)
     const padding = Math.max((maxElo - minElo) * 0.2, 100)
-    const yMin = Math.max(0, Math.floor(minElo - padding))
-    const yMax = Math.ceil(maxElo + padding)
 
-    console.log(`📊 Chart Y-axis range: ${yMin} to ${yMax}`)
-
-    // IMPORTANT: Make sure we're using the global performanceChart variable
+    // Update chart
     if (window.performanceChart) {
-      // Clear any existing data first
-      window.performanceChart.data.labels = []
-      window.performanceChart.data.datasets[0].data = []
-      window.performanceChart.update()
-
-      // Now set the new data
-      window.performanceChart.options.scales.y.min = yMin
-      window.performanceChart.options.scales.y.max = yMax
+      window.performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding))
+      window.performanceChart.options.scales.y.max = Math.ceil(maxElo + padding)
       window.performanceChart.data.labels = labels
       window.performanceChart.data.datasets[0].data = values
       window.performanceChart.update()
 
       // Update ELO change display
-      if (typeof updateEloChange === "function") {
-        updateEloChange()
-      } else {
-        console.warn("updateEloChange function is not defined.")
-      }
-
-      console.log("✅ Chart updated successfully")
-    } else {
-      console.error("❌ performanceChart is not defined in the global scope")
+      window.updateEloChange()
     }
+
+    console.log("✅ Chart updated successfully")
   } catch (error) {
     console.error("❌ Error updating ELO chart:", error)
 
@@ -2361,6 +2329,44 @@ async function updatePerformanceChart(_, playerId) {
     }
   }
 }
+// Test script to verify the ELO history function
+async function testEloHistoryFunction(playerId) {
+  console.log(`Testing ELO history function for player ID: ${playerId}`)
+
+  try {
+    const response = await fetch(`/.netlify/functions/faceit-elo-history?playerId=${playerId}&size=10`)
+    const data = await response.json()
+
+    console.log("Response status:", response.status)
+    console.log("Response data:", data)
+
+    if (data.error) {
+      console.error("Error from function:", data.error)
+      return
+    }
+
+    if (!data.items || data.items.length === 0) {
+      console.warn("No ELO history data available")
+      return
+    }
+
+    console.log(`Found ${data.items.length} ELO history entries`)
+    console.log("First entry:", data.items[0])
+    console.log("Last entry:", data.items[data.items.length - 1])
+
+    // Calculate ELO change
+    const firstElo = data.items[0].elo
+    const lastElo = data.items[data.items.length - 1].elo
+    const change = lastElo - firstElo
+
+    console.log(`ELO change: ${change > 0 ? "+" : ""}${change} (${firstElo} → ${lastElo})`)
+  } catch (error) {
+    console.error("Test failed:", error)
+  }
+}
+
+// Example usage:
+// testEloHistoryFunction('5b8d259e-503e-4afe-b621-0dc202d46e43');
     </script>
 </body>
 </html>
