@@ -2290,42 +2290,55 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
 // Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
     console.log("📈 Updating ELO chart for:", playerId);
+
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
-    
+
     try {
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error("Faceit stats API error");
-        
+
         const json = await res.json();
+        console.log("✅ JSON z Faceit Stats API:", json);
+
         const items = json.items;
-        
+        console.log("➡️ items.length:", items?.length);
+
         const eloHistory = items
-            .filter(item => item.i1 && item.c)
+            ?.filter(item => item.i1 && item.c)
             .map(item => ({
                 elo: item.i1,
                 label: new Date(item.c).toLocaleDateString("pl-PL")
             }))
-            .reverse();
-        
-        if (eloHistory.length === 0) return;
-        
+            .reverse() || [];
+
+        if (eloHistory.length === 0) {
+            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+            return;
+        }
+
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
-        
+
+        console.log("🎯 Wartości ELO:", values);
+        console.log("📅 Daty:", labels);
+
         // Dynamiczny zakres z większym marginesem
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
         const range = maxElo - minElo;
-        const padding = Math.max(range * 0.2, 200); // 20% różnicy lub minimum 200 punktów
-        
+        const padding = Math.max(range * 0.2, 200); // 20% lub min. 200 ELO
+
         performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
         performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
-        
+
         performanceChart.data.labels = labels;
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
+
         updateEloChange();
-        
+
+        console.log("✅ Wykres ELO zaktualizowany");
+
     } catch (err) {
         console.error("❌ Błąd pobierania ELO:", err);
     }
