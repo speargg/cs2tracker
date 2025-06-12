@@ -1196,6 +1196,155 @@ body.loading {
     </div>
 
     <script>
+// Dodaj tę funkcję do swojego kodu, aby znaleźć wszystkie miejsca, gdzie wykres jest modyfikowany
+;(() => {
+  console.log("🔍 Uruchamianie debugowania wykresu...")
+
+  // Funkcja do monitorowania zmian w wykresie
+  function monitorChartChanges() {
+    if (!window.performanceChart) {
+      console.log("⚠️ Wykres jeszcze nie istnieje, sprawdzam ponownie za 1 sekundę...")
+      setTimeout(monitorChartChanges, 1000)
+      return
+    }
+
+    console.log("✅ Znaleziono wykres, rozpoczynam monitorowanie...")
+
+    // Zapisz oryginalne metody
+    const originalUpdate = window.performanceChart.update
+
+    // Nadpisz metodę update, aby śledzić, kto ją wywołuje
+    window.performanceChart.update = function () {
+      console.log("📊 Wykres aktualizowany!", {
+        time: new Date().toISOString(),
+        labels: this.data.labels.slice(),
+        data: this.data.datasets[0].data.slice(),
+        callStack: new Error().stack,
+      })
+      return originalUpdate.apply(this, arguments)
+    }
+
+    // Monitoruj zmiany w danych wykresu
+    const datasetData = window.performanceChart.data.datasets[0].data
+    const originalPush = datasetData.push
+    datasetData.push = function () {
+      console.log("📈 Dodawanie danych do wykresu!", {
+        time: new Date().toISOString(),
+        addedData: Array.from(arguments),
+        callStack: new Error().stack,
+      })
+      return originalPush.apply(this, arguments)
+    }
+
+    // Monitoruj zmiany w etykietach wykresu
+    const labels = window.performanceChart.data.labels
+    const originalLabelsPush = labels.push
+    labels.push = function () {
+      console.log("🏷️ Dodawanie etykiet do wykresu!", {
+        time: new Date().toISOString(),
+        addedLabels: Array.from(arguments),
+        callStack: new Error().stack,
+      })
+      return originalLabelsPush.apply(this, arguments)
+    }
+
+    console.log("🔍 Monitorowanie wykresu aktywne!")
+  }
+
+  // Uruchom monitorowanie po załadowaniu strony
+  if (document.readyState === "complete") {
+    monitorChartChanges()
+  } else {
+    window.addEventListener("load", () => {
+      setTimeout(monitorChartChanges, 1000)
+    })
+  }
+})()
+import { Chart } from "@/components/ui/chart"
+// Dodaj tę funkcję, aby całkowicie wyczyścić wykres i usunąć wszystkie predefiniowane dane
+function resetChart() {
+  console.log("🧹 Resetowanie wykresu...")
+
+  // Sprawdź czy wykres istnieje
+  if (!window.performanceChart) {
+    console.error("❌ Wykres nie istnieje!")
+    return false
+  }
+
+  try {
+    // Zapisz opcje wykresu
+    const options = JSON.parse(JSON.stringify(window.performanceChart.options))
+
+    // Zniszcz istniejący wykres
+    window.performanceChart.destroy()
+    console.log("🗑️ Stary wykres zniszczony")
+
+    // Utwórz nowy wykres z pustymi danymi
+    const ctx = document.getElementById("performanceChart").getContext("2d")
+    window.performanceChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Faceit ELO",
+            data: [],
+            borderColor: "#3b82f6",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: "#3b82f6",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: options,
+    })
+
+    console.log("✅ Nowy pusty wykres utworzony")
+    return true
+  } catch (error) {
+    console.error("❌ Błąd podczas resetowania wykresu:", error)
+    return false
+  }
+}
+
+// Dodaj tę funkcję do globalnego zakresu
+window.resetChart = resetChart
+
+// Dodaj tę funkcję, aby znaleźć wszystkie miejsca w HTML, gdzie mogą być predefiniowane dane
+function findHardcodedChartData() {
+  console.log("🔍 Szukam predefiniowanych danych wykresu w HTML...")
+
+  // Szukaj wszystkich skryptów w dokumencie
+  const scripts = document.querySelectorAll("script")
+  let found = false
+
+  scripts.forEach((script, index) => {
+    const content = script.textContent || ""
+
+    // Szukaj wzorców, które mogą wskazywać na predefiniowane dane wykresu
+    if (content.includes("performanceChart") && (content.includes("data:") || content.includes("datasets:"))) {
+      console.log(`📝 Znaleziono potencjalne predefiniowane dane w skrypcie #${index}:`)
+      console.log(content)
+      found = true
+    }
+  })
+
+  if (!found) {
+    console.log("✅ Nie znaleziono oczywistych predefiniowanych danych w skryptach")
+  }
+
+  return found
+}
+
+// Dodaj tę funkcję do globalnego zakresu
+window.findHardcodedChartData = findHardcodedChartData
+
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // 🧠 Czy mamy pokazać loader?
