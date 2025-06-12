@@ -2218,55 +2218,67 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
-// Placeholder function for performance chart update
-function updatePerformanceChart(matches, playerId) {
-    console.log('Updating performance chart with matches:', matches);
-    // TODO: Implement ELO tracking from match history
-    // This will depend on your API structure
-}
-// Add CSS for loading animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+async function fetchEloHistoryFromStatsAPI(playerId) {
+    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
+
+    try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error("Faceit stats API error");
+
+        const json = await res.json();
+
+        const items = json.items;
+
+        const data = items
+            .filter(item => item.i1 && item.c) // musi mieć ELO i czas
+            .map((item, index) => ({
+                elo: item.i1,
+                label: `Match ${items.length - index}`
+            }))
+            .reverse(); // od najstarszego do najnowszego
+
+        return data;
+    } catch (err) {
+        console.error("❌ Failed to load Faceit Stats API ELO history:", err);
+        return [];
     }
-`;
-document.head.appendChild(style);
-    
-	  // Searching from start// 
-	window.addEventListener('DOMContentLoaded', () => {
-  // Try to read from ?nickname=... or from path like /SpeaR
-let nickname = null;
-
-// 1. Try query string
-const params = new URLSearchParams(window.location.search);
-nickname = params.get('nickname');
-
-// 2. If still null, try from path
-if (!nickname) {
-  const path = window.location.pathname;
-  // removes leading slash: /SpeaR -> SpeaR
-  nickname = path.split('/')[1] || null;
 }
 
-  const input = document.querySelector('.search-input');
+// Performance chart update
+async function updatePerformanceChart(matches, playerId) {
+    console.log('⏳ Ładowanie danych ELO z Faceit Stats API...');
 
-  console.log("Nickname in URL:", nickname);
-  console.log("Input found?", !!input);
+    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
-  if (nickname && input) {
-    input.value = nickname;
+    try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error("Faceit stats API error");
 
-    // Add a small delay to let DOM update input value before running search
-    setTimeout(() => {
-      console.log("Input value before searchPlayer:", input.value);
-      searchPlayer();
-    }, 200);
-  } else {
-    console.warn("Nickname missing or input field not found");
-  }
-});
+        const json = await res.json();
+        const items = json.items;
+
+        const eloHistory = items
+            .filter(item => item.i1 && item.c)
+            .map(item => ({
+                elo: item.i1,
+                label: new Date(item.c).toLocaleDateString("pl-PL") // <-- pokazuje daty
+            }))
+            .reverse();
+
+        const labels = eloHistory.map(d => d.label);
+        const values = eloHistory.map(d => d.elo);
+
+        performanceChart.data.labels = labels;
+        performanceChart.data.datasets[0].data = values;
+        performanceChart.update();
+
+        console.log('✅ Wykres zaktualizowany');
+        updateEloChange(); // jeśli masz tę funkcję
+
+    } catch (err) {
+        console.error("❌ Błąd pobierania danych ELO:", err);
+    }
+}
     </script>
 </body>
 </html>
