@@ -1267,25 +1267,6 @@ function toggleTheme() {
 }
 // Performance Chart - Faceit ELO
 const ctx = document.getElementById('performanceChart').getContext('2d');
-
-const performanceData = {
-    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
-    datasets: [{
-        label: 'Faceit ELO',
-        data: [2756, 2789, 2834, 2801, 2823, 2856, 2798, 2834, 2867, 2845, 2879, 2823, 2856, 2890, 2867, 2834, 2801, 2823, 2845, 2834],
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#3b82f6',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 6
-    }]
-};
-
 const performanceChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -1417,9 +1398,6 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
         searchPlayer(); // domyślnie true – spinner się pokazuje
     }
 });
-        // Initialize ELO change display
-        updateEloChange();
-
         // Stats data for toggle functionality
         const statsData = {
             lifetime: {
