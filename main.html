@@ -1460,18 +1460,16 @@ const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 	    
 // Fixed search functionality with proper error handling and correct API structure
+// Fixed search functionality with proper error handling and ELO chart update
 async function searchPlayer(showSpinner = true) {
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
-
     if (!nickname) {
         alert('Please enter a Faceit nickname');
         return;
     }
-
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
-
     try {
         if (showSpinner) {
             searchBtn.innerHTML = `
@@ -1486,22 +1484,23 @@ async function searchPlayer(showSpinner = true) {
             `;
             await new Promise(requestAnimationFrame);
         }
-
         const playerData = await fetchPlayerData(nickname);
         const playerStats = await fetchPlayerStats(playerData.player_id);
         const matchHistory = await fetchMatchHistory(playerData.player_id);
-
+        
+        // Aktualizuj profil gracza
         updatePlayerProfile(playerData, playerStats, matchHistory);
-
+        
+        // ✅ DODAJ TO - aktualizuj wykres ELO
+        await updatePerformanceChart(null, playerData.player_id);
+        
     } catch (error) {
         console.error(error);
         alert('Player not found or API error. Please try again.');
     } finally {
         searchBtn.innerHTML = originalContent;
-
         const loader = document.getElementById('loader');
         const content = document.getElementById('content');
-
         if (loader && content) {
             loader.style.display = 'none';
             content.style.display = 'block';
@@ -2213,32 +2212,63 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
 async function updatePerformanceChart(_, playerId) {
     console.log("📈 Updating ELO chart for:", playerId);
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
-
+    
     try {
         const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Faceit stats API error");
-
+        if (!res.ok) {
+            console.error("API Response not OK:", res.status, res.statusText);
+            throw new Error("Faceit stats API error");
+        }
+        
         const json = await res.json();
+        console.log("📊 Raw API Response:", json); // DEBUG - sprawdź strukturę
+        
         const items = json.items;
-
+        if (!items || items.length === 0) {
+            console.warn("No match history found");
+            return;
+        }
+        
         const eloHistory = items
-            .filter(item => item.i1 && item.c)
+            .filter(item => {
+                console.log("Item:", item.i1, item.c); // DEBUG - sprawdź każdy item
+                return item.i1 && item.c;
+            })
             .map(item => ({
                 elo: item.i1,
                 label: new Date(item.c).toLocaleDateString("pl-PL")
             }))
             .reverse();
-
+        
+        console.log("📈 Processed ELO History:", eloHistory); // DEBUG
+        
+        if (eloHistory.length === 0) {
+            console.warn("No valid ELO data found");
+            return;
+        }
+        
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
-
+        
+        // Dynamically adjust Y-axis range based on data
+        const minElo = Math.min(...values);
+        const maxElo = Math.max(...values);
+        const padding = (maxElo - minElo) * 0.1 || 50; // 10% padding or minimum 50
+        
+        performanceChart.options.scales.y.min = Math.floor(minElo - padding);
+        performanceChart.options.scales.y.max = Math.ceil(maxElo + padding);
+        
         performanceChart.data.labels = labels;
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
-
         updateEloChange();
+        
+        console.log("✅ Chart updated successfully");
+        
     } catch (err) {
         console.error("❌ Błąd pobierania ELO:", err);
+        // Pokaż błąd użytkownikowi
+        alert("Nie udało się załadować historii ELO. Sprawdź konsolę dla szczegółów.");
     }
 }
     </script>
