@@ -1265,7 +1265,7 @@ function toggleTheme() {
         localStorage.setItem('theme', 'blue');
     }
 }
-// Performance Chart - Faceit ELO
+// Performance Chart - Faceit ELO with fixed range 0-5000
 const ctx = document.getElementById('performanceChart').getContext('2d');
 const performanceChart = new Chart(ctx, {
     type: 'line',
@@ -1304,7 +1304,7 @@ const performanceChart = new Chart(ctx, {
                 multiKeyBackground: 'transparent',
                 callbacks: {
                     title: function (context) {
-                        return `${context[0].label}`; // ← tu już jest data, nie "Match X"
+                        return `${context[0].label}`;
                     },
                     label: function (context) {
                         const currentElo = context.parsed.y;
@@ -1345,9 +1345,9 @@ const performanceChart = new Chart(ctx, {
         },
         scales: {
             y: {
-                beginAtZero: false,
-                min: 2750,
-                max: 2900,
+                beginAtZero: true,
+                min: 0,
+                max: 5000,
                 grid: {
                     color: 'rgba(37, 99, 235, 0.2)'
                 },
@@ -1355,7 +1355,9 @@ const performanceChart = new Chart(ctx, {
                     color: '#94a3b8',
                     font: {
                         family: 'Inter'
-                    }
+                    },
+                    // Opcjonalne: pokaż tylko co 500 punktów na osi Y
+                    stepSize: 500
                 }
             },
             x: {
@@ -2209,66 +2211,47 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
     }
 }
 
+// Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
     console.log("📈 Updating ELO chart for:", playerId);
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
     
     try {
         const res = await fetch(endpoint);
-        if (!res.ok) {
-            console.error("API Response not OK:", res.status, res.statusText);
-            throw new Error("Faceit stats API error");
-        }
+        if (!res.ok) throw new Error("Faceit stats API error");
         
         const json = await res.json();
-        console.log("📊 Raw API Response:", json); // DEBUG - sprawdź strukturę
-        
         const items = json.items;
-        if (!items || items.length === 0) {
-            console.warn("No match history found");
-            return;
-        }
         
         const eloHistory = items
-            .filter(item => {
-                console.log("Item:", item.i1, item.c); // DEBUG - sprawdź każdy item
-                return item.i1 && item.c;
-            })
+            .filter(item => item.i1 && item.c)
             .map(item => ({
                 elo: item.i1,
                 label: new Date(item.c).toLocaleDateString("pl-PL")
             }))
             .reverse();
         
-        console.log("📈 Processed ELO History:", eloHistory); // DEBUG
-        
-        if (eloHistory.length === 0) {
-            console.warn("No valid ELO data found");
-            return;
-        }
+        if (eloHistory.length === 0) return;
         
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
         
-        // Dynamically adjust Y-axis range based on data
+        // Dynamiczny zakres z większym marginesem
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
-        const padding = (maxElo - minElo) * 0.1 || 50; // 10% padding or minimum 50
+        const range = maxElo - minElo;
+        const padding = Math.max(range * 0.2, 200); // 20% różnicy lub minimum 200 punktów
         
-        performanceChart.options.scales.y.min = Math.floor(minElo - padding);
-        performanceChart.options.scales.y.max = Math.ceil(maxElo + padding);
+        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
+        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
         
         performanceChart.data.labels = labels;
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
         updateEloChange();
         
-        console.log("✅ Chart updated successfully");
-        
     } catch (err) {
         console.error("❌ Błąd pobierania ELO:", err);
-        // Pokaż błąd użytkownikowi
-        alert("Nie udało się załadować historii ELO. Sprawdź konsolę dla szczegółów.");
     }
 }
     </script>
