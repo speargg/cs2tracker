@@ -2216,8 +2216,8 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
 }
 
 // Performance chart update
-async function updatePerformanceChart(matches, playerId) {
-	console.log("📈 Updating ELO chart for:", playerId);
+async function updatePerformanceChart(_, playerId) {
+    console.log("📈 Updating ELO chart for:", playerId);
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
     try {
@@ -2226,6 +2226,11 @@ async function updatePerformanceChart(matches, playerId) {
 
         const json = await res.json();
         const items = json.items;
+
+        if (!items || !items.length) {
+            console.warn("⚠️ No ELO data found in stats API.");
+            return;
+        }
 
         const eloHistory = items
             .filter(item => item.i1 && item.c)
@@ -2243,8 +2248,10 @@ async function updatePerformanceChart(matches, playerId) {
         performanceChart.update();
 
         updateEloChange();
+        console.log("✅ Wykres ELO zaktualizowany");
+
     } catch (err) {
-        console.error("Błąd pobierania ELO:", err);
+        console.error("❌ Błąd pobierania ELO:", err);
     }
 }
     </script>
