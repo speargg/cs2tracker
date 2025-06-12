@@ -2261,6 +2261,7 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
 
 // Performance chart update
 async function updatePerformanceChart(matches, playerId) {
+	console.log("📈 Updating ELO chart for:", playerId);
     const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
     try {
