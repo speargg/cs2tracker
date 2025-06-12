@@ -1474,7 +1474,6 @@ async function searchPlayer(showSpinner = true) {
 
     try {
         if (showSpinner) {
-            // Pokazanie mini-spinnera tylko jeśli trzeba
             searchBtn.innerHTML = `
                 <div style="
                     width: 16px;
@@ -1510,7 +1509,6 @@ async function searchPlayer(showSpinner = true) {
         }
     }
 }
-
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
@@ -1570,20 +1568,90 @@ async function fetchMatchHistory(playerId) {
     }
 }
 
-// Helper function to safely update stats with the correct Faceit API structure
-function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = null) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    for (const key of possibleKeys) {
-        if (stats[key] !== undefined && stats[key] !== null && stats[key] !== '') {
-            const value = stats[key];
-            element.textContent = transform ? transform(value) : value;
-            return;
+// Fixed updatePlayerProfile function with correct Faceit API structure
+function updatePlayerProfile(playerData, playerStats, matchHistory) {
+    try {
+        // Update header info
+        if (playerData?.nickname) {
+            document.querySelector('.nickname').textContent = playerData.nickname;
+
+            const avatarContainer = document.querySelector('.avatar');
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
+            }
         }
+
+        // Player level + ELO
+        if (playerData?.games?.cs2) {
+            const cs2Data = playerData.games.cs2;
+            const eloElement = document.querySelector('.faceit-rating');
+            const levelElement = document.querySelector('.rating-elo');
+
+            if (cs2Data.faceit_elo) {
+                eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
+            } else {
+                eloElement.textContent = 'N/A';
+            }
+
+            // Rank API
+            fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
+                .then(res => res.json())
+                .then(ranking => {
+                    const world = document.getElementById('faceit-world-ranking');
+                    const europe = document.getElementById('faceit-europe-ranking');
+
+                    if (world) world.textContent = ranking?.world ? `#${ranking.world.toLocaleString()}` : 'Not Ranked';
+                    if (europe) europe.textContent = ranking?.europe ? `#${ranking.europe.toLocaleString()}` : 'Not Ranked';
+                })
+                .catch(err => {
+                    console.error('Failed to fetch estimated ranking:', err);
+                });
+
+            levelElement.textContent = cs2Data.skill_level
+                ? `Level ${cs2Data.skill_level}`
+                : 'Level N/A';
+        }
+
+        // Stats
+        if (playerStats?.lifetime) {
+            const stats = playerStats.lifetime;
+            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A');
+            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
+            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
+            updateStatSafely('faceit-adr', stats, ['Average Damage per Round'], 'N/A', val => Math.round(parseFloat(val)));
+            updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
+        } else {
+            console.warn('PlayerStats structure not as expected:', playerStats);
+            document.getElementById('faceit-matches').textContent = 'N/A';
+            document.getElementById('faceit-winrate').textContent = 'N/A';
+            document.getElementById('faceit-kd').textContent = 'N/A';
+            document.getElementById('faceit-adr').textContent = 'N/A';
+            document.getElementById('faceit-hs').textContent = 'N/A';
+        }
+
+        // Faceit profile link
+        if (playerData?.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+
+        // Match history table
+        const playerId = playerData?.player_id;
+        if (matchHistory?.items) {
+            updateMatchHistory(matchHistory.items, playerId);
+        }
+
+        // ELO CHART
+        if (playerId) {
+            updatePerformanceChart([], playerId);
+        }
+
+    } catch (error) {
+        console.error('Error updating player profile:', error);
+        alert('Error displaying player data. Please try again.');
     }
-    
-    element.textContent = fallback;
 }
 
 // Update match history display with player ID for win/loss determination
