@@ -1397,7 +1397,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 interaction: { intersect: false, mode: 'index' }
             }
         });
-
+// Add this to your page to debug the chart
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    if (window.performanceChart) {
+      console.log("Chart current state:", {
+        labels: window.performanceChart.data.labels,
+        data: window.performanceChart.data.datasets[0].data,
+        yMin: window.performanceChart.options.scales.y.min,
+        yMax: window.performanceChart.options.scales.y.max
+      });
+    }
+  }, 1000);
+});
         console.log('✅ Wykres został zainicjowany');
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
