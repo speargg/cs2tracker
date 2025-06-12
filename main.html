@@ -1648,10 +1648,14 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             }
         }
 
-        // Match history + chart
+        // Match history + chart update
+        const playerId = playerData?.player_id;
+
         if (matchHistory && matchHistory.items) {
-            updateMatchHistory(matchHistory.items, playerData.player_id);
-            updatePerformanceChart(matchHistory.items, playerData.player_id);
+            updateMatchHistory(matchHistory.items, playerId);
+            updatePerformanceChart(matchHistory.items, playerId);
+        } else if (playerId) {
+            updatePerformanceChart([], playerId);
         }
 
     } catch (error) {
@@ -1659,7 +1663,6 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         alert('Error displaying player data. Please try again.');
     }
 }
-
 // Helper function to safely update stats with the correct Faceit API structure
 function updateStatSafely(elementId, stats, possibleKeys, fallback, transform = null) {
     const element = document.getElementById(elementId);
