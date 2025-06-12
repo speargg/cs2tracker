@@ -1316,99 +1316,92 @@ function toggleTheme() {
         localStorage.setItem('theme', 'blue');
     }
 }
-let performanceChart; // globalna zmienna — potrzebna do updatePerformanceChart
+let performanceChart;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('performanceChart');
-    if (!canvas) {
-        console.error('❌ Nie znaleziono elementu #performanceChart!');
-        return;
-    }
+    setTimeout(() => {
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) {
+            console.error('❌ Nie znaleziono elementu #performanceChart!');
+            return;
+        }
 
-    const ctx = canvas.getContext('2d');
-    performanceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Faceit ELO',
-                data: [],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#3b82f6',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2,
-                pointRadius: 3,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(15, 20, 25, 0.95)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: 'rgba(37, 99, 235, 0.3)',
-                    borderWidth: 1,
-                    cornerRadius: 8,
-                    displayColors: false,
-                    multiKeyBackground: 'transparent',
-                    callbacks: {
-                        title: function (context) {
-                            return `${context[0].label}`;
-                        },
-                        label: function (context) {
-                            const currentElo = context.parsed.y;
-                            const dataIndex = context.dataIndex;
-                            const data = context.dataset.data;
-                            if (dataIndex === 0) return `ELO: ${currentElo}`;
-                            const previousElo = data[dataIndex - 1];
-                            const change = currentElo - previousElo;
-                            return [`ELO: ${currentElo}`, change >= 0 ? `+${change}` : `${change}`];
-                        },
-                        labelTextColor: function (context) {
-                            const idx = context.dataIndex;
-                            const data = context.dataset.data;
-                            if (idx === 0) return '#ffffff';
-                            const current = context.parsed.y;
-                            const prev = data[idx - 1];
-                            const change = current - prev;
-                            return change > 0 ? '#10b981' : change < 0 ? '#ef4444' : '#ffffff';
+        const ctx = canvas.getContext('2d');
+        performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Faceit ELO',
+                    data: [],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 20, 25, 0.95)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(37, 99, 235, 0.3)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        multiKeyBackground: 'transparent',
+                        callbacks: {
+                            title: context => `${context[0].label}`,
+                            label: context => {
+                                const currentElo = context.parsed.y;
+                                const index = context.dataIndex;
+                                const data = context.dataset.data;
+                                if (index === 0) return `ELO: ${currentElo}`;
+                                const diff = currentElo - data[index - 1];
+                                return [`ELO: ${currentElo}`, diff >= 0 ? `+${diff}` : `${diff}`];
+                            },
+                            labelTextColor: context => {
+                                const index = context.dataIndex;
+                                const data = context.dataset.data;
+                                if (index === 0) return '#ffffff';
+                                const change = context.parsed.y - data[index - 1];
+                                return change >= 0 ? '#10b981' : '#ef4444';
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 5000,
-                    grid: { color: 'rgba(37, 99, 235, 0.2)' },
-                    ticks: {
-                        color: '#94a3b8',
-                        font: { family: 'Inter' },
-                        stepSize: 500
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 5000,
+                        stepSize: 500,
+                        ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                        grid: { color: 'rgba(37, 99, 235, 0.2)' }
+                    },
+                    x: {
+                        ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                        grid: { color: 'rgba(37, 99, 235, 0.2)' }
                     }
                 },
-                x: {
-                    grid: { color: 'rgba(37, 99, 235, 0.2)' },
-                    ticks: {
-                        color: '#94a3b8',
-                        font: { family: 'Inter' }
-                    }
-                }
-            },
-            interaction: { intersect: false, mode: 'index' }
-        }
-    });
-});
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
 
+        console.log('✅ Wykres został zainicjowany');
+
+    }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
+});
         // Calculate and update ELO change
         function updateEloChange() {
             const firstElo = performanceChart.data.datasets[0].data[0];
