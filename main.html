@@ -2261,65 +2261,56 @@ async function fetchEloHistoryFromStatsAPI(playerId) {
 
 // Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
-if (!performanceChart) {
-    console.error("❌ Wykres performanceChart nie został jeszcze zainicjalizowany");
-    return;
-}
-    console.log("📈 Updating ELO chart for:", playerId);
+  console.log("📈 Updating ELO chart for:", playerId);
 
-    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
+  const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
-    try {
-        const res = await fetch(endpoint);
-        console.log("🔍 response.status:", res.status);
+  try {
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error("Faceit stats API error");
 
-        if (!res.ok) {
-            console.error("❌ Faceit stats API error:", res.status, res.statusText);
-            throw new Error(`Faceit stats API error: ${res.status}`);
-        }
+    const json = await res.json();
+    const items = json.items;
 
-        const json = await res.json();
-        const items = json.items || [];
-        console.log("➡️ items.length:", items.length);
-
-        const eloHistory = items
-            .filter(item => item.i1 && item.c)
-            .map(item => ({
-                elo: item.i1,
-                label: new Date(item.c).toLocaleDateString("pl-PL")
-            }))
-            .reverse();
-
-        if (eloHistory.length === 0) {
-            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
-            return;
-        }
-
-        const labels = eloHistory.map(d => d.label);
-        const values = eloHistory.map(d => d.elo);
-
-        console.log("🎯 Wartości ELO:", values);
-        console.log("📅 Daty:", labels);
-
-        const minElo = Math.min(...values);
-        const maxElo = Math.max(...values);
-        const range = maxElo - minElo;
-        const padding = Math.max(range * 0.2, 200);
-
-        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
-        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
-
-        performanceChart.data.labels = labels;
-        performanceChart.data.datasets[0].data = values;
-        performanceChart.update();
-
-        updateEloChange();
-
-        console.log("✅ Wykres ELO zaktualizowany");
-
-    } catch (err) {
-        console.error("❌ Błąd pobierania ELO:", err);
+    if (!items || !items.length) {
+      console.warn("⚠️ No items from Faceit stats API");
+      return;
     }
+
+    const eloHistory = items
+      .map((item, index) => {
+        return {
+          elo: item["i1"] ?? item["elo"] ?? null,
+          label: new Date(item.c).toLocaleDateString("pl-PL")
+        };
+      })
+      .filter(d => d.elo && d.label)
+      .reverse();
+
+    if (eloHistory.length === 0) {
+      console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+      return;
+    }
+
+    const labels = eloHistory.map(d => d.label);
+    const values = eloHistory.map(d => d.elo);
+
+    console.log("✅ Aktualizuję wykres ELO:", values);
+
+    const minElo = Math.min(...values);
+    const maxElo = Math.max(...values);
+    const padding = Math.max((maxElo - minElo) * 0.2, 150);
+
+    performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
+    performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
+    performanceChart.data.labels = labels;
+    performanceChart.data.datasets[0].data = values;
+    performanceChart.update();
+
+    updateEloChange();
+  } catch (err) {
+    console.error("❌ Błąd pobierania ELO:", err);
+  }
 }
     </script>
 </body>
