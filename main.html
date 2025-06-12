@@ -1646,47 +1646,38 @@ async function fetchMatchHistory(playerId) {
 }
 
 // Fixed updatePlayerProfile function with correct Faceit API structure
+// Fixed updatePlayerProfile function with ELO chart update
 function updatePlayerProfile(playerData, playerStats, matchHistory) {
     try {
-        // Update header info
+        // Header info
         if (playerData?.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
-
             const avatarContainer = document.querySelector('.avatar');
             if (avatarContainer) {
                 avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
             }
         }
 
-        // Player level + ELO
+        // Faceit rating & level
         if (playerData?.games?.cs2) {
             const cs2Data = playerData.games.cs2;
             const eloElement = document.querySelector('.faceit-rating');
             const levelElement = document.querySelector('.rating-elo');
-
             if (cs2Data.faceit_elo) {
                 eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
             } else {
                 eloElement.textContent = 'N/A';
             }
+            levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
 
-            // Rank API
+            // Ranking
             fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
                 .then(res => res.json())
                 .then(ranking => {
-                    const world = document.getElementById('faceit-world-ranking');
-                    const europe = document.getElementById('faceit-europe-ranking');
-
-                    if (world) world.textContent = ranking?.world ? `#${ranking.world.toLocaleString()}` : 'Not Ranked';
-                    if (europe) europe.textContent = ranking?.europe ? `#${ranking.europe.toLocaleString()}` : 'Not Ranked';
+                    document.getElementById('faceit-world-ranking').textContent = ranking?.world ? `#${ranking.world}` : 'Not Ranked';
+                    document.getElementById('faceit-europe-ranking').textContent = ranking?.europe ? `#${ranking.europe}` : 'Not Ranked';
                 })
-                .catch(err => {
-                    console.error('Failed to fetch estimated ranking:', err);
-                });
-
-            levelElement.textContent = cs2Data.skill_level
-                ? `Level ${cs2Data.skill_level}`
-                : 'Level N/A';
+                .catch(err => console.error("Failed to fetch estimated ranking", err));
         }
 
         // Stats
@@ -1697,16 +1688,9 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
             updateStatSafely('faceit-adr', stats, ['Average Damage per Round'], 'N/A', val => Math.round(parseFloat(val)));
             updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
-        } else {
-            console.warn('PlayerStats structure not as expected:', playerStats);
-            document.getElementById('faceit-matches').textContent = 'N/A';
-            document.getElementById('faceit-winrate').textContent = 'N/A';
-            document.getElementById('faceit-kd').textContent = 'N/A';
-            document.getElementById('faceit-adr').textContent = 'N/A';
-            document.getElementById('faceit-hs').textContent = 'N/A';
         }
 
-        // Faceit profile link
+        // Profile link
         if (playerData?.nickname) {
             const faceitLink = document.querySelector('.social-link:nth-child(2)');
             if (faceitLink) {
@@ -1714,15 +1698,21 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             }
         }
 
-        // Match history table
         const playerId = playerData?.player_id;
+
+        // 🟢 MATCHY + CHART
         if (matchHistory?.items) {
             updateMatchHistory(matchHistory.items, playerId);
         }
 
+        // 🟢 ELO CHART ZAWSZE
+        if (playerId) {
+            updatePerformanceChart(null, playerId);
+        }
+
     } catch (error) {
-        console.error('Error updating player profile:', error);
-        alert('Error displaying player data. Please try again.');
+        console.error("❌ Error updating player profile:", error);
+        alert("Error displaying player data. Please try again.");
     }
 }
 
