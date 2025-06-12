@@ -1651,12 +1651,12 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         // Match history + chart update
         const playerId = playerData?.player_id;
 
-        if (matchHistory && matchHistory.items) {
-            updateMatchHistory(matchHistory.items, playerId);
-            updatePerformanceChart(matchHistory.items, playerId);
-        } else if (playerId) {
-            updatePerformanceChart([], playerId);
-        }
+if (matchHistory && matchHistory.items) {
+    updateMatchHistory(matchHistory.items, playerId);
+    updatePerformanceChart(matchHistory.items, playerId);
+} else if (playerId) {
+    updatePerformanceChart([], playerId);
+}
 
     } catch (error) {
         console.error('Error updating player profile:', error);
