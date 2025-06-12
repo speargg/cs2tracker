@@ -2303,8 +2303,6 @@ async function updatePerformanceChart(_, playerId) {
         }
 
         const json = await res.json();
-        console.log("✅ JSON z Faceit Stats API:", json);
-
         const items = json.items || [];
         console.log("➡️ items.length:", items.length);
 
@@ -2327,7 +2325,6 @@ async function updatePerformanceChart(_, playerId) {
         console.log("🎯 Wartości ELO:", values);
         console.log("📅 Daty:", labels);
 
-        // Dynamiczny zakres
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
         const range = maxElo - minElo;
