@@ -1621,6 +1621,25 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             }
         }
 
+        // Update Faceit profile link
+        if (playerData && playerData.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+
+        // ✅ Wywołanie aktualizacji wykresu na podstawie playerId
+        if (playerData && playerData.player_id) {
+            updatePerformanceChart([], playerData.player_id);
+        }
+
+    } catch (error) {
+        console.error('Error updating player profile:', error);
+        alert('Error displaying player data. Please try again.');
+    }
+}
+
         // Handle stats from lifetime stats API response
         if (playerStats && playerStats.lifetime) {
             const lifetimeStats = playerStats.lifetime;
