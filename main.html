@@ -1228,7 +1228,58 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('black-theme');
         themeIcon.textContent = '☀️';
     }
+// Dodaj to na początku swojego pliku JavaScript (po załadowaniu DOM)
+// Test sprawdzający czy wszystkie funkcje istnieją
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🧪 Testing if functions exist:");
+    
+    // Sprawdź wszystkie kluczowe funkcje
+    const functions = [
+        'searchPlayer',
+        'updatePerformanceChart', 
+        'fetchPlayerData',
+        'fetchPlayerStats',
+        'fetchMatchHistory',
+        'updatePlayerProfile'
+    ];
+    
+    functions.forEach(funcName => {
+        if (typeof window[funcName] === 'function') {
+            console.log(`✅ ${funcName} - exists`);
+        } else {
+            console.error(`❌ ${funcName} - NOT FOUND!`);
+        }
+    });
+    
+    // Sprawdź czy wykres istnieje
+    if (typeof performanceChart !== 'undefined') {
+        console.log("✅ performanceChart - exists");
+    } else {
+        console.error("❌ performanceChart - NOT FOUND!");
+    }
+    
+    // Sprawdź czy element wykresu istnieje w DOM
+    const chartElement = document.getElementById('performanceChart');
+    if (chartElement) {
+        console.log("✅ performanceChart DOM element - exists");
+    } else {
+        console.error("❌ performanceChart DOM element - NOT FOUND!");
+    }
+});
 
+// Dodaj też test przycisku wyszukiwania
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBtn = document.querySelector('.search-btn');
+    if (searchBtn) {
+        console.log("✅ Search button found");
+        // Sprawdź czy ma event listener
+        searchBtn.addEventListener('click', function() {
+            console.log("🔍 Search button clicked!");
+        });
+    } else {
+        console.error("❌ Search button NOT FOUND!");
+    }
+});
     // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
     if (shouldShowLoader) {
         let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
@@ -1461,17 +1512,23 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 	    
-// Fixed search functionality with proper error handling and correct API structure
-// Fixed search functionality with proper error handling and ELO chart update
+// Debugowa wersja funkcji searchPlayer
 async function searchPlayer(showSpinner = true) {
+    console.log("🔍 Starting search..."); // DODAJ TO
+    
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
+    
     if (!nickname) {
         alert('Please enter a Faceit nickname');
         return;
     }
+    
+    console.log("🔍 Searching for nickname:", nickname); // DODAJ TO
+    
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
+    
     try {
         if (showSpinner) {
             searchBtn.innerHTML = `
@@ -1486,18 +1543,36 @@ async function searchPlayer(showSpinner = true) {
             `;
             await new Promise(requestAnimationFrame);
         }
+        
+        console.log("📡 Fetching player data..."); // DODAJ TO
         const playerData = await fetchPlayerData(nickname);
+        console.log("✅ Player data received:", playerData); // DODAJ TO
+        
+        console.log("📊 Fetching player stats..."); // DODAJ TO
         const playerStats = await fetchPlayerStats(playerData.player_id);
+        console.log("✅ Player stats received:", playerStats); // DODAJ TO
+        
+        console.log("🎮 Fetching match history..."); // DODAJ TO
         const matchHistory = await fetchMatchHistory(playerData.player_id);
+        console.log("✅ Match history received:", matchHistory); // DODAJ TO
         
-        // Aktualizuj profil gracza
+        console.log("🔄 Updating player profile..."); // DODAJ TO
         updatePlayerProfile(playerData, playerStats, matchHistory);
+        console.log("✅ Player profile updated"); // DODAJ TO
         
-        // ✅ DODAJ TO - aktualizuj wykres ELO
-        await updatePerformanceChart(null, playerData.player_id);
+        console.log("📈 About to update performance chart with player ID:", playerData.player_id); // DODAJ TO
+        
+        // Sprawdź czy funkcja updatePerformanceChart istnieje
+        if (typeof updatePerformanceChart === 'function') {
+            console.log("✅ updatePerformanceChart function exists, calling it..."); // DODAJ TO
+            await updatePerformanceChart(null, playerData.player_id);
+            console.log("✅ updatePerformanceChart completed"); // DODAJ TO
+        } else {
+            console.error("❌ updatePerformanceChart function does not exist!"); // DODAJ TO
+        }
         
     } catch (error) {
-        console.error(error);
+        console.error("❌ Error in searchPlayer:", error); // DODAJ TO
         alert('Player not found or API error. Please try again.');
     } finally {
         searchBtn.innerHTML = originalContent;
@@ -1508,6 +1583,7 @@ async function searchPlayer(showSpinner = true) {
             content.style.display = 'block';
             document.body.classList.remove('loading');
         }
+        console.log("🏁 Search process finished"); // DODAJ TO
     }
 }
 
