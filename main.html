@@ -1378,44 +1378,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 },
 scales: {
-    y: {
-        beginAtZero: false,
-        ticks: {
-            stepSize: 100,
-            callback: function(value) {
-                return value % 100 === 0 ? value : null;
+            y: {
+                beginAtZero: false,
+                ticks: {
+                    stepSize: 100,
+                    callback: function (value) {
+                        return value % 100 === 0 ? value : null;
+                    },
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter'
+                    }
+                },
+                grid: {
+                    color: 'rgba(37, 99, 235, 0.2)'
+                }
+                // min/max są ustawiane dynamicznie w updatePerformanceChart()
             },
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
+            x: {
+                ticks: {
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter'
+                    }
+                },
+                grid: {
+                    color: 'rgba(37, 99, 235, 0.2)'
+                }
             }
         },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
-        }
-        // min/max są ustawiane dynamicznie w updatePerformanceChart()
-    },
-    x: {
-        ticks: {
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
-            }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
+        interaction: {
+            intersect: false,
+            mode: 'index'
         }
     }
-}
-interaction: {
-    intersect: false,
-    mode: 'index'
-}
-} // ⬅️ zamyka "options"
-}); // ⬅️ zamyka cały new Chart(...)
-        console.log('✅ Wykres został zainicjowany');
-
-    }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
 });
         // Calculate and update ELO change
         function updateEloChange() {
