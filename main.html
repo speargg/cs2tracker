@@ -1324,7 +1324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const ctx = canvas.getContext('2d');
-       performanceChart = new Chart(ctx, {
+       const performanceChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [],
