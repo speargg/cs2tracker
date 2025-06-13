@@ -1411,8 +1411,8 @@ scales: {
             intersect: false,
             mode: 'index'
         }
-    }
-});
+    } // ← 🟢 TO JEST ZAMYKANY options
+}); // 🟢 TO JEST ZAMYKANY new Chart(...)
         // Calculate and update ELO change
         function updateEloChange() {
             const firstElo = performanceChart.data.datasets[0].data[0];
