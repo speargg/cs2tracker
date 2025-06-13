@@ -2242,7 +2242,7 @@ async function debugMatchStructure(nickname) {
 // Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
     console.log("📈 Updating ELO chart for:", playerId);
-    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
+    const endpoint = `https://corsproxy.io/?https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
     try {
         const res = await fetch(endpoint);
