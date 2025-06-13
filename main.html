@@ -1602,6 +1602,7 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 eloElement.textContent = 'N/A';
             }
             levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
+}
         // Stats
         if (playerStats?.lifetime) {
             const stats = playerStats.lifetime;
