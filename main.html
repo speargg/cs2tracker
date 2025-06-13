@@ -1213,10 +1213,6 @@ async function fetchWithCache(url) {
   
   return data;
 }
-const avatar = document.getElementById('player-avatar');
-if (avatar.dataset.src) {
-  avatar.src = avatar.dataset.src;
-}
 // Then modify your fetch calls to use this:
 async function loadPlayerData() {
     const playerData = await fetchWithCache(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
