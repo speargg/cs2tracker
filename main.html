@@ -893,6 +893,14 @@ body.loading {
   overflow: hidden;
 }
 }
+.avatar {
+    margin: 0 auto;
+}
+
+.social-links {
+    margin: 0.75rem 0 1rem;
+}
+
 .avatar-wrapper {
     display: flex;
     justify-content: center;
@@ -913,8 +921,9 @@ body.loading {
 }
 
 .header .nickname {
-    margin-top: 0.25rem;
-    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 3rem; /* opcjonalnie mniejsze na mobile */
 }
 }
     </style>
@@ -934,7 +943,7 @@ body.loading {
       <!-- Header Section -->
       <div class="header">
 
-<!-- Search Bar Section -->
+    <!-- Search Bar Section -->
     <div class="search-section">
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
@@ -945,7 +954,7 @@ body.loading {
         <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
     </div>
 
-    <!-- NEW structure with avatar between ratings -->
+    <!-- Avatar + Ratings -->
     <div class="avatar-wrapper">
         <div class="rating-card cs2-premier">
             <div class="rating-title">CS2 Premier</div>
@@ -962,8 +971,7 @@ body.loading {
         </div>
     </div>
 
-    <h1 class="nickname">NiKo_CS</h1>
-
+    <!-- Social links moved above nickname -->
     <div class="social-links">
         <a href="#" class="social-link">
             <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
@@ -979,6 +987,9 @@ body.loading {
         </a>
     </div>
 
+    <!-- Nickname is now below everything -->
+    <h1 class="nickname">NiKo_CS</h1>
+</div>
 </div>
         <!-- Statistics Section -->
         <div class="stats-section">
