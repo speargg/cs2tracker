@@ -1281,24 +1281,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
     // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
-    if (shouldShowLoader) {
-        let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+if (shouldShowLoader) {
+    let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
 
-        if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
+    if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
+        const trySearch = () => {
             const input = document.querySelector('.search-input');
-            if (input) {
-                input.value = nickname;
-                searchPlayer(false); // 👈 nie pokazuj mini-spinnera w przycisku
+            if (!input) {
+                console.warn("⏳ Oczekiwanie na input...");
+                setTimeout(trySearch, 100);
+                return;
             }
-        } else {
-            // ⛑ Brak nicku – awaryjnie pokaż stronę
-            if (loader && content) {
-                loader.style.display = 'none';
-                content.style.display = 'block';
-                document.body.classList.remove('loading');
-            }
+
+            input.value = nickname;
+            console.log("🔍 Uruchamiam searchPlayer() dla nicku:", nickname);
+            searchPlayer(false); // nie pokazuj spinnera
+        };
+
+        trySearch();
+    } else {
+        // ⛑ Brak nicku – awaryjnie pokaż stronę
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+            document.body.classList.remove('loading');
         }
     }
+}
 });
 // Theme toggle functionality
 function toggleTheme() {
