@@ -1397,19 +1397,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 interaction: { intersect: false, mode: 'index' }
             }
         });
-// Add this to your page to debug the chart
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(() => {
-    if (window.performanceChart) {
-      console.log("Chart current state:", {
-        labels: window.performanceChart.data.labels,
-        data: window.performanceChart.data.datasets[0].data,
-        yMin: window.performanceChart.options.scales.y.min,
-        yMax: window.performanceChart.options.scales.y.max
-      });
-    }
-  }, 1000);
-});
+
         console.log('✅ Wykres został zainicjowany');
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
@@ -1628,24 +1616,8 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
-function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
-    try {
-        let value = source;
-        for (let key of keys) {
-            if (value && key in value) {
-                value = value[key];
-            } else {
-                value = null;
-                break;
-            }
-        }
 
-        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
-    } catch (e) {
-        console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-        document.getElementById(elementId).textContent = fallback;
-    }
-}
+// Fixed updatePlayerProfile function with correct Faceit API structure
 // Fixed updatePlayerProfile function with ELO chart update
 function updatePlayerProfile(playerData, playerStats, matchHistory) {
     try {
@@ -2251,34 +2223,29 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
-// Improved updatePerformanceChart function
+// Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
-    // ⏳ Czekaj, jeśli wykres jeszcze nie istnieje
-    if (!performanceChart) {
-        console.warn("⚠️ performanceChart jeszcze niegotowy — spróbuję ponownie za 200ms...");
-        setTimeout(() => updatePerformanceChart(_, playerId), 200);
-        return;
-    }
-
-    console.log("📈 Aktualizacja wykresu ELO dla gracza:", playerId);
-
-    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
+    console.log("📈 Updating ELO chart for:", playerId);
 
     try {
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Błąd API Faceit");
+        // UŻYJ FUNKCJI NETLIFY ZAMIAST BEZPOŚREDNIEGO API
+        const res = await fetch(`/.netlify/functions/faceit-elo-history?playerId=${playerId}&size=20`);
+        
+        if (!res.ok) {
+            throw new Error("Netlify function error: " + res.status);
+        }
 
         const json = await res.json();
         const items = json.items;
 
         if (!items || !items.length) {
-            console.warn("⚠️ Brak meczów w historii API");
+            console.warn("⚠️ No items from Faceit stats API");
             return;
         }
 
         const eloHistory = items
             .map((item, index) => ({
-                elo: item.i1 ?? item.elo ?? null,
+                elo: item["i1"] ?? item["elo"] ?? null,
                 label: new Date(item.c).toLocaleDateString("pl-PL")
             }))
             .filter(d => d.elo && d.label)
@@ -2292,8 +2259,7 @@ async function updatePerformanceChart(_, playerId) {
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
 
-        console.log("✅ Wartości ELO:", values);
-        console.log("📅 Daty meczów:", labels);
+        console.log("✅ Aktualizuję wykres ELO:", values);
 
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
@@ -2305,14 +2271,11 @@ async function updatePerformanceChart(_, playerId) {
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
 
-        updateEloChange?.(); // jeśli ta funkcja istnieje
-        console.log("✅ Wykres ELO został zaktualizowany");
-
+        updateEloChange();
     } catch (err) {
-        console.error("❌ Błąd podczas aktualizacji wykresu ELO:", err);
+        console.error("❌ Błąd pobierania ELO:", err);
     }
 }
-
     </script>
 </body>
 </html>
