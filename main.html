@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-* {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -20,225 +20,245 @@
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 2rem 0;
         }
+        .search-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+/* Pełnoekranowy spinner */
+  .fullscreen-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0f1419;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
 
+  /* Spinner animowany — WAŻNE: nie wewnątrz @media! */
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+/* Theme Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(26, 35, 50, 0.8);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    background: rgba(37, 99, 235, 0.3);
+}
+
+/* Black Theme - OLED Style */
+body.black-theme {
+    background: linear-gradient(135deg, #000000 0%, #0d0d0d 25%, #1a1a1a 50%, #0d0d0d 75%, #000000 100%);
+}
+
+body.black-theme .rating-card,
+body.black-theme .stats-container,
+body.black-theme .chart-container,
+body.black-theme .matches-header,
+body.black-theme .matches-list {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .stats-toggle {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .toggle-btn.active {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(40, 40, 40, 0.4);
+}
+
+body.black-theme .search-container {
+    background: rgba(8, 8, 8, 0.95);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .social-link {
+    background: rgba(8, 8, 8, 0.8);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .social-link:hover {
+    background: rgba(25, 25, 25, 0.8);
+    box-shadow: 0 5px 15px rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .match-card:hover {
+    background: rgba(15, 15, 15, 0.8);
+}
+
+body.black-theme .ranking-item {
+    background: rgba(15, 15, 15, 0.6);
+    border-left: 3px solid rgba(80, 80, 80, 0.7);
+}
+
+body.black-theme .stat-row {
+    border-bottom: 1px solid rgba(30, 30, 30, 0.5);
+}
+
+body.black-theme .stats-labels {
+    border-bottom: 1px solid rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .match-card {
+    border-bottom: 1px solid rgba(25, 25, 25, 0.4);
+}
+
+body.black-theme .expand-btn {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 1px solid rgba(40, 40, 40, 0.4);
+}
+
+body.black-theme .expand-btn:hover {
+    box-shadow: 0 10px 25px rgba(40, 40, 40, 0.6);
+}
+
+body.black-theme .theme-toggle {
+    background: rgba(8, 8, 8, 0.9);
+    border: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+body.black-theme .theme-toggle:hover {
+    background: rgba(25, 25, 25, 0.9);
+    box-shadow: 0 8px 20px rgba(40, 40, 40, 0.6);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+.search-container {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto 0.75rem;
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.search-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+.search-hint {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        max-width: 90%;
+    }
+    
+    .search-input {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .search-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .search-hint {
+        font-size: 0.75rem;
+    }
+}
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 20px;
-            width: 100%;
-        }
-
-        .search-section {
-            margin-bottom: 2rem;
-            text-align: center;
-            width: 100%;
-        }
-
-        /* Pełnoekranowy spinner */
-        .fullscreen-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0f1419;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        /* Spinner animowany — WAŻNE: nie wewnątrz @media! */
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 5px solid rgba(255, 255, 255, 0.15);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(26, 35, 50, 0.8);
-            backdrop-filter: blur(10px);
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(37, 99, 235, 0.3);
-        }
-
-        .theme-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
-            background: rgba(37, 99, 235, 0.3);
-        }
-
-        /* Black Theme - OLED Style */
-        body.black-theme {
-            background: linear-gradient(135deg, #000000 0%, #0d0d0d 25%, #1a1a1a 50%, #0d0d0d 75%, #000000 100%);
-        }
-
-        body.black-theme .rating-card,
-        body.black-theme .stats-container,
-        body.black-theme .chart-container,
-        body.black-theme .matches-header,
-        body.black-theme .matches-list {
-            background: rgba(8, 8, 8, 0.95);
-            border: 1px solid rgba(40, 40, 40, 0.5);
-        }
-
-        body.black-theme .stats-toggle {
-            background: rgba(8, 8, 8, 0.95);
-            border: 1px solid rgba(40, 40, 40, 0.5);
-        }
-
-        body.black-theme .toggle-btn.active {
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(40, 40, 40, 0.4);
-        }
-
-        body.black-theme .search-container {
-            background: rgba(8, 8, 8, 0.95);
-            border: 1px solid rgba(40, 40, 40, 0.5);
-        }
-
-        body.black-theme .social-link {
-            background: rgba(8, 8, 8, 0.8);
-            border: 1px solid rgba(40, 40, 40, 0.5);
-        }
-
-        body.black-theme .social-link:hover {
-            background: rgba(25, 25, 25, 0.8);
-            box-shadow: 0 5px 15px rgba(40, 40, 40, 0.6);
-        }
-
-        body.black-theme .match-card:hover {
-            background: rgba(15, 15, 15, 0.8);
-        }
-
-        body.black-theme .ranking-item {
-            background: rgba(15, 15, 15, 0.6);
-            border-left: 3px solid rgba(80, 80, 80, 0.7);
-        }
-
-        body.black-theme .stat-row {
-            border-bottom: 1px solid rgba(30, 30, 30, 0.5);
-        }
-
-        body.black-theme .stats-labels {
-            border-bottom: 1px solid rgba(40, 40, 40, 0.6);
-        }
-
-        body.black-theme .match-card {
-            border-bottom: 1px solid rgba(25, 25, 25, 0.4);
-        }
-
-        body.black-theme .expand-btn {
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-            border: 1px solid rgba(40, 40, 40, 0.4);
-        }
-
-        body.black-theme .expand-btn:hover {
-            box-shadow: 0 10px 25px rgba(40, 40, 40, 0.6);
-        }
-
-        body.black-theme .theme-toggle {
-            background: rgba(8, 8, 8, 0.9);
-            border: 1px solid rgba(40, 40, 40, 0.5);
-        }
-
-        body.black-theme .theme-toggle:hover {
-            background: rgba(25, 25, 25, 0.9);
-            box-shadow: 0 8px 20px rgba(40, 40, 40, 0.6);
-        }
-
-        .search-container {
-            display: flex;
-            max-width: 500px;
-            margin: 0 auto 0.75rem;
-            background: rgba(26, 35, 50, 0.6);
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            border-radius: 16px;
-            padding: 0.5rem;
-            backdrop-filter: blur(10px);
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .search-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 1rem;
-            padding: 0.75rem 1rem;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .search-input::placeholder {
-            color: #94a3b8;
-        }
-
-        .search-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            padding: 0;
-        }
-
-        .search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
-        }
-
-        .search-hint {
-            color: #94a3b8;
-            font-size: 0.875rem;
-            font-weight: 400;
+            padding: 0 1rem;
         }
 
         .header {
             text-align: center;
             margin-bottom: 3rem;
-            width: 100%;
         }
 
         .avatar {
@@ -275,21 +295,22 @@
         }
 
         .social-link {
-            width: 40px;
-            height: 40px;
-            background: rgba(37, 99, 235, 0.15);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #fff;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            padding: 0;
-            overflow: hidden;
-        }
+    width: 40px;
+    height: 40px;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    padding: 0;
+    overflow: hidden;
+}
+
 .social-link img {
     width: 16px !important;
     height: 16px !important;
@@ -774,12 +795,7 @@ body {
         grid-template-columns: 1.5fr 1fr 1.5fr;
         padding: 1rem;
     }
-@media (max-width: 768px) {
-    .container {
-        max-width: 100%;
-        padding: 0 15px;
-    }
-}
+
     .matches-header-stats > div {
     min-width: 40px;
     text-align: center;
@@ -941,16 +957,20 @@ body.loading {
                     <div class="rating-title">CS2 Premier</div>
                     <div class="rating-value premier-rating">24,687</div>
                     <div class="rating-season">Season 1</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="rating-card">
                     <div class="rating-title">Faceit</div>
                     <div class="rating-value faceit-rating">2,834</div>
                     <div class="rating-elo">Level 10</div>
+</div>
+
                     </div>
-					</div>
                 </div>
             </div>
         </div>
+
         <!-- Statistics Section -->
         <div class="stats-section">
             <div class="stats-header">
