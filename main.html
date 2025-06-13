@@ -2223,150 +2223,59 @@ async function debugMatchStructure(nickname) {
         console.error('Debug match structure error:', error);
     }
 }
-// Direct implementation to fetch ELO history without a Netlify function
+// Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
-  console.log("📈 Updating ELO chart for player ID:", playerId)
+    console.log("📈 Updating ELO chart for:", playerId);
 
-  try {
-    // Show loading state on chart
-    const canvas = document.getElementById("performanceChart")
-    if (canvas) {
-      const ctx = canvas.getContext("2d")
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.font = "16px Inter"
-      ctx.fillStyle = "#94a3b8"
-      ctx.textAlign = "center"
-      ctx.fillText("Loading ELO data...", canvas.width / 2, canvas.height / 2)
+    try {
+        // UŻYJ FUNKCJI NETLIFY ZAMIAST BEZPOŚREDNIEGO API
+        const res = await fetch(`/.netlify/functions/faceit-elo-history?playerId=${playerId}&size=20`);
+        
+        if (!res.ok) {
+            throw new Error("Netlify function error: " + res.status);
+        }
+
+        const json = await res.json();
+        const items = json.items;
+
+        if (!items || !items.length) {
+            console.warn("⚠️ No items from Faceit stats API");
+            return;
+        }
+
+        const eloHistory = items
+            .map((item, index) => ({
+                elo: item["i1"] ?? item["elo"] ?? null,
+                label: new Date(item.c).toLocaleDateString("pl-PL")
+            }))
+            .filter(d => d.elo && d.label)
+            .reverse();
+
+        if (eloHistory.length === 0) {
+            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+            return;
+        }
+
+        const labels = eloHistory.map(d => d.label);
+        const values = eloHistory.map(d => d.elo);
+
+        console.log("✅ Aktualizuję wykres ELO:", values);
+
+        const minElo = Math.min(...values);
+        const maxElo = Math.max(...values);
+        const padding = Math.max((maxElo - minElo) * 0.2, 150);
+
+        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
+        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
+        performanceChart.data.labels = labels;
+        performanceChart.data.datasets[0].data = values;
+        performanceChart.update();
+
+        updateEloChange();
+    } catch (err) {
+        console.error("❌ Błąd pobierania ELO:", err);
     }
-
-    // Calculate time range (default: last year)
-    const currentTime = Math.floor(Date.now() / 1000)
-    const oneYearAgo = currentTime - 365 * 24 * 60 * 60
-
-    // Direct call to the unofficial Faceit API
-    // Using a CORS proxy to avoid CORS issues
-    const corsProxy = "https://corsproxy.io/?"
-    const faceitApiUrl = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=100&from=${oneYearAgo}000&to=${currentTime}000`
-
-    const response = await fetch(corsProxy + encodeURIComponent(faceitApiUrl))
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    console.log("📊 Raw ELO data:", data)
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      console.warn("⚠️ No ELO history data available")
-
-      // Show no data message on chart
-      if (canvas) {
-        const ctx = canvas.getContext("2d")
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.font = "16px Inter"
-        ctx.fillStyle = "#94a3b8"
-        ctx.textAlign = "center"
-        ctx.fillText("No ELO history data available", canvas.width / 2, canvas.height / 2)
-      }
-
-      return
-    }
-
-    // Process the data - this API returns an array of matches with ELO information
-    const eloHistory = data
-      .filter((match) => match.elo !== undefined && match.elo !== null)
-      .map((match) => ({
-        elo: match.elo,
-        date: new Date(match.date),
-        label: new Date(match.date).toLocaleDateString(),
-      }))
-      .sort((a, b) => a.date - b.date) // Sort by date ascending
-      .slice(-20) // Get last 20 matches
-
-    if (eloHistory.length === 0) {
-      console.warn("⚠️ No valid ELO data points found")
-      return
-    }
-
-    console.log("✅ Processed ELO history:", eloHistory)
-
-    const labels = eloHistory.map((item) => item.label)
-    const values = eloHistory.map((item) => item.elo)
-
-    // Calculate appropriate Y-axis range
-    const minElo = Math.min(...values)
-    const maxElo = Math.max(...values)
-    const padding = Math.max((maxElo - minElo) * 0.2, 100)
-
-    // Update chart
-    if (window.performanceChart) {
-      window.performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding))
-      window.performanceChart.options.scales.y.max = Math.ceil(maxElo + padding)
-      window.performanceChart.data.labels = labels
-      window.performanceChart.data.datasets[0].data = values
-      window.performanceChart.update()
-
-      // Update ELO change display
-      window.updateEloChange()
-    }
-
-    console.log("✅ Chart updated successfully")
-  } catch (error) {
-    console.error("❌ Error updating ELO chart:", error)
-
-    // Show error message on chart
-    const canvas = document.getElementById("performanceChart")
-    if (canvas) {
-      const ctx = canvas.getContext("2d")
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.font = "16px Inter"
-      ctx.fillStyle = "#ef4444"
-      ctx.textAlign = "center"
-      ctx.fillText("Error loading ELO data", canvas.width / 2, canvas.height / 2)
-      ctx.font = "14px Inter"
-      ctx.fillText("Check console for details", canvas.width / 2, canvas.height / 2 + 25)
-    }
-  }
 }
-// Test script to verify the ELO history function
-async function testEloHistoryFunction(playerId) {
-  console.log(`Testing ELO history function for player ID: ${playerId}`)
-
-  try {
-    const response = await fetch(`/.netlify/functions/faceit-elo-history?playerId=${playerId}&size=10`)
-    const data = await response.json()
-
-    console.log("Response status:", response.status)
-    console.log("Response data:", data)
-
-    if (data.error) {
-      console.error("Error from function:", data.error)
-      return
-    }
-
-    if (!data.items || data.items.length === 0) {
-      console.warn("No ELO history data available")
-      return
-    }
-
-    console.log(`Found ${data.items.length} ELO history entries`)
-    console.log("First entry:", data.items[0])
-    console.log("Last entry:", data.items[data.items.length - 1])
-
-    // Calculate ELO change
-    const firstElo = data.items[0].elo
-    const lastElo = data.items[data.items.length - 1].elo
-    const change = lastElo - firstElo
-
-    console.log(`ELO change: ${change > 0 ? "+" : ""}${change} (${firstElo} → ${lastElo})`)
-  } catch (error) {
-    console.error("Test failed:", error)
-  }
-}
-
-// Example usage:
-// testEloHistoryFunction('5b8d259e-503e-4afe-b621-0dc202d46e43');
     </script>
 </body>
 </html>
