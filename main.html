@@ -1218,7 +1218,10 @@ if (avatar.dataset.src) {
   avatar.src = avatar.dataset.src;
 }
 // Then modify your fetch calls to use this:
-const playerData = await fetchWithCache(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+async function loadPlayerData() {
+    const playerData = await fetchWithCache(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+    return playerData;
+}
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // 🧠 Czy mamy pokazać loader?
