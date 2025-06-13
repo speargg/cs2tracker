@@ -1641,10 +1641,6 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         if (playerId) {
             updatePerformanceChart(null, playerId);
         }
-
-    } catch (error) {
-        console.error("❌ Error updating player profile:", error);
-        alert("Error displaying player data. Please try again.");
     }
 }
 
