@@ -133,11 +133,6 @@ body.black-theme .match-card:hover {
     background: rgba(15, 15, 15, 0.8);
 }
 
-body.black-theme .ranking-item {
-    background: rgba(15, 15, 15, 0.6);
-    border-left: 3px solid rgba(80, 80, 80, 0.7);
-}
-
 body.black-theme .stat-row {
     border-bottom: 1px solid rgba(30, 30, 30, 0.5);
 }
@@ -374,40 +369,6 @@ body.black-theme .theme-toggle:hover {
             font-size: 1.25rem;
             color: #cbd5e1;
             margin-bottom: 1rem;
-        }
-
-        .ranking {
-            padding-top: 1rem;
-            border-top: 1px solid rgba(37, 99, 235, 0.2);
-        }
-
-        .ranking-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: rgba(37, 99, 235, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid rgba(37, 99, 235, 0.5);
-        }
-
-        .ranking-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .ranking-label {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .ranking-value {
-            font-size: 0.875rem;
-            color: #e2e8f0;
-            font-weight: 600;
         }
 
         .stats-section {
@@ -1641,17 +1602,6 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 eloElement.textContent = 'N/A';
             }
             levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
-
-            // Ranking
-            fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
-                .then(res => res.json())
-                .then(ranking => {
-                    document.getElementById('faceit-world-ranking').textContent = ranking?.world ? `#${ranking.world}` : 'Not Ranked';
-                    document.getElementById('faceit-europe-ranking').textContent = ranking?.europe ? `#${ranking.europe}` : 'Not Ranked';
-                })
-                .catch(err => console.error("Failed to fetch estimated ranking", err));
-        }
-
         // Stats
         if (playerStats?.lifetime) {
             const stats = playerStats.lifetime;
