@@ -1393,16 +1393,17 @@ scales: {
         // min/max ustawiane dynamicznie
     },
     x: {
-        ticks: {
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
-            }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
-        }
-    }
+ticks: {
+  stepSize: 100,
+  callback: function(value) {
+    // pokazuj tylko wartości, które są całkowitą setką
+    return value % 100 === 0 ? value : null;
+  },
+  color: '#94a3b8',
+  font: {
+    family: 'Inter'
+  }
+}
 },
 interaction: {
     intersect: false,
@@ -2301,8 +2302,11 @@ async function updatePerformanceChart(_, playerId) {
         const maxElo = Math.max(...values);
         const padding = Math.max((maxElo - minElo) * 0.2, 150);
 
-        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
-        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
+const adjustedMin = Math.floor((minElo - padding) / 100) * 100;
+const adjustedMax = Math.ceil((maxElo + padding) / 100) * 100;
+	    
+performanceChart.options.scales.y.min = Math.max(0, adjustedMin);
+performanceChart.options.scales.y.max = Math.min(5000, adjustedMax);
         performanceChart.data.labels = labels;
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
