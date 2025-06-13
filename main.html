@@ -1573,10 +1573,14 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
             }
         }
 
-        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.textContent = value != null ? transform(value) : fallback;
+        } else {
+            console.warn(`⚠️ Element not found: #${elementId}`);
+        }
     } catch (e) {
         console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-        document.getElementById(elementId).textContent = fallback;
     }
 }
 // Fixed updatePlayerProfile function with ELO chart update
