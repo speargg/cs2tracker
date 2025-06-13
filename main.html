@@ -1695,31 +1695,31 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
     }
 }
 // Fixed updatePlayerProfile function with ELO chart update
-function updatePlayerProfile(playerData, playerStats, matchHistory) {
+ffunction updatePlayerProfile(playerData, playerStats, matchHistory) {
     try {
         // Header info
         if (playerData?.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
-const avatarContainer = document.querySelector('.avatar');
-if (avatarContainer) {
-    const img = document.createElement('img');
-    img.id = 'player-avatar';
-    img.src = 'assets/img/default-avatar.jpg'; // Small placeholder
-    img.dataset.src = playerData.avatar || 'assets/img/default-avatar.jpg';
-    img.alt = 'Player avatar';
-    img.loading = 'lazy';
-    img.style.opacity = '0';
-    img.onload = () => img.style.opacity = '1';
-    avatarContainer.innerHTML = '';
-    avatarContainer.appendChild(img);
+            const avatarContainer = document.querySelector('.avatar');
+            if (avatarContainer) {
+                const img = document.createElement('img');
+                img.id = 'player-avatar';
+                img.src = 'assets/img/default-avatar.jpg';
+                img.dataset.src = playerData.avatar || 'assets/img/default-avatar.jpg';
+                img.alt = 'Player avatar';
+                img.loading = 'lazy';
+                img.style.opacity = '0';
+                img.onload = () => img.style.opacity = '1';
+                avatarContainer.innerHTML = '';
+                avatarContainer.appendChild(img);
 
-    // Load high-res image after main content
-    setTimeout(() => {
-        if (img.dataset.src) {
-            img.src = img.dataset.src;
+                setTimeout(() => {
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                }, 300);
+            }
         }
-    }, 300);
-}
 
         // Faceit rating & level
         if (playerData?.games?.cs2) {
@@ -1763,12 +1763,10 @@ if (avatarContainer) {
 
         const playerId = playerData?.player_id;
 
-        // 🟢 MATCHY + CHART
         if (matchHistory?.items) {
             updateMatchHistory(matchHistory.items, playerId);
         }
 
-        // 🟢 ELO CHART ZAWSZE
         if (playerId) {
             updatePerformanceChart(null, playerId);
         }
@@ -1778,7 +1776,6 @@ if (avatarContainer) {
         alert("Error displaying player data. Please try again.");
     }
 }
-
 // Update match history display with player ID for win/loss determination
 async function updateMatchHistory(matches, playerId) {
     const matchesList = document.querySelector('.matches-list');
