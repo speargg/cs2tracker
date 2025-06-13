@@ -7,5 +7,6 @@
   to = "/main.html?nickname=:nickname"
   status = 200
 
-[functions."track-elo"]
-schedule = "*/5 * * * *"
+[[edge_functions]]
+path = "/.netlify/functions/*"
+function = "cached-faceit"
