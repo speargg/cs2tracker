@@ -1,5 +1,3 @@
-const fetch = require("node-fetch");
-
 /**
  * Netlify Serverless Function to proxy Faceit Stats API and bypass CORS
  * GET /.netlify/functions/faceitElo?playerId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -19,7 +17,7 @@ exports.handler = async function (event) {
   try {
     const res = await fetch(endpoint, {
       headers: {
-        // optionally add fake headers to mimic browser
+        // Mimic real browser (optional)
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
         Accept: "application/json",
@@ -27,7 +25,7 @@ exports.handler = async function (event) {
     });
 
     if (!res.ok) {
-      throw new Error(`Faceit API returned status ${res.status}`);
+      throw new Error(`Faceit API error: ${res.status}`);
     }
 
     const data = await res.json();
@@ -36,7 +34,7 @@ exports.handler = async function (event) {
       statusCode: 200,
       body: JSON.stringify(data),
       headers: {
-        "Access-Control-Allow-Origin": "*", // allow from any frontend
+        "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
       },
     };
@@ -45,7 +43,10 @@ exports.handler = async function (event) {
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch Faceit data", details: err.message }),
+      body: JSON.stringify({
+        error: "Failed to fetch Faceit data",
+        details: err.message,
+      }),
     };
   }
 };
