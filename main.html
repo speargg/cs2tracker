@@ -954,6 +954,21 @@ body.loading {
 </div>
             <div class="ratings">
                 <div class="rating-card">
+                    <div class="rating-title">CS2 Premier</div>
+                    <div class="rating-value premier-rating">24,687</div>
+                    <div class="rating-season">Season 1</div>
+                    <div class="ranking">
+                        <div class="ranking-item">
+                            <span class="ranking-label">World</span>
+                            <span class="ranking-value">#1,247</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-label">Europe</span>
+                            <span class="ranking-value">#856</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="rating-card">
                     <div class="rating-title">Faceit</div>
                     <div class="rating-value faceit-rating">2,834</div>
                     <div class="rating-elo">Level 10</div>
@@ -983,31 +998,39 @@ body.loading {
             </div>
             <div class="stats-container">
                 <div class="stats-labels">
+                    <div class="platform-label premier-label">Premier</div>
+                    <div class="platform-label" style="color: #e2e8f0;">Statistics</div>
                     <div class="platform-label faceit-label">Faceit</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-matches">189</div>
+                    <div class="stat-value premier-value" id="premier-matches">247</div>
                     <div class="stat-label">Matches</div>
+                    <div class="stat-value faceit-value" id="faceit-matches">189</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-winrate">68%</div>
+                    <div class="stat-value premier-value" id="premier-winrate">73%</div>
                     <div class="stat-label">Winrate</div>
+                    <div class="stat-value faceit-value" id="faceit-winrate">68%</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-kd">1.41</div>
+                    <div class="stat-value premier-value" id="premier-kd">1.32</div>
                     <div class="stat-label">K/D</div>
+                    <div class="stat-value faceit-value" id="faceit-kd">1.41</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-adr">91.7</div>
+                    <div class="stat-value premier-value" id="premier-adr">89.2</div>
                     <div class="stat-label">ADR</div>
+                    <div class="stat-value faceit-value" id="faceit-adr">91.7</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-aim">96.1</div>
+                    <div class="stat-value premier-value" id="premier-aim">94.5</div>
                     <div class="stat-label">Aim Rating</div>
+                    <div class="stat-value faceit-value" id="faceit-aim">96.1</div>
                 </div>
                 <div class="stat-row">
-                    <div class="stat-value faceit-value" id="faceit-hs">48.9%</div>
+                    <div class="stat-value premier-value" id="premier-hs">52.3%</div>
                     <div class="stat-label">HS Percentage</div>
+                    <div class="stat-value faceit-value" id="faceit-hs">48.9%</div>
                 </div>
             </div>
         </div>
@@ -1415,9 +1438,11 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
         // Stats data for toggle functionality
         const statsData = {
             lifetime: {
+                premier: { matches: '247', winrate: '73%', kd: '1.32', adr: '89.2', aim: '94.5', hs: '52.3%' },
                 faceit: { matches: '189', winrate: '68%', kd: '1.41', adr: '91.7', aim: '96.1', hs: '48.9%' }
             },
             recent: {
+                premier: { matches: '20', winrate: '75%', kd: '1.45', adr: '92.1', aim: '96.2', hs: '54.1%' },
                 faceit: { matches: '20', winrate: '70%', kd: '1.52', adr: '94.3', aim: '97.8', hs: '50.2%' }
             }
         };
@@ -1432,6 +1457,14 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 
             // Update stats values
             const data = statsData[type];
+            
+            // Premier stats
+            document.getElementById('premier-matches').textContent = data.premier.matches;
+            document.getElementById('premier-winrate').textContent = data.premier.winrate;
+            document.getElementById('premier-kd').textContent = data.premier.kd;
+            document.getElementById('premier-adr').textContent = data.premier.adr;
+            document.getElementById('premier-aim').textContent = data.premier.aim;
+            document.getElementById('premier-hs').textContent = data.premier.hs;
             
             // Faceit stats
             document.getElementById('faceit-matches').textContent = data.faceit.matches;
