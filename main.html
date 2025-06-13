@@ -2256,15 +2256,12 @@ async function updatePerformanceChart(_, playerId) {
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Błąd API Faceit: ${res.status}`);
 
-        const json = await res.json();
+const items = await res.json();
 
-        // ✅ Sprawdzenie, czy odpowiedź ma dane
-        if (!json || !Array.isArray(json.items)) {
-            console.warn("⚠️ Odpowiedź z API nie zawiera items[]:", json);
-            return;
-        }
-
-        const items = json.items;
+if (!Array.isArray(items)) {
+    console.warn("⚠️ Odpowiedź z API nie jest tablicą:", items);
+    return;
+}
 
         const eloHistory = items
             .filter(item => item.i1 && item.c)
