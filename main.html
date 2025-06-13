@@ -893,6 +893,30 @@ body.loading {
   overflow: hidden;
 }
 }
+.avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.avatar-wrapper .rating-card {
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    min-width: 220px;
+}
+
+.header .nickname {
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+}
+}
     </style>
 </head>
 <body>
@@ -910,44 +934,52 @@ body.loading {
       <!-- Header Section -->
       <div class="header">
 
-		<!-- Search Bar Section -->
-<div class="search-section">
-    <div class="search-container">
-        <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
-        <button class="search-btn" onclick="searchPlayer()">
-    <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
-</button>
+<!-- Search Bar Section -->
+    <div class="search-section">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
+            <button class="search-btn" onclick="searchPlayer()">
+                <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
+            </button>
+        </div>
+        <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
     </div>
-    <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
+
+    <!-- NEW structure with avatar between ratings -->
+    <div class="avatar-wrapper">
+        <div class="rating-card cs2-premier">
+            <div class="rating-title">CS2 Premier</div>
+            <div class="rating-value premier-rating">24,687</div>
+            <div class="rating-season">Season 1</div>
+        </div>
+
+        <div class="avatar">NK</div>
+
+        <div class="rating-card faceit">
+            <div class="rating-title">Faceit</div>
+            <div class="rating-value faceit-rating">2,834</div>
+            <div class="rating-elo">Level 10</div>
+        </div>
+    </div>
+
+    <h1 class="nickname">NiKo_CS</h1>
+
+    <div class="social-links">
+        <a href="#" class="social-link">
+            <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
+        </a>
+        <a href="#" class="social-link">
+            <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit">
+        </a>
+        <a href="#" class="social-link">
+            <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify">
+        </a>
+        <a href="#" class="social-link">
+            <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats">
+        </a>
+    </div>
+
 </div>
-            <div class="avatar">NK</div>
-            <h1 class="nickname">NiKo_CS</h1>
-            <div class="social-links">
-    <a href="#" class="social-link">
-        <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam" style="width: 16px; height: 16px; object-fit: contain;">
-    </a>
-    <a href="#" class="social-link">
-        <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit" style="width: 16px; height: 16px; object-fit: contain;">
-    </a>
-    <a href="#" class="social-link">
-        <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify" style="width: 16px; height: 16px; object-fit: contain;">
-    </a>
-    <a href="#" class="social-link">
-        <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats" style="width: 16px; height: 16px; object-fit: contain;">
-    </a>
-</div>
-            <div class="ratings">
-                <div class="rating-card">
-                    <div class="rating-title">CS2 Premier</div>
-                    <div class="rating-value premier-rating">24,687</div>
-                    <div class="rating-season">Season 1</div>
-                </div>
-                <div class="rating-card">
-                    <div class="rating-title">Faceit</div>
-                    <div class="rating-value faceit-rating">2,834</div>
-                    <div class="rating-elo">Level 10</div>
-					</div>
-                </div>
         <!-- Statistics Section -->
         <div class="stats-section">
             <div class="stats-header">
