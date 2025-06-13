@@ -1384,7 +1384,7 @@ scales: {
     y: {
         beginAtZero: false,
         ticks: {
-            stepSize: 100, // ⬅️ Pokazuj co 100 ELO
+            stepSize: 100,
             color: '#94a3b8',
             font: {
                 family: 'Inter'
@@ -1392,8 +1392,8 @@ scales: {
         },
         grid: {
             color: 'rgba(37, 99, 235, 0.2)'
-        }, // ✅ ← tu MUSI być przecinek!
-        // ⚠️ min i max będą ustawiane dynamicznie w updatePerformanceChart()
+        } // brak przecinka tutaj, bo to ostatni element
+        // min/max ustawiane dynamicznie
     },
     x: {
         ticks: {
@@ -1411,6 +1411,8 @@ interaction: {
     intersect: false,
     mode: 'index'
 }
+} // ⬅️ zamyka "options"
+}); // ⬅️ zamyka cały new Chart(...)
         console.log('✅ Wykres został zainicjowany');
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
