@@ -2253,130 +2253,66 @@ async function debugMatchStructure(nickname) {
 }
 // Improved updatePerformanceChart function
 async function updatePerformanceChart(_, playerId) {
-  console.log("📈 Updating ELO chart for player ID:", playerId)
-
-  try {
-    // Show loading state on chart
-    const canvas = document.getElementById("performanceChart")
-    if (canvas) {
-      const ctx = canvas.getContext("2d")
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.font = "16px Inter"
-      ctx.fillStyle = "#94a3b8"
-      ctx.textAlign = "center"
-      ctx.fillText("Loading ELO data...", canvas.width / 2, canvas.height / 2)
+    // ⏳ Czekaj, jeśli wykres jeszcze nie istnieje
+    if (!performanceChart) {
+        console.warn("⚠️ performanceChart jeszcze niegotowy — spróbuję ponownie za 200ms...");
+        setTimeout(() => updatePerformanceChart(_, playerId), 200);
+        return;
     }
 
-    // Calculate time range (default: last year)
-    const currentTime = Math.floor(Date.now() / 1000)
-    const oneYearAgo = currentTime - 365 * 24 * 60 * 60
+    console.log("📈 Aktualizacja wykresu ELO dla gracza:", playerId);
 
-    // Direct call to the unofficial Faceit API with CORS proxy
-    const corsProxy = "https://corsproxy.io/?"
-    const faceitApiUrl = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=100&from=${oneYearAgo}000&to=${currentTime}000`
+    const endpoint = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?size=20`;
 
-    console.log("🔗 Fetching ELO data from URL:", corsProxy + encodeURIComponent(faceitApiUrl))
+    try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error("Błąd API Faceit");
 
-    const response = await fetch(corsProxy + encodeURIComponent(faceitApiUrl))
+        const json = await res.json();
+        const items = json.items;
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`)
+        if (!items || !items.length) {
+            console.warn("⚠️ Brak meczów w historii API");
+            return;
+        }
+
+        const eloHistory = items
+            .map((item, index) => ({
+                elo: item.i1 ?? item.elo ?? null,
+                label: new Date(item.c).toLocaleDateString("pl-PL")
+            }))
+            .filter(d => d.elo && d.label)
+            .reverse();
+
+        if (eloHistory.length === 0) {
+            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+            return;
+        }
+
+        const labels = eloHistory.map(d => d.label);
+        const values = eloHistory.map(d => d.elo);
+
+        console.log("✅ Wartości ELO:", values);
+        console.log("📅 Daty meczów:", labels);
+
+        const minElo = Math.min(...values);
+        const maxElo = Math.max(...values);
+        const padding = Math.max((maxElo - minElo) * 0.2, 150);
+
+        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
+        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
+        performanceChart.data.labels = labels;
+        performanceChart.data.datasets[0].data = values;
+        performanceChart.update();
+
+        updateEloChange?.(); // jeśli ta funkcja istnieje
+        console.log("✅ Wykres ELO został zaktualizowany");
+
+    } catch (err) {
+        console.error("❌ Błąd podczas aktualizacji wykresu ELO:", err);
     }
-
-    const data = await response.json()
-    console.log("📊 Raw ELO data received:", data)
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      console.warn("⚠️ No ELO history data available")
-
-      // Show no data message on chart
-      if (canvas) {
-        const ctx = canvas.getContext("2d")
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.font = "16px Inter"
-        ctx.fillStyle = "#94a3b8"
-        ctx.textAlign = "center"
-        ctx.fillText("No ELO history data available", canvas.width / 2, canvas.height / 2)
-      }
-
-      return
-    }
-
-    // Process the data - extract ELO values correctly
-    const eloHistory = data
-      .filter((match) => match.elo !== undefined && match.elo !== null)
-      .map((match) => ({
-        elo: Number.parseInt(match.elo),
-        date: new Date(match.date),
-        label: new Date(match.date).toLocaleDateString(),
-      }))
-      .sort((a, b) => a.date - b.date) // Sort by date ascending
-      .slice(-20) // Get last 20 matches
-
-    if (eloHistory.length === 0) {
-      console.warn("⚠️ No valid ELO data points found")
-      return
-    }
-
-    console.log("✅ Processed ELO history:", eloHistory)
-
-    const labels = eloHistory.map((item) => item.label)
-    const values = eloHistory.map((item) => item.elo)
-
-    console.log("📊 Chart labels:", labels)
-    console.log("📊 Chart values:", values)
-
-    // Calculate appropriate Y-axis range
-    const minElo = Math.min(...values)
-    const maxElo = Math.max(...values)
-    const padding = Math.max((maxElo - minElo) * 0.2, 100)
-    const yMin = Math.max(0, Math.floor(minElo - padding))
-    const yMax = Math.ceil(maxElo + padding)
-
-    console.log(`📊 Chart Y-axis range: ${yMin} to ${yMax}`)
-
-    // IMPORTANT: Make sure we're using the global performanceChart variable
-    if (window.performanceChart) {
-      // Clear any existing data first
-      window.performanceChart.data.labels = []
-      window.performanceChart.data.datasets[0].data = []
-      window.performanceChart.update()
-
-      // Now set the new data
-      window.performanceChart.options.scales.y.min = yMin
-      window.performanceChart.options.scales.y.max = yMax
-      window.performanceChart.data.labels = labels
-      window.performanceChart.data.datasets[0].data = values
-      window.performanceChart.update()
-
-      // Update ELO change display
-      if (typeof updateEloChange === "function") {
-        updateEloChange()
-      } else {
-        console.warn("updateEloChange function is not defined.")
-      }
-
-      console.log("✅ Chart updated successfully")
-    } else {
-      console.error("❌ performanceChart is not defined in the global scope")
-    }
-  } catch (error) {
-    console.error("❌ Error updating ELO chart:", error)
-
-    // Show error message on chart
-    const canvas = document.getElementById("performanceChart")
-    if (canvas) {
-      const ctx = canvas.getContext("2d")
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.font = "16px Inter"
-      ctx.fillStyle = "#ef4444"
-      ctx.textAlign = "center"
-      ctx.fillText("Error loading ELO data", canvas.width / 2, canvas.height / 2)
-      ctx.font = "14px Inter"
-      ctx.fillText("Check console for details", canvas.width / 2, canvas.height / 2 + 25)
-    }
-  }
 }
+
     </script>
 </body>
 </html>
