@@ -1616,8 +1616,24 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
+function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
+    try {
+        let value = source;
+        for (let key of keys) {
+            if (value && key in value) {
+                value = value[key];
+            } else {
+                value = null;
+                break;
+            }
+        }
 
-// Fixed updatePlayerProfile function with correct Faceit API structure
+        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
+    } catch (e) {
+        console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
+        document.getElementById(elementId).textContent = fallback;
+    }
+}
 // Fixed updatePlayerProfile function with ELO chart update
 function updatePlayerProfile(playerData, playerStats, matchHistory) {
     try {
