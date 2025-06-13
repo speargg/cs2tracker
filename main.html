@@ -250,11 +250,12 @@ body.black-theme .theme-toggle:hover {
         font-size: 0.75rem;
     }
 }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
+.container {
+    max-width: 1200px; /* lub inna preferowana szerokość */
+    margin: 0 auto; /* centrowanie */
+    padding: 0 20px; /* marginesy wewnętrzne */
+    width: 100%; /* pełna szerokość do max-width */
+}
 
         .header {
             text-align: center;
@@ -795,7 +796,12 @@ body {
         grid-template-columns: 1.5fr 1fr 1.5fr;
         padding: 1rem;
     }
-
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+}
     .matches-header-stats > div {
     min-width: 40px;
     text-align: center;
@@ -918,61 +924,262 @@ body.loading {
   <div class="spinner"></div>
 </div>
 
-<!-- Ukryty kontent gracza -->
-<div id="content" style="display: none;">
-  <div class="container">
-    <!-- Header Section -->
-    <div class="header">
-      <!-- Search Bar Section -->
-      <div class="search-section">
-        <div class="search-container">
-          <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
-          <button class="search-btn" onclick="searchPlayer()">
-            <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
-          </button>
+
+
+  <!-- Ukryty kontent gracza -->
+  <div id="content" style="display: none;">
+    <div class="container">
+      <!-- Header Section -->
+      <div class="header">
+
+		<!-- Search Bar Section -->
+<div class="search-section">
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
+        <button class="search-btn" onclick="searchPlayer()">
+    <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
+</button>
+    </div>
+    <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
+</div>
+            <div class="avatar">NK</div>
+            <h1 class="nickname">NiKo_CS</h1>
+            <div class="social-links">
+    <a href="#" class="social-link">
+        <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+    <a href="#" class="social-link">
+        <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats" style="width: 16px; height: 16px; object-fit: contain;">
+    </a>
+</div>
+            <div class="ratings">
+                <div class="rating-card">
+                    <div class="rating-title">CS2 Premier</div>
+                    <div class="rating-value premier-rating">24,687</div>
+                    <div class="rating-season">Season 1</div>
+                </div>
+                <div class="rating-card">
+                    <div class="rating-title">Faceit</div>
+                    <div class="rating-value faceit-rating">2,834</div>
+                    <div class="rating-elo">Level 10</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
-      </div>
-      <div class="avatar">NK</div>
-      <h1 class="nickname">NiKo_CS</h1>
-      <div class="social-links">
-        <a href="#" class="social-link"><img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam"></a>
-        <a href="#" class="social-link"><img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit"></a>
-        <a href="#" class="social-link"><img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify"></a>
-        <a href="#" class="social-link"><img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats"></a>
-      </div>
-      <div class="ratings">
-        <div class="rating-card">
-          <div class="rating-title">CS2 Premier</div>
-          <div class="rating-value premier-rating">24,687</div>
-          <div class="rating-season">Season 1</div>
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <div class="stats-header">
+                <h2 class="section-title">Statistics Overview</h2>
+                <div class="stats-toggle">
+                    <button class="toggle-btn active" onclick="toggleStats('lifetime')">Lifetime</button>
+                    <button class="toggle-btn" onclick="toggleStats('recent')">Last 20 Matches</button>
+                </div>
+            </div>
+            <div class="stats-container">
+                <div class="stats-labels">
+                    <div class="platform-label premier-label">Premier</div>
+                    <div class="platform-label" style="color: #e2e8f0;">Statistics</div>
+                    <div class="platform-label faceit-label">Faceit</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-matches">247</div>
+                    <div class="stat-label">Matches</div>
+                    <div class="stat-value faceit-value" id="faceit-matches">189</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-winrate">73%</div>
+                    <div class="stat-label">Winrate</div>
+                    <div class="stat-value faceit-value" id="faceit-winrate">68%</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-kd">1.32</div>
+                    <div class="stat-label">K/D</div>
+                    <div class="stat-value faceit-value" id="faceit-kd">1.41</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-adr">89.2</div>
+                    <div class="stat-label">ADR</div>
+                    <div class="stat-value faceit-value" id="faceit-adr">91.7</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-aim">94.5</div>
+                    <div class="stat-label">Aim Rating</div>
+                    <div class="stat-value faceit-value" id="faceit-aim">96.1</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value premier-value" id="premier-hs">52.3%</div>
+                    <div class="stat-label">HS Percentage</div>
+                    <div class="stat-value faceit-value" id="faceit-hs">48.9%</div>
+                </div>
+            </div>
         </div>
-        <div class="rating-card">
-          <div class="rating-title">Faceit</div>
-          <div class="rating-value faceit-rating">2,834</div>
-          <div class="rating-elo">Level 10</div>
+
+        <!-- Performance Graph Section -->
+        <div class="performance-section">
+            <h2 class="section-title">Faceit ELO over last 20 Matches</h2>
+            <div class="chart-container">
+                <div class="elo-change" id="eloChange">+78 ELO</div>
+                <canvas id="performanceChart"></canvas>
+            </div>
         </div>
-      </div>
+
+        <!-- Recent Matches Section -->
+<div class="matches-section">
+    <h2 class="section-title">Recent Matches</h2>
+    
+    <div class="matches-header">
+        <div>MAP</div>
+        <div>SCORE</div>
+        <div class="matches-header-stats">
+            <div>K/D</div>
+            <div>ADR</div>
+            <div>HS%</div>
+        </div>
     </div>
 
-    <!-- 🔧 Te sekcje zostały przeniesione do środka .container -->
-    <!-- Statistics Section -->
-    <div class="stats-section">
-      ...
+    <div class="matches-list">
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_mirage</div>
+            </div>
+            <div class="match-score">16 - 12</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.50</div>
+                <div class="match-stat-value">92.4</div>
+                <div class="match-stat-value">54%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_dust2</div>
+            </div>
+            <div class="match-score">13 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.90</div>
+                <div class="match-stat-value">78.9</div>
+                <div class="match-stat-value">47%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_inferno</div>
+            </div>
+            <div class="match-score">16 - 9</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.93</div>
+                <div class="match-stat-value">105.2</div>
+                <div class="match-stat-value">61%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_cache</div>
+            </div>
+            <div class="match-score">16 - 11</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.29</div>
+                <div class="match-stat-value">88.7</div>
+                <div class="match-stat-value">49%</div>
+            </div>
+        </div>
+
+        <div class="match-card">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_overpass</div>
+            </div>
+            <div class="match-score">14 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.05</div>
+                <div class="match-stat-value">82.1</div>
+                <div class="match-stat-value">45%</div>
+            </div>
+        </div>
+
+        <!-- Hidden matches -->
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_ancient</div>
+            </div>
+            <div class="match-score">16 - 8</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.67</div>
+                <div class="match-stat-value">98.3</div>
+                <div class="match-stat-value">56%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_vertigo</div>
+            </div>
+            <div class="match-score">12 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.85</div>
+                <div class="match-stat-value">74.6</div>
+                <div class="match-stat-value">43%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_nuke</div>
+            </div>
+            <div class="match-score">16 - 13</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.44</div>
+                <div class="match-stat-value">86.9</div>
+                <div class="match-stat-value">51%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result win">W</div>
+                <div class="match-map">de_train</div>
+            </div>
+            <div class="match-score">16 - 10</div>
+            <div class="match-stats">
+                <div class="match-stat-value">1.75</div>
+                <div class="match-stat-value">102.1</div>
+                <div class="match-stat-value">58%</div>
+            </div>
+        </div>
+
+        <div class="match-card hidden-matches">
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">de_anubis</div>
+            </div>
+            <div class="match-score">11 - 16</div>
+            <div class="match-stats">
+                <div class="match-stat-value">0.78</div>
+                <div class="match-stat-value">71.2</div>
+                <div class="match-stat-value">41%</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Performance Graph Section -->
-    <div class="performance-section">
-      ...
+    <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
+</div>
     </div>
 
-    <!-- Recent Matches Section -->
-    <div class="matches-section">
-      ...
-    </div>
-
-  </div> <!-- ⬅️ zamknięcie .container -->
-</div> <!-- ⬅️ zamknięcie #content -->
     <script>
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
