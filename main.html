@@ -2298,8 +2298,8 @@ async function updatePerformanceChart(_, playerId) {
         const eloHistory = items
             .filter(item => item.elo && item.date)
             .map(item => {
-                const elo = parseInt(item.elo); // zamiana ze stringa
-                const date = new Date(item.date); // już w milisekundach
+                const elo = parseInt(item.elo);
+                const date = new Date(item.date);
                 const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 return { elo, label };
             })
