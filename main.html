@@ -1507,6 +1507,8 @@ async function searchPlayer(showSpinner = true) {
         alert('Please enter a Faceit nickname');
         return;
     }
+
+    window.history.pushState({}, '', `/${nickname}`);
     
     console.log("🔍 Searching for nickname:", nickname); // DODAJ TO
     
