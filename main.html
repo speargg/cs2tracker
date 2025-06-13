@@ -1384,27 +1384,6 @@ interaction: {
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
 });
-// Web Worker initialization
-let matchWorker;
-
-if (window.Worker) {
-    matchWorker = new Worker('match-worker.js');
-    matchWorker.onmessage = function(e) {
-        const processedMatches = e.data;
-        const matchesList = document.querySelector('.matches-list');
-        
-        // Clear loading indicator if exists
-        const loadingElement = document.querySelector('.loading-matches');
-        if (loadingElement) loadingElement.remove();
-        
-        // Add processed matches to DOM
-        processedMatches.forEach(matchData => {
-            const matchCard = createMatchCardFromProcessedData(matchData);
-            matchesList.appendChild(matchCard);
-        });
-    };
-}
-
 function loadMatchesWithWorker(matches, playerId) {
     if (matchWorker) {
         matchWorker.postMessage({ 
