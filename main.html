@@ -1037,7 +1037,7 @@ body.loading {
 
         <!-- Performance Graph Section -->
         <div class="performance-section">
-            <h2 class="section-title">Faceit ELO Over Last 20 Matches</h2>
+            <h2 class="section-title">Faceit ELO over last 20 Matches</h2>
             <div class="chart-container">
                 <div class="elo-change" id="eloChange">+78 ELO</div>
                 <canvas id="performanceChart"></canvas>
@@ -1380,22 +1380,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: 5000,
-                        stepSize: 500,
-                        ticks: { color: '#94a3b8', font: { family: 'Inter' } },
-                        grid: { color: 'rgba(37, 99, 235, 0.2)' }
-                    },
-                    x: {
-                        ticks: { color: '#94a3b8', font: { family: 'Inter' } },
-                        grid: { color: 'rgba(37, 99, 235, 0.2)' }
-                    }
-                },
-                interaction: { intersect: false, mode: 'index' }
+scales: {
+    y: {
+        beginAtZero: false,
+        ticks: {
+            stepSize: 100, // ⬅️ Pokazuj co 100 ELO
+            color: '#94a3b8',
+            font: {
+                family: 'Inter'
             }
+        },
+        grid: {
+            color: 'rgba(37, 99, 235, 0.2)'
+        }
+        // ⚠️ min i max będą ustawiane dynamicznie w updatePerformanceChart()
+    },
+    x: {
+        ticks: {
+            color: '#94a3b8',
+            font: {
+                family: 'Inter'
+            }
+        },
+        grid: {
+            color: 'rgba(37, 99, 235, 0.2)'
+        }
+    }
+},
+interaction: {
+    intersect: false,
+    mode: 'index'
+}
         });
 
         console.log('✅ Wykres został zainicjowany');
