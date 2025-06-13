@@ -1382,6 +1382,9 @@ scales: {
         beginAtZero: false,
         ticks: {
             stepSize: 100,
+            callback: function(value) {
+                return value % 100 === 0 ? value : null;
+            },
             color: '#94a3b8',
             font: {
                 family: 'Inter'
@@ -1389,22 +1392,21 @@ scales: {
         },
         grid: {
             color: 'rgba(37, 99, 235, 0.2)'
-        } // brak przecinka tutaj, bo to ostatni element
-        // min/max ustawiane dynamicznie
+        }
+        // min/max są ustawiane dynamicznie w updatePerformanceChart()
     },
     x: {
-ticks: {
-  stepSize: 100,
-  callback: function(value) {
-    // pokazuj tylko wartości, które są całkowitą setką
-    return value % 100 === 0 ? value : null;
-  },
-  color: '#94a3b8',
-  font: {
-    family: 'Inter'
-  }
+        ticks: {
+            color: '#94a3b8',
+            font: {
+                family: 'Inter'
+            }
+        },
+        grid: {
+            color: 'rgba(37, 99, 235, 0.2)'
+        }
+    }
 }
-},
 interaction: {
     intersect: false,
     mode: 'index'
