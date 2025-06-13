@@ -2241,24 +2241,37 @@ async function debugMatchStructure(nickname) {
 }
 // Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
-    console.log("📈 Updating ELO chart for:", playerId);
+    // Opóźnij, jeśli wykres jeszcze się nie załadował
+    if (!performanceChart) {
+        console.warn("⚠️ performanceChart jeszcze niegotowy — próbuję ponownie za 200ms...");
+        setTimeout(() => updatePerformanceChart(_, playerId), 200);
+        return;
+    }
+
+    console.log("📈 Aktualizuję wykres ELO dla gracza:", playerId);
+
     const endpoint = `/.netlify/functions/faceitElo?playerId=${playerId}`;
 
     try {
         const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Faceit stats API error");
+        if (!res.ok) throw new Error(`Błąd API Faceit: ${res.status}`);
 
         const json = await res.json();
+
+        // ✅ Sprawdzenie, czy odpowiedź ma dane
+        if (!json || !Array.isArray(json.items)) {
+            console.warn("⚠️ Odpowiedź z API nie zawiera items[]:", json);
+            return;
+        }
+
         const items = json.items;
 
         const eloHistory = items
             .filter(item => item.i1 && item.c)
             .map(item => {
-                const timestamp = parseInt(item.c); // zakładamy, że item.c to sekundy
-                const dateObj = new Date(timestamp * 1000); // przeliczenie na ms
-                const day = String(dateObj.getDate()).padStart(2, '0');
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                const label = `${day}/${month}`;
+                const timestamp = parseInt(item.c); // w sekundach
+                const date = new Date(timestamp * 1000); // zamiana na ms
+                const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 return {
                     elo: item.i1,
                     label: label
@@ -2266,28 +2279,35 @@ async function updatePerformanceChart(_, playerId) {
             })
             .reverse();
 
-        if (eloHistory.length === 0) return;
+        if (eloHistory.length === 0) {
+            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+            return;
+        }
 
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
 
+        console.log("✅ Daty meczów:", labels);
+        console.log("📊 ELO:", values);
+
+        // Zakres Y dynamiczny
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
-        const range = maxElo - minElo;
-        const padding = Math.max(range * 0.2, 200);
+        const padding = Math.max((maxElo - minElo) * 0.2, 150);
 
         performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
         performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
-
         performanceChart.data.labels = labels;
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
 
-        updateEloChange();
+        // Zaktualizuj zmianę ELO
+        updateEloChange?.();
+
         console.log("✅ Wykres ELO zaktualizowany");
 
     } catch (err) {
-        console.error("❌ Error updating ELO chart:", err);
+        console.error("❌ Błąd aktualizacji wykresu ELO:", err);
     }
 }
     </script>
