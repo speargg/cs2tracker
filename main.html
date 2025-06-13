@@ -1577,7 +1577,7 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
         if (el) {
             el.textContent = value != null ? transform(value) : fallback;
         } else {
-            console.warn(`⚠️ Element not found: #${elementId}`);
+            console.warn(`⚠️ Element with ID '${elementId}' not found.`);
         }
     } catch (e) {
         console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
