@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS2 Statistics</title>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS2 Statistics Application with API Integration</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -376,40 +376,6 @@ body.black-theme .theme-toggle:hover {
             margin-bottom: 1rem;
         }
 
-        .ranking {
-            padding-top: 1rem;
-            border-top: 1px solid rgba(37, 99, 235, 0.2);
-        }
-
-        .ranking-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: rgba(37, 99, 235, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid rgba(37, 99, 235, 0.5);
-        }
-
-        .ranking-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .ranking-label {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .ranking-value {
-            font-size: 0.875rem;
-            color: #e2e8f0;
-            font-weight: 600;
-        }
-
         .stats-section {
             margin-bottom: 3rem;
         }
@@ -464,69 +430,50 @@ body.black-theme .theme-toggle:hover {
             border-radius: 16px;
             padding: 2rem;
             backdrop-filter: blur(10px);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
         }
 
         .stats-labels {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
-            margin-bottom: 1.5rem;
-        }
-
-        .platform-label {
-            flex: 1;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .premier-label {
-            color: #60a5fa;
-        }
-
-        .faceit-label {
-            color: #3b82f6;
-        }
-
-        .stat-row {
-            display: flex;
-            align-items: center;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
-        }
-
-        .stat-row:last-child {
-            border-bottom: none;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .stat-label {
-            flex: 1;
-            text-align: center;
             font-weight: 600;
             font-size: 1.1rem;
             color: #e2e8f0;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .stat-label:last-child {
+            border-bottom: none;
+        }
+
+        .stats-values {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .stat-value {
-            flex: 1;
-            text-align: center;
             font-size: 1.5rem;
             font-weight: 700;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+            text-align: center;
+        }
+
+        .stat-value:last-child {
+            border-bottom: none;
         }
 
         .premier-value {
-    color: #666 !important;
-}
-
-.premier-value::after {
-    content: " (N/A)";
-    font-size: 0.8em;
-    color: #888;
-}
+            color: #60a5fa;
+        }
 
         .faceit-value {
             color: #3b82f6;
@@ -728,10 +675,9 @@ body.black-theme .theme-toggle:hover {
                 min-width: auto;
             }
 
-            .stat-row {
-                flex-direction: column;
+            .stats-container {
+                grid-template-columns: 1fr;
                 gap: 1rem;
-                text-align: center;
             }
 
             .matches-header {
@@ -901,9 +847,6 @@ body {
     filter: brightness(1.2);
     transform: scale(1.1);
 }
-.premier-value {
-    color: #666 !important;
-}
 /* Blokuje przewijanie i przesuwanie layoutu, dopóki nie zniknie loader */
 body.loading {
   overflow: hidden;
@@ -917,8 +860,6 @@ body.loading {
 <div id="loader" class="fullscreen-loader">
   <div class="spinner"></div>
 </div>
-
-
 
   <!-- Ukryty kontent gracza -->
   <div id="content" style="display: none;">
@@ -955,34 +896,13 @@ body.loading {
             <div class="ratings">
                 <div class="rating-card">
                     <div class="rating-title">CS2 Premier</div>
-                    <div class="rating-value premier-rating">24,687</div>
-                    <div class="rating-season">Season 1</div>
-                    <div class="ranking">
-                        <div class="ranking-item">
-                            <span class="ranking-label">World</span>
-                            <span class="ranking-value">#1,247</span>
-                        </div>
-                        <div class="ranking-item">
-                            <span class="ranking-label">Europe</span>
-                            <span class="ranking-value">#856</span>
-                        </div>
-                    </div>
+                    <div class="rating-value premier-rating" id="premier-rating">Loading...</div>
+                    <div class="rating-season">Season 2</div>
                 </div>
                 <div class="rating-card">
                     <div class="rating-title">Faceit</div>
-                    <div class="rating-value faceit-rating">2,834</div>
-                    <div class="rating-elo">Level 10</div>
-                    <div class="ranking">
-                        <div class="ranking-item">
-    <span class="ranking-label">World</span>
-    <span class="ranking-value" id="faceit-world-ranking">Not Ranked</span>
-</div>
-<div class="ranking-item">
-    <span class="ranking-label">Europe</span>
-    <span class="ranking-value" id="faceit-europe-ranking">Not Ranked</span>
-</div>
-
-                    </div>
+                    <div class="rating-value faceit-rating" id="faceit-rating">2,834</div>
+                    <div class="rating-elo" id="faceit-level">Level 10</div>
                 </div>
             </div>
         </div>
@@ -992,45 +912,26 @@ body.loading {
             <div class="stats-header">
                 <h2 class="section-title">Statistics Overview</h2>
                 <div class="stats-toggle">
-                    <button class="toggle-btn active" onclick="toggleStats('lifetime')">Lifetime</button>
-                    <button class="toggle-btn" onclick="toggleStats('recent')">Last 20 Matches</button>
+                    <button class="toggle-btn active" onclick="toggleStats('premier')" id="premier-toggle">Premier</button>
+                    <button class="toggle-btn" onclick="toggleStats('faceit')" id="faceit-toggle">Faceit</button>
                 </div>
             </div>
             <div class="stats-container">
                 <div class="stats-labels">
-                    <div class="platform-label premier-label">Premier</div>
-                    <div class="platform-label" style="color: #e2e8f0;">Statistics</div>
-                    <div class="platform-label faceit-label">Faceit</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-matches">247</div>
                     <div class="stat-label">Matches</div>
-                    <div class="stat-value faceit-value" id="faceit-matches">189</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-winrate">73%</div>
                     <div class="stat-label">Winrate</div>
-                    <div class="stat-value faceit-value" id="faceit-winrate">68%</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-kd">1.32</div>
                     <div class="stat-label">K/D</div>
-                    <div class="stat-value faceit-value" id="faceit-kd">1.41</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-adr">89.2</div>
                     <div class="stat-label">ADR</div>
-                    <div class="stat-value faceit-value" id="faceit-adr">91.7</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-aim">94.5</div>
                     <div class="stat-label">Aim Rating</div>
-                    <div class="stat-value faceit-value" id="faceit-aim">96.1</div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-value premier-value" id="premier-hs">52.3%</div>
                     <div class="stat-label">HS Percentage</div>
-                    <div class="stat-value faceit-value" id="faceit-hs">48.9%</div>
+                </div>
+                <div class="stats-values" id="stats-values">
+                    <div class="stat-value premier-value" id="stat-matches">247</div>
+                    <div class="stat-value premier-value" id="stat-winrate">73%</div>
+                    <div class="stat-value premier-value" id="stat-kd">1.32</div>
+                    <div class="stat-value premier-value" id="stat-adr">89.2</div>
+                    <div class="stat-value premier-value" id="stat-aim">94.5</div>
+                    <div class="stat-value premier-value" id="stat-hs">52.3%</div>
                 </div>
             </div>
         </div>
@@ -1196,9 +1097,14 @@ body.loading {
     </div>
 
     <script>
+// Global variables
+let performanceChart;
+let currentStatsMode = 'premier';
+let currentPlayerData = null;
+
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
-    // 🧠 Czy mamy pokazać loader?
+    // Check if we should show loader
     const shouldShowLoader = localStorage.getItem('showLoader') === 'true';
 
     const loader = document.getElementById('loader');
@@ -1210,17 +1116,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('loading');
     }
 
-    // 🧹 Usuń flagę, żeby nie działała przy kolejnym odświeżeniu
+    // Remove flag so it doesn't work on next refresh
     localStorage.removeItem('showLoader');
 
-    // 🌗 Utwórz przycisk do zmiany motywu
+    // Create theme toggle button
     const toggleBtn = document.createElement('button');
     toggleBtn.className = 'theme-toggle';
     toggleBtn.onclick = toggleTheme;
     toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
     document.body.appendChild(toggleBtn);
 
-    // 🎨 Ustaw zapamiętany motyw
+    // Set saved theme
     const savedTheme = localStorage.getItem('theme');
     const themeIcon = toggleBtn.querySelector('.theme-icon');
 
@@ -1228,75 +1134,28 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('black-theme');
         themeIcon.textContent = '☀️';
     }
-// Dodaj to na początku swojego pliku JavaScript (po załadowaniu DOM)
-// Test sprawdzający czy wszystkie funkcje istnieją
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("🧪 Testing if functions exist:");
-    
-    // Sprawdź wszystkie kluczowe funkcje
-    const functions = [
-        'searchPlayer',
-        'updatePerformanceChart', 
-        'fetchPlayerData',
-        'fetchPlayerStats',
-        'fetchMatchHistory',
-        'updatePlayerProfile'
-    ];
-    
-    functions.forEach(funcName => {
-        if (typeof window[funcName] === 'function') {
-            console.log(`✅ ${funcName} - exists`);
-        } else {
-            console.error(`❌ ${funcName} - NOT FOUND!`);
+
+    // Handle nickname from pathname (Netlify friendly URL)
+    let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+
+    if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
+        const input = document.querySelector('.search-input');
+        if (input) {
+            input.value = nickname;
+            searchPlayer(false);
         }
-    });
-    
-    // Sprawdź czy wykres istnieje
-    if (typeof performanceChart !== 'undefined') {
-        console.log("✅ performanceChart - exists");
     } else {
-        console.error("❌ performanceChart - NOT FOUND!");
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+            document.body.classList.remove('loading');
+        }
     }
-    
-    // Sprawdź czy element wykresu istnieje w DOM
-    const chartElement = document.getElementById('performanceChart');
-    if (chartElement) {
-        console.log("✅ performanceChart DOM element - exists");
-    } else {
-        console.error("❌ performanceChart DOM element - NOT FOUND!");
-    }
+
+    // Initialize chart
+    initializeChart();
 });
 
-// Dodaj też test przycisku wyszukiwania
-document.addEventListener('DOMContentLoaded', function() {
-    const searchBtn = document.querySelector('.search-btn');
-    if (searchBtn) {
-        console.log("✅ Search button found");
-        // Sprawdź czy ma event listener
-        searchBtn.addEventListener('click', function() {
-            console.log("🔍 Search button clicked!");
-        });
-    } else {
-        console.error("❌ Search button NOT FOUND!");
-    }
-});
-    // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
-let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
-
-if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
-    const input = document.querySelector('.search-input');
-    if (input) {
-        input.value = nickname;
-        searchPlayer(false);
-    }
-} else {
-    if (loader && content) {
-        loader.style.display = 'none';
-        content.style.display = 'block';
-        document.body.classList.remove('loading');
-    }
-}
-});
 // Theme toggle functionality
 function toggleTheme() {
     const body = document.body;
@@ -1313,13 +1172,13 @@ function toggleTheme() {
         localStorage.setItem('theme', 'blue');
     }
 }
-let performanceChart;
 
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize performance chart
+function initializeChart() {
     setTimeout(() => {
         const canvas = document.getElementById('performanceChart');
         if (!canvas) {
-            console.error('❌ Nie znaleziono elementu #performanceChart!');
+            console.error('❌ Chart canvas not found!');
             return;
         }
 
@@ -1377,140 +1236,70 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 },
-scales: {
-    y: {
-        beginAtZero: false,
-        ticks: {
-            stepSize: 100,
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            stepSize: 100,
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(37, 99, 235, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(37, 99, 235, 0.2)'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
             }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
-        } // brak przecinka tutaj, bo to ostatni element
-        // min/max ustawiane dynamicznie
-    },
-    x: {
-        ticks: {
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
-            }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
-        }
-    }
-},
-interaction: {
-    intersect: false,
-    mode: 'index'
+        });
+
+        console.log('✅ Chart initialized');
+    }, 100);
 }
-} // ⬅️ zamyka "options"
-}); // ⬅️ zamyka cały new Chart(...)
-        console.log('✅ Wykres został zainicjowany');
 
-    }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
-});
-        // Calculate and update ELO change
-        function updateEloChange() {
-            const firstElo = performanceChart.data.datasets[0].data[0];
-            const lastElo = performanceChart.data.datasets[0].data[performanceChart.data.datasets[0].data.length - 1];
-            const change = lastElo - firstElo;
-            const eloChangeElement = document.getElementById('eloChange');
-            
-            if (change >= 0) {
-                eloChangeElement.textContent = `+${change} ELO`;
-                eloChangeElement.className = 'elo-change elo-positive';
-            } else {
-                eloChangeElement.textContent = `${change} ELO`;
-                eloChangeElement.className = 'elo-change elo-negative';
-            }
-        }
 // Add enter key support for search
-document.querySelector('.search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        searchPlayer(); // domyślnie true – spinner się pokazuje
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPlayer();
+            }
+        });
     }
 });
-        // Stats data for toggle functionality
-        const statsData = {
-            lifetime: {
-                premier: { matches: '247', winrate: '73%', kd: '1.32', adr: '89.2', aim: '94.5', hs: '52.3%' },
-                faceit: { matches: '189', winrate: '68%', kd: '1.41', adr: '91.7', aim: '96.1', hs: '48.9%' }
-            },
-            recent: {
-                premier: { matches: '20', winrate: '75%', kd: '1.45', adr: '92.1', aim: '96.2', hs: '54.1%' },
-                faceit: { matches: '20', winrate: '70%', kd: '1.52', adr: '94.3', aim: '97.8', hs: '50.2%' }
-            }
-        };
 
-        // Toggle stats functionality
-        function toggleStats(type) {
-            // Update button states
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            // Update stats values
-            const data = statsData[type];
-            
-            // Premier stats
-            document.getElementById('premier-matches').textContent = data.premier.matches;
-            document.getElementById('premier-winrate').textContent = data.premier.winrate;
-            document.getElementById('premier-kd').textContent = data.premier.kd;
-            document.getElementById('premier-adr').textContent = data.premier.adr;
-            document.getElementById('premier-aim').textContent = data.premier.aim;
-            document.getElementById('premier-hs').textContent = data.premier.hs;
-            
-            // Faceit stats
-            document.getElementById('faceit-matches').textContent = data.faceit.matches;
-            document.getElementById('faceit-winrate').textContent = data.faceit.winrate;
-            document.getElementById('faceit-kd').textContent = data.faceit.kd;
-            document.getElementById('faceit-adr').textContent = data.faceit.adr;
-            document.getElementById('faceit-aim').textContent = data.faceit.aim;
-            document.getElementById('faceit-hs').textContent = data.faceit.hs;
-        }
-
-        // Toggle more matches functionality
-        function toggleMoreMatches() {
-            const btn = document.querySelector('.expand-btn');
-            const hiddenMatches = document.querySelectorAll('.hidden-matches');
-            
-            if (btn.textContent === 'Show More Matches') {
-                hiddenMatches.forEach(match => {
-                    match.style.display = 'grid';
-                });
-                btn.textContent = 'Show Less Matches';
-            } else {
-                hiddenMatches.forEach(match => {
-                    match.style.display = 'none';
-                });
-                btn.textContent = 'Show More Matches';
-            }
-        }
-// Faceit API configuration
-const API_BASE_URL = '/.netlify/functions';
-const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
-	    
-// Debugowa wersja funkcji searchPlayer
+// Main search function
 async function searchPlayer(showSpinner = true) {
-    console.log("🔍 Starting search..."); // DODAJ TO
+    console.log("🔍 Starting search...");
     
     const searchInput = document.querySelector('.search-input');
-    const nickname = searchInput.value.trim();
+    const searchValue = searchInput.value.trim();
     
-    if (!nickname) {
-        alert('Please enter a Faceit nickname');
+    if (!searchValue) {
+        alert('Please enter a Steam ID or Faceit nickname');
         return;
     }
 
-    window.history.pushState({}, '', `/${nickname}`);
+    window.history.pushState({}, '', `/${searchValue}`);
     
-    console.log("🔍 Searching for nickname:", nickname); // DODAJ TO
+    console.log("🔍 Searching for:", searchValue);
     
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
@@ -1530,35 +1319,35 @@ async function searchPlayer(showSpinner = true) {
             await new Promise(requestAnimationFrame);
         }
         
-        console.log("📡 Fetching player data..."); // DODAJ TO
-        const playerData = await fetchPlayerData(nickname);
-        console.log("✅ Player data received:", playerData); // DODAJ TO
+        // Check if input is Steam ID (numeric) or Faceit nickname
+        const isSteamId = /^\d+$/.test(searchValue);
         
-        console.log("📊 Fetching player stats..."); // DODAJ TO
-        const playerStats = await fetchPlayerStats(playerData.player_id);
-        console.log("✅ Player stats received:", playerStats); // DODAJ TO
-        
-        console.log("🎮 Fetching match history..."); // DODAJ TO
-        const matchHistory = await fetchMatchHistory(playerData.player_id);
-        console.log("✅ Match history received:", matchHistory); // DODAJ TO
-        
-        console.log("🔄 Updating player profile..."); // DODAJ TO
-        updatePlayerProfile(playerData, playerStats, matchHistory);
-        console.log("✅ Player profile updated"); // DODAJ TO
-        
-        console.log("📈 About to update performance chart with player ID:", playerData.player_id); // DODAJ TO
-        
-        // Sprawdź czy funkcja updatePerformanceChart istnieje
-        if (typeof updatePerformanceChart === 'function') {
-            console.log("✅ updatePerformanceChart function exists, calling it..."); // DODAJ TO
-            await updatePerformanceChart(null, playerData.player_id);
-            console.log("✅ updatePerformanceChart completed"); // DODAJ TO
+        if (isSteamId) {
+            console.log("🎮 Detected Steam ID, fetching Premier rating...");
+            await fetchPremierRating(searchValue);
+            
+            // For Steam ID, we need to find corresponding Faceit profile
+            // This would require additional logic or a different approach
+            console.log("⚠️ Faceit profile lookup from Steam ID not implemented yet");
         } else {
-            console.error("❌ updatePerformanceChart function does not exist!"); // DODAJ TO
+            console.log("👤 Detected Faceit nickname, fetching player data...");
+            const playerData = await fetchPlayerData(searchValue);
+            console.log("✅ Player data received:", playerData);
+            
+            const playerStats = await fetchPlayerStats(playerData.player_id);
+            console.log("✅ Player stats received:", playerStats);
+            
+            const matchHistory = await fetchMatchHistory(playerData.player_id);
+            console.log("✅ Match history received:", matchHistory);
+            
+            currentPlayerData = { playerData, playerStats, matchHistory };
+            
+            updatePlayerProfile(playerData, playerStats, matchHistory);
+            await updatePerformanceChart(null, playerData.player_id);
         }
         
     } catch (error) {
-        console.error("❌ Error in searchPlayer:", error); // DODAJ TO
+        console.error("❌ Error in searchPlayer:", error);
         alert('Player not found or API error. Please try again.');
     } finally {
         searchBtn.innerHTML = originalContent;
@@ -1569,14 +1358,43 @@ async function searchPlayer(showSpinner = true) {
             content.style.display = 'block';
             document.body.classList.remove('loading');
         }
-        console.log("🏁 Search process finished"); // DODAJ TO
+    }
+}
+
+// Fetch Premier rating from Leetify API
+async function fetchPremierRating(steamId) {
+    try {
+        console.log("📡 Fetching Premier rating for Steam ID:", steamId);
+        const response = await fetch(`https://api-public.cs-prod.leetify.com/v2/profiles/${steamId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Leetify API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("✅ Leetify data received:", data);
+        
+        // Update Premier rating display
+        const premierRatingElement = document.getElementById('premier-rating');
+        if (data.rating) {
+            premierRatingElement.textContent = Math.round(data.rating).toLocaleString();
+        } else {
+            premierRatingElement.textContent = 'N/A';
+        }
+        
+        return data;
+    } catch (error) {
+        console.error("❌ Error fetching Premier rating:", error);
+        const premierRatingElement = document.getElementById('premier-rating');
+        premierRatingElement.textContent = 'N/A';
+        throw error;
     }
 }
 
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
     try {
-        const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+        const response = await fetch(`/.netlify/functions/player?nickname=${encodeURIComponent(nickname)}`);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -1595,7 +1413,7 @@ async function fetchPlayerData(nickname) {
 
 async function fetchPlayerStats(playerId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
+        const response = await fetch(`/.netlify/functions/stats?playerId=${encodeURIComponent(playerId)}`);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -1614,7 +1432,7 @@ async function fetchPlayerStats(playerId) {
 
 async function fetchMatchHistory(playerId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
+        const response = await fetch(`/.netlify/functions/matches?playerId=${encodeURIComponent(playerId)}`);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -1630,6 +1448,70 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
+
+// Update player profile with new layout
+function updatePlayerProfile(playerData, playerStats, matchHistory) {
+    try {
+        // Header info
+        if (playerData?.nickname) {
+            document.querySelector('.nickname').textContent = playerData.nickname;
+            const avatarContainer = document.querySelector('.avatar');
+            if (avatarContainer && playerData.avatar) {
+                avatarContainer.innerHTML = `<img src="${playerData.avatar}" alt="Player avatar" />`;
+            }
+        }
+
+        // Faceit rating & level
+        if (playerData?.games?.cs2) {
+            const cs2Data = playerData.games.cs2;
+            const eloElement = document.getElementById('faceit-rating');
+            const levelElement = document.getElementById('faceit-level');
+            
+            if (cs2Data.faceit_elo) {
+                eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
+            } else {
+                eloElement.textContent = 'N/A';
+            }
+            levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
+        }
+
+        // Update stats based on current mode
+        updateStatsDisplay(playerStats);
+
+        // Profile links
+        if (playerData?.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+
+        // Update matches
+        if (matchHistory?.items) {
+            updateMatchHistory(matchHistory.items, playerData.player_id);
+        }
+
+    } catch (error) {
+        console.error("❌ Error updating player profile:", error);
+        alert("Error displaying player data. Please try again.");
+    }
+}
+
+// Update stats display based on current mode
+function updateStatsDisplay(playerStats) {
+    if (!playerStats?.lifetime) return;
+
+    const stats = playerStats.lifetime;
+    
+    // Update stat values
+    updateStatSafely('stat-matches', stats, ['Matches'], 'N/A');
+    updateStatSafely('stat-winrate', stats, ['Win Rate %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
+    updateStatSafely('stat-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
+    updateStatSafely('stat-adr', stats, ['Average Damage per Round'], 'N/A', val => Math.round(parseFloat(val)));
+    updateStatSafely('stat-aim', stats, ['Average Headshots %'], 'N/A', val => Math.round(parseFloat(val)));
+    updateStatSafely('stat-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
+}
+
 function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
     try {
         let value = source;
@@ -1642,101 +1524,69 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
             }
         }
 
-        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value != null ? transform(value) : fallback;
+        }
     } catch (e) {
         console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-        document.getElementById(elementId).textContent = fallback;
-    }
-}
-// Fixed updatePlayerProfile function with ELO chart update
-function updatePlayerProfile(playerData, playerStats, matchHistory) {
-    try {
-        // Header info
-        if (playerData?.nickname) {
-            document.querySelector('.nickname').textContent = playerData.nickname;
-            const avatarContainer = document.querySelector('.avatar');
-            if (avatarContainer) {
-                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
-            }
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = fallback;
         }
-
-        // Faceit rating & level
-        if (playerData?.games?.cs2) {
-            const cs2Data = playerData.games.cs2;
-            const eloElement = document.querySelector('.faceit-rating');
-            const levelElement = document.querySelector('.rating-elo');
-            if (cs2Data.faceit_elo) {
-                eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
-            } else {
-                eloElement.textContent = 'N/A';
-            }
-            levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
-
-            // Ranking
-            fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
-                .then(res => res.json())
-                .then(ranking => {
-                    document.getElementById('faceit-world-ranking').textContent = ranking?.world ? `#${ranking.world}` : 'Not Ranked';
-                    document.getElementById('faceit-europe-ranking').textContent = ranking?.europe ? `#${ranking.europe}` : 'Not Ranked';
-                })
-                .catch(err => console.error("Failed to fetch estimated ranking", err));
-        }
-
-        // Stats
-        if (playerStats?.lifetime) {
-            const stats = playerStats.lifetime;
-            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A');
-            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
-            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
-            updateStatSafely('faceit-adr', stats, ['Average Damage per Round'], 'N/A', val => Math.round(parseFloat(val)));
-            updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
-        }
-
-        // Profile link
-        if (playerData?.nickname) {
-            const faceitLink = document.querySelector('.social-link:nth-child(2)');
-            if (faceitLink) {
-                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-            }
-        }
-
-        const playerId = playerData?.player_id;
-
-        // 🟢 MATCHY + CHART
-        if (matchHistory?.items) {
-            updateMatchHistory(matchHistory.items, playerId);
-        }
-
-        // 🟢 ELO CHART ZAWSZE
-        if (playerId) {
-            updatePerformanceChart(null, playerId);
-        }
-
-    } catch (error) {
-        console.error("❌ Error updating player profile:", error);
-        alert("Error displaying player data. Please try again.");
     }
 }
 
-// Update match history display with player ID for win/loss determination
+// Toggle stats between Premier and Faceit
+function toggleStats(mode) {
+    currentStatsMode = mode;
+    
+    // Update button states
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`${mode}-toggle`).classList.add('active');
+
+    // Update stat values styling
+    const statsValues = document.querySelectorAll('.stat-value');
+    statsValues.forEach(stat => {
+        stat.className = `stat-value ${mode}-value`;
+    });
+
+    // If we have current player data, update the display
+    if (currentPlayerData && mode === 'faceit') {
+        updateStatsDisplay(currentPlayerData.playerStats);
+    } else if (mode === 'premier') {
+        // For Premier, we would need different data source
+        // For now, show placeholder values
+        document.getElementById('stat-matches').textContent = 'N/A';
+        document.getElementById('stat-winrate').textContent = 'N/A';
+        document.getElementById('stat-kd').textContent = 'N/A';
+        document.getElementById('stat-adr').textContent = 'N/A';
+        document.getElementById('stat-aim').textContent = 'N/A';
+        document.getElementById('stat-hs').textContent = 'N/A';
+    }
+}
+
+// Update match history display
 async function updateMatchHistory(matches, playerId) {
     const matchesList = document.querySelector('.matches-list');
 
-    // Wyczyść istniejące karty meczów
+    // Clear existing match cards
     const existingMatches = matchesList.querySelectorAll('.match-card');
     existingMatches.forEach(match => match.remove());
 
-    // Podziel dane na widoczne i ukryte
+    // Split data into visible and hidden
     const visibleMatches = matches.slice(0, 5);
-    const hiddenMatches = matches.slice(5, 10); // Maksymalnie 10 razem
+    const hiddenMatches = matches.slice(5, 10);
 
-    // Utwórz widoczne karty równolegle
+    // Create visible match cards
     const visibleMatchCards = await Promise.all(
         visibleMatches.map(m => createMatchCard(m, playerId))
     );
     visibleMatchCards.forEach(card => matchesList.appendChild(card));
 
-    // Utwórz ukryte karty równolegle
+    // Create hidden match cards
     const hiddenMatchCards = await Promise.all(
         hiddenMatches.map(m => createMatchCard(m, playerId))
     );
@@ -1747,7 +1597,7 @@ async function updateMatchHistory(matches, playerId) {
     });
 }
 
-// Create match card element with improved error handling and correct Faceit API structure
+// Create match card element
 async function createMatchCard(match, playerId) {
     const matchCard = document.createElement('div');
     matchCard.className = 'match-card';
@@ -1755,9 +1605,7 @@ async function createMatchCard(match, playerId) {
     try {
         console.log('Processing match:', match);
         
-        // Extract basic match info
         const matchId = match.match_id || match.id;
-        const gameMode = match.game_mode || 'Unknown';
         const status = match.status || 'unknown';
         
         // Determine which team the player was on
@@ -1765,7 +1613,6 @@ async function createMatchCard(match, playerId) {
         let enemyTeam = null;
         
         if (match.teams && match.teams.faction1 && match.teams.faction2) {
-            // Check if player is in faction1
             const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
             const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
             
@@ -1778,47 +1625,39 @@ async function createMatchCard(match, playerId) {
             }
         }
         
-        // Fetch detailed match information for map name and proper scores
-        let mapName = 'Loading...';
-        let scoreDisplay = '- - -';
-        let playerStats = { kills: '-', deaths: '-', adr: '-', hsPercent: '-' };
-        
-        // Create initial card with loading state
+        // Determine match result
         const result = determineMatchResult(match, playerTeam, status);
-        const dateDisplay = formatMatchDate(match);
+        
+        // Basic match info
+        let mapName = 'Unknown';
+        let scoreDisplay = '- - -';
+        
+        // Try to get map name from match data
+        if (match.voting?.map?.name) {
+            mapName = cleanMapName(match.voting.map.name);
+        } else if (match.map) {
+            mapName = cleanMapName(match.map);
+        }
+        
+        // Try to get score
+        if (match.results && match.results.score && playerTeam && enemyTeam) {
+            const playerScore = match.results.score[playerTeam] || 0;
+            const enemyScore = match.results.score[enemyTeam] || 0;
+            scoreDisplay = `${playerScore}:${enemyScore}`;
+        }
         
         matchCard.innerHTML = `
             <div class="match-left">
                 <div class="match-result ${result.class}">${result.symbol}</div>
                 <div class="match-map">${mapName}</div>
-                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
             </div>
             <div class="match-score">${scoreDisplay}</div>
             <div class="match-stats">
-                <div class="match-stat-value">${playerStats.kills}/${playerStats.deaths}</div>
-                <div class="match-stat-value">${playerStats.adr}</div>
-                <div class="match-stat-value">${playerStats.hsPercent}</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
             </div>
         `;
-        
-        // Fetch detailed match data asynchronously
-        if (status === 'finished') {
-            fetchDetailedMatchData(matchId, playerId).then(details => {
-                if (details) {
-                    updateMatchCardWithDetails(matchCard, details, result);
-                }
-            }).catch(error => {
-                console.error('Error loading match details:', error);
-                // Update with basic info if detailed fetch fails
-                updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
-            });
-        } else {
-            // For non-finished matches, use basic info
-            updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
-        }
-        
-        // Add click handler for expanded details
-        matchCard.addEventListener('click', () => showMatchDetails(matchId));
         
     } catch (error) {
         console.error('Error creating match card:', error, match);
@@ -1856,226 +1695,6 @@ function determineMatchResult(match, playerTeam, status) {
     }
 }
 
-// Helper function to format match date
-function formatMatchDate(match) {
-    if (match.started_at || match.finished_at) {
-        const timestamp = match.started_at || match.finished_at;
-        const matchDate = new Date(timestamp * 1000);
-        return matchDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-    return '';
-}
-
-async function fetchDetailedMatchData(matchId, playerId) {
-  try {
-    console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
-    const [matchDetails, matchStats] = await Promise.all([
-      fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
-      fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
-    ]);
-    
-    console.log('📦 matchDetails:', matchDetails);
-    console.log('📊 matchStats:', matchStats);
-    
-    // Dodajmy głębszy debug dla matchDetails
-    if (matchDetails) {
-      console.log('🔍 Full matchDetails structure:');
-      console.log('- Keys:', Object.keys(matchDetails));
-      if (matchDetails.voting) {
-        console.log('- voting keys:', Object.keys(matchDetails.voting));
-        if (matchDetails.voting.map) {
-          console.log('- voting.map keys:', Object.keys(matchDetails.voting.map));
-        }
-      }
-      if (matchDetails.maps) {
-        console.log('- maps:', matchDetails.maps);
-      }
-      if (matchDetails.game) {
-        console.log('- game:', matchDetails.game);
-      }
-    }
-    
-    const result = {
-      mapName: 'Unknown',
-      score: '- - -',
-      playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
-    };
-
-    // === Map name ===
-    console.log('🗺️ Looking for map name...');
-    console.log('matchDetails.rounds?.[0]?.round_stats?.Map:', matchDetails?.rounds?.[0]?.round_stats?.Map);
-    console.log('matchDetails.map:', matchDetails?.map);
-    console.log('matchDetails.voting?.map?.name:', matchDetails?.voting?.map?.name);
-    console.log('matchDetails.voting?.map?.entities?.[0]?.game_map_id:', matchDetails?.voting?.map?.entities?.[0]?.game_map_id);
-    console.log('matchDetails.voting:', matchDetails?.voting);
-    
-    if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
-      result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
-      console.log('✅ Map name from voting.map.entities[0].game_map_id:', result.mapName);
-    } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
-      result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
-      console.log('✅ Map name from rounds:', result.mapName);
-    } else if (matchDetails?.map) {
-      result.mapName = cleanMapName(matchDetails.map);
-      console.log('✅ Map name from map field:', result.mapName);
-    } else if (matchDetails?.voting?.map?.name) {
-      result.mapName = cleanMapName(matchDetails.voting.map.name);
-      console.log('✅ Map name from voting:', result.mapName);
-    } else if (matchDetails?.voting?.map?.pick?.[0]) {
-      result.mapName = cleanMapName(matchDetails.voting.map.pick[0]);
-      console.log('✅ Map name from voting pick:', result.mapName);
-    } else if (matchDetails?.maps?.[0]) {
-      result.mapName = cleanMapName(matchDetails.maps[0]);
-      console.log('✅ Map name from maps array:', result.mapName);
-    } else if (matchDetails?.game_mode?.map) {
-      result.mapName = cleanMapName(matchDetails.game_mode.map);
-      console.log('✅ Map name from game_mode:', result.mapName);
-    } else {
-      console.warn('⚠️ Could not find map name in any expected location');
-      console.log('Available matchDetails keys:', Object.keys(matchDetails || {}));
-      
-      // Sprawdźmy czy mapa nie jest w oryginalnych danych meczu (przed wywołaniem API)
-      console.log('🤔 Consider checking if map name is available in original match data before API calls');
-    }
-
-    // === Score - poprawiona logika ===
-    try {
-      let score1 = null;
-      let score2 = null;
-
-      // Najpierw spróbuj wyciągnąć wynik z matchStats (szczegółowe statystyki)
-      if (matchStats?.rounds?.[0]?.teams) {
-        const teams = matchStats.rounds[0].teams;
-        console.log('🏆 Teams data from matchStats:', teams);
-        
-        if (teams.length >= 2) {
-          // Sprawdź czy teams mają pole z wynikiem rundowym
-          if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
-            score1 = parseInt(teams[0].team_stats['Final Score']);
-            score2 = parseInt(teams[1].team_stats['Final Score']);
-            console.log('✅ Score from team_stats Final Score:', score1, ':', score2);
-          }
-          // Alternatywnie sprawdź inne możliwe pola
-          else if (teams[0].team_stats?.Score && teams[1].team_stats?.Score) {
-            score1 = parseInt(teams[0].team_stats.Score);
-            score2 = parseInt(teams[1].team_stats.Score);
-            console.log('✅ Score from team_stats Score:', score1, ':', score2);
-          }
-          // Sprawdź czy są pola rounds won/lost
-          else if (teams[0].team_stats?.['Rounds Won'] && teams[1].team_stats?.['Rounds Won']) {
-            score1 = parseInt(teams[0].team_stats['Rounds Won']);
-            score2 = parseInt(teams[1].team_stats['Rounds Won']);
-            console.log('✅ Score from Rounds Won:', score1, ':', score2);
-          }
-        }
-      }
-
-      // Jeśli nie udało się z matchStats, spróbuj z matchDetails (ale tylko jako fallback)
-      if (score1 === null || score2 === null) {
-        console.log('⚠️ Trying fallback methods for score...');
-        
-        // 1. Sprawdź czy w matchDetails są szczegółowe wyniki rundowe
-        if (matchDetails?.rounds && Array.isArray(matchDetails.rounds)) {
-          console.log('📊 Counting rounds from matchDetails.rounds:', matchDetails.rounds.length);
-          score1 = 0;
-          score2 = 0;
-          
-          matchDetails.rounds.forEach((round, index) => {
-            console.log(`Round ${index + 1}:`, round.winner);
-            if (round?.winner === 'faction1') score1++;
-            else if (round?.winner === 'faction2') score2++;
-          });
-          
-          if (score1 > 0 || score2 > 0) {
-            console.log('✅ Score from round counting:', score1, ':', score2);
-          }
-        }
-        
-        // 2. Jako ostatnia opcja - sprawdź factions (ale to prawdopodobnie da 1:0)
-        else if (
-          matchDetails?.factions?.faction1?.score != null &&
-          matchDetails?.factions?.faction2?.score != null
-        ) {
-          score1 = matchDetails.factions.faction1.score;
-          score2 = matchDetails.factions.faction2.score;
-          console.log('⚠️ Using factions score (might be 1:0):', score1, ':', score2);
-        }
-      }
-
-      if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
-        result.score = `${score1}:${score2}`;
-        console.log('🏆 Final score set to:', result.score);
-      } else {
-        console.warn('⚠️ Could not determine valid round score, scores were:', score1, ':', score2);
-        result.score = 'N/A';
-      }
-    } catch (err) {
-      console.warn('❌ Error determining score:', err);
-    }
-
-    // === Player stats ===
-    if (matchStats?.rounds?.[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      let playerMatchStats = null;
-
-      for (const team of teams) {
-        const found = team.players.find(p => p.player_id === playerId);
-        if (found) {
-          playerMatchStats = found;
-          break;
-        }
-      }
-
-      if (playerMatchStats?.player_stats) {
-        const stats = playerMatchStats.player_stats;
-        console.log('🎯 Player match stats:', stats);
-        console.log('Available stat keys:', Object.keys(stats));
-        
-        // Sprawdź różne możliwe nazwy pól dla ADR
-        const adrValue = stats['Average Damage per Round'] || 
-                        stats['ADR'] || 
-                        stats['adr'] || 
-                        stats['Damage/Round'] || 
-                        stats['DamagePerRound'] ||
-                        stats['AvgDamagePerRound'];
-        
-        console.log('🎯 ADR candidates:', {
-          'Average Damage per Round': stats['Average Damage per Round'],
-          'ADR': stats['ADR'],
-          'adr': stats['adr'],
-          'Damage/Round': stats['Damage/Round'],
-          'DamagePerRound': stats['DamagePerRound'],
-          'AvgDamagePerRound': stats['AvgDamagePerRound']
-        });
-        
-        result.playerStats = {
-          kills: stats.Kills || stats.kills || '-',
-          deaths: stats.Deaths || stats.deaths || '-',
-          adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
-          hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
-            ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
-            : '-',
-          // Dodajemy K/D ratio
-          kdRatio: (stats.Kills || stats.kills) && (stats.Deaths || stats.deaths)
-            ? ((stats.Kills || stats.kills) / (stats.Deaths || stats.deaths)).toFixed(2)
-            : '-'
-        };
-        
-        console.log('✅ Final player stats:', result.playerStats);
-      }
-    }
-
-    console.log('🎉 Final result:', result);
-    return result;
-
-  } catch (error) {
-    console.error('❌ Error fetching detailed match data:', error);
-    return null;
-  }
-}
 // Function to clean up map names
 function cleanMapName(mapName) {
     if (!mapName || mapName === 'Unknown') return 'Unknown';
@@ -2091,203 +1710,41 @@ function cleanMapName(mapName) {
     return cleaned;
 }
 
-// Function to update match card with detailed information
-function updateMatchCardWithDetails(matchCard, details, result) {
-    matchCard.innerHTML = `
-        <div class="match-left">
-            <div class="match-result ${result.class}">${result.symbol}</div>
-            <div class="match-map">${details.mapName}</div>
-            ${matchCard.querySelector('.match-date') ? `<div class="match-date">${matchCard.querySelector('.match-date').textContent}</div>` : ''}
-        </div>
-        <div class="match-score">${details.score}</div>
-        <div class="match-stats">
-            <div class="match-stat-value">${details.playerStats.kdRatio}</div>
-            <div class="match-stat-value">${details.playerStats.adr}</div>
-            <div class="match-stat-value">${details.playerStats.hsPercent}</div>
-        </div>
-    `;
-}
-
-// Function to update match card with basic information when detailed fetch fails
-function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
-    let scoreDisplay = '- - -';
-    
-    if (match.results && match.results.score && playerTeam && enemyTeam) {
-        const playerScore = match.results.score[playerTeam] || 0;
-        const enemyScore = match.results.score[enemyTeam] || 0;
-        scoreDisplay = `${playerScore}:${enemyScore}`;
-    }
-    
-    // Spróbuj wyciągnąć mapę z oryginalnych danych meczu
-    let mapName = 'Unknown';
-    
-    console.log('🗺️ Trying to get map from original match data:', match);
-    
-    if (match.voting?.map?.name) {
-        mapName = cleanMapName(match.voting.map.name);
-        console.log('✅ Map from voting.map.name:', mapName);
-    } else if (match.voting?.map?.pick?.[0]) {
-        mapName = cleanMapName(match.voting.map.pick[0]);
-        console.log('✅ Map from voting.map.pick[0]:', mapName);
-    } else if (match.map) {
-        mapName = cleanMapName(match.map);
-        console.log('✅ Map from match.map:', mapName);
-    } else if (match.maps?.[0]) {
-        mapName = cleanMapName(match.maps[0]);
-        console.log('✅ Map from match.maps[0]:', mapName);
-    } else {
-        console.warn('⚠️ Could not find map in original match data, using fallback');
-        mapName = '5v5 Matchmaking'; // fallback tylko gdy nic nie znajdziemy
-    }
-    
-    const mapElement = matchCard.querySelector('.match-map');
-    const scoreElement = matchCard.querySelector('.match-score');
-    
-    // Nie nadpisuj mapy jeśli już została ustawiona przez fetchDetailedMatchData
-    if (mapElement && mapElement.textContent === 'Unknown') {
-        mapElement.textContent = mapName;
-    }
-    if (scoreElement) scoreElement.textContent = scoreDisplay;
-}
-
-// Tymczasowa funkcja debug - dodaj ją do swojego kodu
-async function debugMatchDetailsAPI(matchId) {
-    try {
-        console.log('🔍 Debugging match-details API for:', matchId);
-        
-        const response = await fetch(`/.netlify/functions/match-details?matchId=${matchId}`);
-        const matchDetails = await response.json();
-        
-        console.log('🚀 RAW match-details response:');
-        console.log(JSON.stringify(matchDetails, null, 2));
-        
-        console.log('\n📋 Available top-level keys:');
-        console.log(Object.keys(matchDetails));
-        
-        // Sprawdź głębiej każde pole które może zawierać mapę
-        const fieldsToCheck = ['voting', 'map', 'maps', 'game', 'competition', 'rounds'];
-        
-        fieldsToCheck.forEach(field => {
-            if (matchDetails[field]) {
-                console.log(`\n🔎 ${field}:`, matchDetails[field]);
-                if (typeof matchDetails[field] === 'object' && matchDetails[field] !== null) {
-                    console.log(`   ${field} keys:`, Object.keys(matchDetails[field]));
-                }
-            }
-        });
-        
-        return matchDetails;
-    } catch (error) {
-        console.error('❌ Debug error:', error);
-        return null;
-    }
-}
-
-// Użyj tej funkcji w konsoli z prawdziwym matchId:
-// debugMatchDetailsAPI('1-some-real-match-id-here');
-// Function to fetch detailed match statistics
-async function fetchMatchDetails(matchId) {
-    try {
-        console.log('Fetching match details for:', matchId);
-        const response = await fetch(`${API_BASE_URL}/match?matchId=${encodeURIComponent(matchId)}`);
-        
-        if (!response.ok) {
-            console.error('Match details API error:', response.status);
-            return null;
-        }
-        
-        const matchDetails = await response.json();
-        console.log('Match details:', matchDetails);
-        return matchDetails;
-    } catch (error) {
-        console.error('Error fetching match details:', error);
-        return null;
-    }
-}
-
-// Function to fetch match statistics for a specific player
-async function fetchMatchStats(matchId, playerId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/match/${encodeURIComponent(matchId)}/stats`);
-        
-        if (!response.ok) {
-            console.error('Match stats API error:', response.status);
-            return null;
-        }
-        
-        const matchStats = await response.json();
-        console.log('Match stats:', matchStats);
-        return matchStats;
-    } catch (error) {
-        console.error('Error fetching match stats:', error);
-        return null;
-    }
-}
-// Quick debug function to analyze just the match structure
-async function debugMatchStructure(nickname) {
-    try {
-        const playerData = await fetchPlayerData(nickname);
-        const matchHistory = await fetchMatchHistory(playerData.player_id);
-        
-        if (matchHistory && matchHistory.items && matchHistory.items.length > 0) {
-            console.log('=== MATCH STRUCTURE ANALYSIS ===');
-            console.log('Total matches:', matchHistory.items.length);
-            console.log('First match full structure:');
-            console.log(JSON.stringify(matchHistory.items[0], null, 2));
-            
-            // Analyze first few matches for patterns
-            console.log('\n=== PATTERN ANALYSIS ===');
-            matchHistory.items.slice(0, 3).forEach((match, index) => {
-                console.log(`\nMatch ${index + 1}:`);
-                console.log('- Status:', match.status);
-                console.log('- Map info:', {
-                    voting: match.voting?.map,
-                    map: match.map,
-                    maps: match.maps
-                });
-                console.log('- Results:', match.results);
-                console.log('- Teams:', match.teams ? Object.keys(match.teams) : 'No teams');
-            });
-        }
-    } catch (error) {
-        console.error('Debug match structure error:', error);
-    }
-}
-// Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
+// Update performance chart
 async function updatePerformanceChart(_, playerId) {
     if (!performanceChart) {
-        console.warn("⚠️ performanceChart jeszcze niegotowy — próbuję ponownie za 200ms...");
+        console.warn("⚠️ performanceChart not ready — trying again in 200ms...");
         setTimeout(() => updatePerformanceChart(_, playerId), 200);
         return;
     }
 
-    console.log("📈 Aktualizuję wykres ELO dla gracza:", playerId);
+    console.log("📈 Updating ELO chart for player:", playerId);
 
     const endpoint = `/.netlify/functions/faceitElo?playerId=${playerId}`;
 
     try {
         const res = await fetch(endpoint);
-        if (!res.ok) throw new Error(`Błąd API Faceit: ${res.status}`);
+        if (!res.ok) throw new Error(`Faceit API error: ${res.status}`);
 
         const items = await res.json();
 
         if (!Array.isArray(items)) {
-            console.warn("⚠️ Odpowiedź z API nie jest tablicą:", items);
+            console.warn("⚠️ API response is not an array:", items);
             return;
         }
 
         const eloHistory = items
             .filter(item => item.elo && item.date)
             .map(item => {
-                const elo = parseInt(item.elo); // zamiana ze stringa
-                const date = new Date(item.date); // już w milisekundach
+                const elo = parseInt(item.elo);
+                const date = new Date(item.date);
                 const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 return { elo, label };
             })
             .reverse();
 
         if (eloHistory.length === 0) {
-            console.warn("⚠️ Brak danych ELO do wyświetlenia.");
+            console.warn("⚠️ No ELO data to display.");
             return;
         }
 
@@ -2295,7 +1752,7 @@ async function updatePerformanceChart(_, playerId) {
         const values = eloHistory.map(d => d.elo);
 
         console.log("✅ ELO:", values);
-        console.log("📅 Daty:", labels);
+        console.log("📅 Dates:", labels);
 
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
@@ -2307,12 +1764,49 @@ async function updatePerformanceChart(_, playerId) {
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
 
-        updateEloChange?.();
+        updateEloChange();
 
-        console.log("✅ Wykres ELO został zaktualizowany");
+        console.log("✅ ELO chart updated");
 
     } catch (err) {
-        console.error("❌ Błąd aktualizacji wykresu ELO:", err);
+        console.error("❌ Error updating ELO chart:", err);
+    }
+}
+
+// Calculate and update ELO change
+function updateEloChange() {
+    if (!performanceChart || !performanceChart.data.datasets[0].data.length) return;
+    
+    const data = performanceChart.data.datasets[0].data;
+    const firstElo = data[0];
+    const lastElo = data[data.length - 1];
+    const change = lastElo - firstElo;
+    const eloChangeElement = document.getElementById('eloChange');
+    
+    if (change >= 0) {
+        eloChangeElement.textContent = `+${change} ELO`;
+        eloChangeElement.className = 'elo-change elo-positive';
+    } else {
+        eloChangeElement.textContent = `${change} ELO`;
+        eloChangeElement.className = 'elo-change elo-negative';
+    }
+}
+
+// Toggle more matches functionality
+function toggleMoreMatches() {
+    const btn = document.querySelector('.expand-btn');
+    const hiddenMatches = document.querySelectorAll('.hidden-matches');
+    
+    if (btn.textContent === 'Show More Matches') {
+        hiddenMatches.forEach(match => {
+            match.style.display = 'grid';
+        });
+        btn.textContent = 'Show Less Matches';
+    } else {
+        hiddenMatches.forEach(match => {
+            match.style.display = 'none';
+        });
+        btn.textContent = 'Show More Matches';
     }
 }
     </script>
