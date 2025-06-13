@@ -1407,12 +1407,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         },
-        interaction: {
-            intersect: false,
-            mode: 'index'
-        }
-    } // ← 🟢 TO JEST ZAMYKANY options
-}); // 🟢 TO JEST ZAMYKANY new Chart(...)
+       interaction: {
+    intersect: false,
+    mode: 'index'
+}
+            } // ← zamknięcie `options`
+        }); // ← zamknięcie `new Chart(...)`
+    }, 100); // ← zakończenie `setTimeout`
+});
         // Calculate and update ELO change
         function updateEloChange() {
             const firstElo = performanceChart.data.datasets[0].data[0];
