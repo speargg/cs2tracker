@@ -1196,28 +1196,6 @@ body.loading {
     </div>
 
     <script>
-// Add this at the top of your script
-const API_CACHE = new Map();
-
-async function fetchWithCache(url) {
-  if (API_CACHE.has(url)) {
-    return API_CACHE.get(url);
-  }
-  
-  const response = await fetch(url);
-  const data = await response.json();
-  
-  // Cache for 5 minutes (adjust as needed)
-  API_CACHE.set(url, data);
-  setTimeout(() => API_CACHE.delete(url), 300000);
-  
-  return data;
-}
-// Then modify your fetch calls to use this:
-async function loadPlayerData() {
-    const playerData = await fetchWithCache(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
-    return playerData;
-}
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // 🧠 Czy mamy pokazać loader?
@@ -1250,6 +1228,58 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('black-theme');
         themeIcon.textContent = '☀️';
     }
+// Dodaj to na początku swojego pliku JavaScript (po załadowaniu DOM)
+// Test sprawdzający czy wszystkie funkcje istnieją
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🧪 Testing if functions exist:");
+    
+    // Sprawdź wszystkie kluczowe funkcje
+    const functions = [
+        'searchPlayer',
+        'updatePerformanceChart', 
+        'fetchPlayerData',
+        'fetchPlayerStats',
+        'fetchMatchHistory',
+        'updatePlayerProfile'
+    ];
+    
+    functions.forEach(funcName => {
+        if (typeof window[funcName] === 'function') {
+            console.log(`✅ ${funcName} - exists`);
+        } else {
+            console.error(`❌ ${funcName} - NOT FOUND!`);
+        }
+    });
+    
+    // Sprawdź czy wykres istnieje
+    if (typeof performanceChart !== 'undefined') {
+        console.log("✅ performanceChart - exists");
+    } else {
+        console.error("❌ performanceChart - NOT FOUND!");
+    }
+    
+    // Sprawdź czy element wykresu istnieje w DOM
+    const chartElement = document.getElementById('performanceChart');
+    if (chartElement) {
+        console.log("✅ performanceChart DOM element - exists");
+    } else {
+        console.error("❌ performanceChart DOM element - NOT FOUND!");
+    }
+});
+
+// Dodaj też test przycisku wyszukiwania
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBtn = document.querySelector('.search-btn');
+    if (searchBtn) {
+        console.log("✅ Search button found");
+        // Sprawdź czy ma event listener
+        searchBtn.addEventListener('click', function() {
+            console.log("🔍 Search button clicked!");
+        });
+    } else {
+        console.error("❌ Search button NOT FOUND!");
+    }
+});
     // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
 let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
 
@@ -1384,35 +1414,6 @@ interaction: {
 
     }, 0); // ← można zwiększyć np. do 100 jeśli dalej nie działa
 });
-function loadMatchesWithWorker(matches, playerId) {
-    if (matchWorker) {
-        matchWorker.postMessage({ 
-            matches: matches.slice(0, 10), // Limit to first 10 matches
-            playerId 
-        });
-    } else {
-        // Fallback to non-worker processing
-        updateMatchHistory(matches, playerId);
-    }
-}
-
-function createMatchCardFromProcessedData(matchData) {
-    const matchCard = document.createElement('div');
-    matchCard.className = 'match-card';
-    matchCard.innerHTML = `
-        <div class="match-left">
-            <div class="match-result ${matchData.result.class}">${matchData.result.symbol}</div>
-            <div class="match-map">${matchData.mapName}</div>
-        </div>
-        <div class="match-score">${matchData.score}</div>
-        <div class="match-stats">
-            <div class="match-stat-value">${matchData.stats.kdRatio}</div>
-            <div class="match-stat-value">${matchData.stats.adr}</div>
-            <div class="match-stat-value">${matchData.stats.hsPercent}</div>
-        </div>
-    `;
-    return matchCard;
-}
         // Calculate and update ELO change
         function updateEloChange() {
             const firstElo = performanceChart.data.datasets[0].data[0];
@@ -1491,30 +1492,13 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
                 btn.textContent = 'Show More Matches';
             }
         }
-		// Prefetching implementation
-let prefetched = false;
-const expandBtn = document.querySelector('.expand-btn');
-
-if (expandBtn) {
-    expandBtn.addEventListener('mouseenter', async () => {
-        if (!prefetched) {
-            const hiddenMatches = document.querySelectorAll('.hidden-matches');
-            if (hiddenMatches.length === 0) {
-                // Get the next set of matches (assuming you have access to allMatches and currentPlayerId)
-                const nextMatches = allMatches.slice(5, 10); // Get matches 5-10
-                await renderMatches(nextMatches, currentPlayerId, true);
-            }
-            prefetched = true;
-        }
-    });
-}
 // Faceit API configuration
 const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 	    
 // Debugowa wersja funkcji searchPlayer
 async function searchPlayer(showSpinner = true) {
-    console.log("🔍 Starting search...");
+    console.log("🔍 Starting search..."); // DODAJ TO
     
     const searchInput = document.querySelector('.search-input');
     const nickname = searchInput.value.trim();
@@ -1526,16 +1510,13 @@ async function searchPlayer(showSpinner = true) {
 
     window.history.pushState({}, '', `/${nickname}`);
     
+    console.log("🔍 Searching for nickname:", nickname); // DODAJ TO
+    
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
     
-    // Show fullscreen loader
-    const loader = document.getElementById('loader');
-    const content = document.getElementById('content');
-    
     try {
         if (showSpinner) {
-            // Show both button spinner and fullscreen loader
             searchBtn.innerHTML = `
                 <div style="
                     width: 16px;
@@ -1546,54 +1527,52 @@ async function searchPlayer(showSpinner = true) {
                     animation: spin 1s linear infinite;
                 "></div>
             `;
-            loader.style.display = 'flex';
-            content.style.display = 'none';
-            document.body.classList.add('loading');
             await new Promise(requestAnimationFrame);
         }
         
-        // Fetch player data
+        console.log("📡 Fetching player data..."); // DODAJ TO
         const playerData = await fetchPlayerData(nickname);
+        console.log("✅ Player data received:", playerData); // DODAJ TO
+        
+        console.log("📊 Fetching player stats..."); // DODAJ TO
         const playerStats = await fetchPlayerStats(playerData.player_id);
+        console.log("✅ Player stats received:", playerStats); // DODAJ TO
+        
+        console.log("🎮 Fetching match history..."); // DODAJ TO
         const matchHistory = await fetchMatchHistory(playerData.player_id);
+        console.log("✅ Match history received:", matchHistory); // DODAJ TO
         
-        // Update profile (without chart)
+        console.log("🔄 Updating player profile..."); // DODAJ TO
         updatePlayerProfile(playerData, playerStats, matchHistory);
+        console.log("✅ Player profile updated"); // DODAJ TO
         
-        // Show content while chart loads in background
-        loader.style.display = 'none';
-        content.style.display = 'block';
-        document.body.classList.remove('loading');
+        console.log("📈 About to update performance chart with player ID:", playerData.player_id); // DODAJ TO
         
-        // Load chart after 500ms (after main content is visible)
-        setTimeout(() => {
-            if (typeof updatePerformanceChart === 'function') {
-                updatePerformanceChart(null, playerData.player_id);
-            }
-        }, 500);
-        
-        // Use web worker if available for match processing
-        if (window.Worker && matchHistory?.items) {
-            loadMatchesWithWorker(matchHistory.items, playerData.player_id);
-        } else if (matchHistory?.items) {
-            updateMatchHistory(matchHistory.items, playerData.player_id);
+        // Sprawdź czy funkcja updatePerformanceChart istnieje
+        if (typeof updatePerformanceChart === 'function') {
+            console.log("✅ updatePerformanceChart function exists, calling it..."); // DODAJ TO
+            await updatePerformanceChart(null, playerData.player_id);
+            console.log("✅ updatePerformanceChart completed"); // DODAJ TO
+        } else {
+            console.error("❌ updatePerformanceChart function does not exist!"); // DODAJ TO
         }
         
     } catch (error) {
-        console.error("❌ Error in searchPlayer:", error);
+        console.error("❌ Error in searchPlayer:", error); // DODAJ TO
         alert('Player not found or API error. Please try again.');
     } finally {
-        // Restore search button
         searchBtn.innerHTML = originalContent;
-        
-        // Ensure loader is hidden in case of errors
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
         if (loader && content) {
             loader.style.display = 'none';
             content.style.display = 'block';
             document.body.classList.remove('loading');
         }
+        console.log("🏁 Search process finished"); // DODAJ TO
     }
 }
+
 // Enhanced fetch functions with better error handling
 async function fetchPlayerData(nickname) {
     try {
@@ -1677,22 +1656,7 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             document.querySelector('.nickname').textContent = playerData.nickname;
             const avatarContainer = document.querySelector('.avatar');
             if (avatarContainer) {
-                const img = document.createElement('img');
-                img.id = 'player-avatar';
-                img.src = 'assets/img/default-avatar.jpg';
-                img.dataset.src = playerData.avatar || 'assets/img/default-avatar.jpg';
-                img.alt = 'Player avatar';
-                img.loading = 'lazy';
-                img.style.opacity = '0';
-                img.onload = () => img.style.opacity = '1';
-                avatarContainer.innerHTML = '';
-                avatarContainer.appendChild(img);
-
-                setTimeout(() => {
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                    }
-                }, 300);
+                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
             }
         }
 
@@ -1738,10 +1702,12 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
 
         const playerId = playerData?.player_id;
 
+        // 🟢 MATCHY + CHART
         if (matchHistory?.items) {
             updateMatchHistory(matchHistory.items, playerId);
         }
 
+        // 🟢 ELO CHART ZAWSZE
         if (playerId) {
             updatePerformanceChart(null, playerId);
         }
@@ -1751,85 +1717,128 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
         alert("Error displaying player data. Please try again.");
     }
 }
+
 // Update match history display with player ID for win/loss determination
 async function updateMatchHistory(matches, playerId) {
     const matchesList = document.querySelector('.matches-list');
-    matchesList.innerHTML = '<div class="loading-matches">Loading matches...</div>';
 
-    // Process first 3 matches immediately
-    const initialMatches = matches.slice(0, 3);
-    await renderMatches(initialMatches, playerId, false);
+    // Wyczyść istniejące karty meczów
+    const existingMatches = matchesList.querySelectorAll('.match-card');
+    existingMatches.forEach(match => match.remove());
 
-    // Process remaining matches in background
-    if (matches.length > 3) {
-        setTimeout(async () => {
-            const remainingMatches = matches.slice(3, 10);
-            await renderMatches(remainingMatches, playerId, true);
-        }, 0);
-    }
+    // Podziel dane na widoczne i ukryte
+    const visibleMatches = matches.slice(0, 5);
+    const hiddenMatches = matches.slice(5, 10); // Maksymalnie 10 razem
+
+    // Utwórz widoczne karty równolegle
+    const visibleMatchCards = await Promise.all(
+        visibleMatches.map(m => createMatchCard(m, playerId))
+    );
+    visibleMatchCards.forEach(card => matchesList.appendChild(card));
+
+    // Utwórz ukryte karty równolegle
+    const hiddenMatchCards = await Promise.all(
+        hiddenMatches.map(m => createMatchCard(m, playerId))
+    );
+    hiddenMatchCards.forEach(card => {
+        card.classList.add('hidden-matches');
+        card.style.display = 'none';
+        matchesList.appendChild(card);
+    });
 }
 
-async function renderMatches(matches, playerId, isHidden) {
-    try {
-        // Batch fetch match details and stats
-        const batchResponse = await fetch(`/.netlify/functions/batch-match-data?matchIds=${matches.map(m => m.match_id).join(',')}&playerId=${playerId}`);
-        const batchData = await batchResponse.json();
-
-        const matchesList = document.querySelector('.matches-list');
-        const loadingElement = document.querySelector('.loading-matches');
-        if (loadingElement) loadingElement.remove();
-
-        batchData.forEach((matchData, index) => {
-            const matchCard = createMatchCardFromBatch(matchData, matches[index], playerId);
-            if (isHidden) {
-                matchCard.classList.add('hidden-matches');
-                matchCard.style.display = 'none';
-            }
-            matchesList.appendChild(matchCard);
-        });
-    } catch (error) {
-        console.error('Error rendering matches:', error);
-        // Fallback to individual requests if batch fails
-        await renderMatchesIndividually(matches, playerId, isHidden);
-    }
-}
-
-function createMatchCardFromBatch(batchData, match, playerId) {
+// Create match card element with improved error handling and correct Faceit API structure
+async function createMatchCard(match, playerId) {
     const matchCard = document.createElement('div');
     matchCard.className = 'match-card';
     
-    const result = determineMatchResult(match, batchData.playerTeam, match.status);
-    const dateDisplay = formatMatchDate(match);
-    
-    matchCard.innerHTML = `
-        <div class="match-left">
-            <div class="match-result ${result.class}">${result.symbol}</div>
-            <div class="match-map">${batchData.mapName || 'Unknown'}</div>
-            ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
-        </div>
-        <div class="match-score">${batchData.score || '- - -'}</div>
-        <div class="match-stats">
-            <div class="match-stat-value">${batchData.playerStats?.kdRatio || '-'}</div>
-            <div class="match-stat-value">${batchData.playerStats?.adr || '-'}</div>
-            <div class="match-stat-value">${batchData.playerStats?.hsPercent || '-'}</div>
-        </div>
-    `;
+    try {
+        console.log('Processing match:', match);
+        
+        // Extract basic match info
+        const matchId = match.match_id || match.id;
+        const gameMode = match.game_mode || 'Unknown';
+        const status = match.status || 'unknown';
+        
+        // Determine which team the player was on
+        let playerTeam = null;
+        let enemyTeam = null;
+        
+        if (match.teams && match.teams.faction1 && match.teams.faction2) {
+            // Check if player is in faction1
+            const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
+            const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
+            
+            if (inFaction1) {
+                playerTeam = 'faction1';
+                enemyTeam = 'faction2';
+            } else if (inFaction2) {
+                playerTeam = 'faction2';
+                enemyTeam = 'faction1';
+            }
+        }
+        
+        // Fetch detailed match information for map name and proper scores
+        let mapName = 'Loading...';
+        let scoreDisplay = '- - -';
+        let playerStats = { kills: '-', deaths: '-', adr: '-', hsPercent: '-' };
+        
+        // Create initial card with loading state
+        const result = determineMatchResult(match, playerTeam, status);
+        const dateDisplay = formatMatchDate(match);
+        
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result ${result.class}">${result.symbol}</div>
+                <div class="match-map">${mapName}</div>
+                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+            </div>
+            <div class="match-score">${scoreDisplay}</div>
+            <div class="match-stats">
+                <div class="match-stat-value">${playerStats.kills}/${playerStats.deaths}</div>
+                <div class="match-stat-value">${playerStats.adr}</div>
+                <div class="match-stat-value">${playerStats.hsPercent}</div>
+            </div>
+        `;
+        
+        // Fetch detailed match data asynchronously
+        if (status === 'finished') {
+            fetchDetailedMatchData(matchId, playerId).then(details => {
+                if (details) {
+                    updateMatchCardWithDetails(matchCard, details, result);
+                }
+            }).catch(error => {
+                console.error('Error loading match details:', error);
+                // Update with basic info if detailed fetch fails
+                updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
+            });
+        } else {
+            // For non-finished matches, use basic info
+            updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
+        }
+        
+        // Add click handler for expanded details
+        matchCard.addEventListener('click', () => showMatchDetails(matchId));
+        
+    } catch (error) {
+        console.error('Error creating match card:', error, match);
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result loss">L</div>
+                <div class="match-map">Unknown Match</div>
+            </div>
+            <div class="match-score">- - -</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+    }
     
     return matchCard;
 }
 
-async function renderMatchesIndividually(matches, playerId, isHidden) {
-    const matchesList = document.querySelector('.matches-list');
-    
-    for (const match of matches) {
-        const matchCard = await createMatchCard(match, playerId);
-        if (isHidden) {
-            matchCard.classList.add('hidden-matches');
-            matchCard.style.display = 'none';
-        }
-        matchesList.appendChild(matchCard);
-    }
-}
 // Helper function to determine match result
 function determineMatchResult(match, playerTeam, status) {
     if (status === 'finished' && match.results) {
@@ -2270,8 +2279,8 @@ async function updatePerformanceChart(_, playerId) {
         const eloHistory = items
             .filter(item => item.elo && item.date)
             .map(item => {
-                const elo = parseInt(item.elo);
-                const date = new Date(item.date);
+                const elo = parseInt(item.elo); // zamiana ze stringa
+                const date = new Date(item.date); // już w milisekundach
                 const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 return { elo, label };
             })
