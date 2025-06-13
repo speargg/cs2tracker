@@ -2241,7 +2241,6 @@ async function debugMatchStructure(nickname) {
 }
 // Funkcja z dynamicznym zakresem - lepiej dopasowuje się do danych gracza
 async function updatePerformanceChart(_, playerId) {
-    // Opóźnij, jeśli wykres jeszcze się nie załadował
     if (!performanceChart) {
         console.warn("⚠️ performanceChart jeszcze niegotowy — próbuję ponownie za 200ms...");
         setTimeout(() => updatePerformanceChart(_, playerId), 200);
@@ -2256,23 +2255,20 @@ async function updatePerformanceChart(_, playerId) {
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Błąd API Faceit: ${res.status}`);
 
-const items = await res.json();
+        const items = await res.json();
 
-if (!Array.isArray(items)) {
-    console.warn("⚠️ Odpowiedź z API nie jest tablicą:", items);
-    return;
-}
+        if (!Array.isArray(items)) {
+            console.warn("⚠️ Odpowiedź z API nie jest tablicą:", items);
+            return;
+        }
 
         const eloHistory = items
-            .filter(item => item.i1 && item.c)
+            .filter(item => item.elo && item.date)
             .map(item => {
-                const timestamp = parseInt(item.c); // w sekundach
-                const date = new Date(timestamp * 1000); // zamiana na ms
+                const elo = parseInt(item.elo); // zamiana ze stringa
+                const date = new Date(item.date); // już w milisekundach
                 const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
-                return {
-                    elo: item.i1,
-                    label: label
-                };
+                return { elo, label };
             })
             .reverse();
 
@@ -2284,10 +2280,9 @@ if (!Array.isArray(items)) {
         const labels = eloHistory.map(d => d.label);
         const values = eloHistory.map(d => d.elo);
 
-        console.log("✅ Daty meczów:", labels);
-        console.log("📊 ELO:", values);
+        console.log("✅ ELO:", values);
+        console.log("📅 Daty:", labels);
 
-        // Zakres Y dynamiczny
         const minElo = Math.min(...values);
         const maxElo = Math.max(...values);
         const padding = Math.max((maxElo - minElo) * 0.2, 150);
@@ -2298,10 +2293,9 @@ if (!Array.isArray(items)) {
         performanceChart.data.datasets[0].data = values;
         performanceChart.update();
 
-        // Zaktualizuj zmianę ELO
         updateEloChange?.();
 
-        console.log("✅ Wykres ELO zaktualizowany");
+        console.log("✅ Wykres ELO został zaktualizowany");
 
     } catch (err) {
         console.error("❌ Błąd aktualizacji wykresu ELO:", err);
