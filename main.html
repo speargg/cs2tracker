@@ -961,7 +961,7 @@ body.loading {
         <div class="rating-card cs2-premier">
             <div class="rating-title">CS2 Premier</div>
             <div class="rating-value premier-rating">24,687</div>
-            <div class="rating-season">Season 1</div>
+            <div class="rating-season">Season 2</div>
         </div>
 
         <div class="avatar">NK</div>
@@ -1450,51 +1450,53 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
             }
         };
 
-        // Toggle stats functionality
-        function toggleStats(type) {
-            // Update button states
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+// Enhanced toggle stats functionality with Leetify support
+let currentLeetifyData = null; // Globalna zmienna do przechowywania danych Leetify
 
-            // Update stats values
-            const data = statsData[type];
-            
-            // Premier stats
-            document.getElementById('premier-matches').textContent = data.premier.matches;
-            document.getElementById('premier-winrate').textContent = data.premier.winrate;
-            document.getElementById('premier-kd').textContent = data.premier.kd;
-            document.getElementById('premier-adr').textContent = data.premier.adr;
-            document.getElementById('premier-aim').textContent = data.premier.aim;
-            document.getElementById('premier-hs').textContent = data.premier.hs;
-            
-            // Faceit stats
-            document.getElementById('faceit-matches').textContent = data.faceit.matches;
-            document.getElementById('faceit-winrate').textContent = data.faceit.winrate;
-            document.getElementById('faceit-kd').textContent = data.faceit.kd;
-            document.getElementById('faceit-adr').textContent = data.faceit.adr;
-            document.getElementById('faceit-aim').textContent = data.faceit.aim;
-            document.getElementById('faceit-hs').textContent = data.faceit.hs;
-        }
+function toggleStats(type) {
+    // Update button states
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
 
-        // Toggle more matches functionality
-        function toggleMoreMatches() {
-            const btn = document.querySelector('.expand-btn');
-            const hiddenMatches = document.querySelectorAll('.hidden-matches');
-            
-            if (btn.textContent === 'Show More Matches') {
-                hiddenMatches.forEach(match => {
-                    match.style.display = 'grid';
-                });
-                btn.textContent = 'Show Less Matches';
-            } else {
-                hiddenMatches.forEach(match => {
-                    match.style.display = 'none';
-                });
-                btn.textContent = 'Show More Matches';
-            }
-        }
+    // Update stats values
+    const data = statsData[type];
+    
+    // Faceit stats (zawsze z statsData)
+    document.getElementById('faceit-matches').textContent = data.faceit.matches;
+    document.getElementById('faceit-winrate').textContent = data.faceit.winrate;
+    document.getElementById('faceit-kd').textContent = data.faceit.kd;
+    document.getElementById('faceit-adr').textContent = data.faceit.adr;
+    document.getElementById('faceit-aim').textContent = data.faceit.aim;
+    document.getElementById('faceit-hs').textContent = data.faceit.hs;
+    
+    // Premier stats - użyj Leetify jeśli dostępne, inaczej fallback
+    if (currentLeetifyData?.games?.[0] && type === 'lifetime') {
+        const leetifyStats = currentLeetifyData.games[0];
+        
+        document.getElementById('premier-matches').textContent = leetifyStats.matchesPlayed || 'N/A';
+        document.getElementById('premier-winrate').textContent = leetifyStats.winRate ? `${Math.round(leetifyStats.winRate * 100)}%` : 'N/A';
+        document.getElementById('premier-kd').textContent = leetifyStats.kdRatio ? parseFloat(leetifyStats.kdRatio).toFixed(2) : 'N/A';
+        document.getElementById('premier-adr').textContent = leetifyStats.damagePerRound ? Math.round(leetifyStats.damagePerRound) : 'N/A';
+        document.getElementById('premier-aim').textContent = leetifyStats.aimRating ? Math.round(leetifyStats.aimRating) : 'N/A';
+        document.getElementById('premier-hs').textContent = leetifyStats.headshotPercentage ? `${Math.round(leetifyStats.headshotPercentage * 100)}%` : 'N/A';
+        
+        // Usuń klasy "N/A" i przywróć kolory
+        document.querySelectorAll('.premier-value').forEach(el => {
+            el.classList.remove('premier-value');
+            el.style.color = '#60a5fa';
+        });
+    } else {
+        // Fallback do oryginalnych danych (pokazuje N/A)
+        document.getElementById('premier-matches').textContent = data.premier.matches;
+        document.getElementById('premier-winrate').textContent = data.premier.winrate;
+        document.getElementById('premier-kd').textContent = data.premier.kd;
+        document.getElementById('premier-adr').textContent = data.premier.adr;
+        document.getElementById('premier-aim').textContent = data.premier.aim;
+        document.getElementById('premier-hs').textContent = data.premier.hs;
+    }
+}
 // Faceit API configuration
 const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
@@ -1545,8 +1547,16 @@ async function searchPlayer(showSpinner = true) {
         const matchHistory = await fetchMatchHistory(playerData.player_id);
         console.log("✅ Match history received:", matchHistory);
         
+        // 🎯 NOWE: Pobierz dane z Leetify jeśli mamy Steam ID
+        let leetifyData = null;
+        if (playerData.games?.cs2?.game_player_id) {
+            console.log("🎯 Fetching Leetify data...");
+            leetifyData = await fetchLeetifyData(playerData.games.cs2.game_player_id);
+            console.log("✅ Leetify data received:", leetifyData);
+        }
+        
         console.log("🔄 Updating player profile...");
-        updatePlayerProfile(playerData, playerStats, matchHistory);
+        updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData); // Dodaj leetifyData jako parametr
         console.log("✅ Player profile updated");
         
         console.log("📈 About to update performance chart with player ID:", playerData.player_id);
@@ -1631,6 +1641,28 @@ async function fetchMatchHistory(playerId) {
         throw error;
     }
 }
+// Fetch Leetify data for CS2 Premier stats
+async function fetchLeetifyData(steamId) {
+    try {
+        console.log('🎯 Fetching Leetify data for Steam ID:', steamId);
+        const response = await fetch(`${API_BASE_URL}/leetify-stats?steamId=${encodeURIComponent(steamId)}`);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn('⚠️ Player not found on Leetify');
+                return null;
+            }
+            throw new Error(`Leetify API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Leetify data received:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching Leetify data:', error);
+        return null;
+    }
+}
 function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
     try {
         let value = source;
@@ -1649,9 +1681,11 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
         document.getElementById(elementId).textContent = fallback;
     }
 }
-// Fixed updatePlayerProfile function with ELO chart update
-function updatePlayerProfile(playerData, playerStats, matchHistory) {
+// Fixed updatePlayerProfile function with Leetify integration
+function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData = null) {
     try {
+        // 🎯 NOWE: Zapisz dane Leetify globalnie dla toggle
+        currentLeetifyData = leetifyData;
         // Header info
         if (playerData?.nickname) {
             document.querySelector('.nickname').textContent = playerData.nickname;
@@ -1661,7 +1695,26 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             }
         }
 
-        // Faceit rating & level
+        // 🎯 NOWE: CS2 Premier rating z Leetify
+        if (leetifyData?.games?.[0]?.skillLevel) {
+            const premierRating = leetifyData.games[0].skillLevel;
+            const premierElement = document.querySelector('.premier-rating');
+            if (premierElement) {
+                premierElement.textContent = Math.round(premierRating).toLocaleString();
+                // Usuń klasę CSS która pokazuje "N/A"
+                premierElement.classList.remove('premier-value');
+                premierElement.style.color = '#60a5fa'; // Przywróć niebieski kolor
+            }
+        } else {
+            // Jeśli brak danych Leetify, zostaw "N/A"
+            const premierElement = document.querySelector('.premier-rating');
+            if (premierElement) {
+                premierElement.textContent = 'N/A';
+                premierElement.classList.add('premier-value');
+            }
+        }
+
+        // Faceit rating & level (bez zmian)
         if (playerData?.games?.cs2) {
             const cs2Data = playerData.games.cs2;
             const eloElement = document.querySelector('.faceit-rating');
@@ -1672,18 +1725,31 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
                 eloElement.textContent = 'N/A';
             }
             levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
-
-            // Ranking
-            fetch(`/.netlify/functions/rankings?elo=${cs2Data.faceit_elo}`)
-                .then(res => res.json())
-                .then(ranking => {
-                    document.getElementById('faceit-world-ranking').textContent = ranking?.world ? `#${ranking.world}` : 'Not Ranked';
-                    document.getElementById('faceit-europe-ranking').textContent = ranking?.europe ? `#${ranking.europe}` : 'Not Ranked';
-                })
-                .catch(err => console.error("Failed to fetch estimated ranking", err));
         }
 
-        // Stats
+        // 🎯 NOWE: Premier stats z Leetify
+        if (leetifyData?.games?.[0]) {
+            const leetifyStats = leetifyData.games[0];
+            
+            // Aktualizuj statystyki Premier
+            updateStatSafely('premier-matches', leetifyStats, ['matchesPlayed'], 'N/A');
+            updateStatSafely('premier-winrate', leetifyStats, ['winRate'], 'N/A', val => `${Math.round(val * 100)}%`);
+            updateStatSafely('premier-kd', leetifyStats, ['kdRatio'], 'N/A', val => parseFloat(val).toFixed(2));
+            updateStatSafely('premier-adr', leetifyStats, ['damagePerRound'], 'N/A', val => Math.round(parseFloat(val)));
+            updateStatSafely('premier-aim', leetifyStats, ['aimRating'], 'N/A', val => Math.round(parseFloat(val)));
+            updateStatSafely('premier-hs', leetifyStats, ['headshotPercentage'], 'N/A', val => `${Math.round(val * 100)}%`);
+            
+            // Usuń klasy CSS które pokazują "N/A" dla Premier
+            const premierElements = document.querySelectorAll('.premier-value');
+            premierElements.forEach(el => {
+                if (el.id !== 'premier-rating') { // Nie zmieniaj ratingu, bo to obsługujemy osobno
+                    el.classList.remove('premier-value');
+                    el.style.color = '#60a5fa'; // Przywróć niebieski kolor
+                }
+            });
+        }
+
+        // Faceit stats (bez zmian)
         if (playerStats?.lifetime) {
             const stats = playerStats.lifetime;
             updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A');
@@ -1693,6 +1759,7 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
             updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
         }
 
+        // Reszta funkcji bez zmian...
         // Profile link
         if (playerData?.nickname) {
             const faceitLink = document.querySelector('.social-link:nth-child(2)');
@@ -1703,12 +1770,11 @@ function updatePlayerProfile(playerData, playerStats, matchHistory) {
 
         const playerId = playerData?.player_id;
 
-        // 🟢 MATCHY + CHART
+        // Matchy + Chart
         if (matchHistory?.items) {
             updateMatchHistory(matchHistory.items, playerId);
         }
 
-        // 🟢 ELO CHART ZAWSZE
         if (playerId) {
             updatePerformanceChart(null, playerId);
         }
