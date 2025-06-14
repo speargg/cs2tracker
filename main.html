@@ -1501,67 +1501,118 @@ const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
 	    
 // Debugowa wersja funkcji searchPlayer
 async function searchPlayer(showSpinner = true) {
+    console.log("🔍 Starting search...");
+    
     const searchInput = document.querySelector('.search-input');
     const query = searchInput.value.trim();
-
+    
     if (!query) {
-        alert('Please enter a Faceit nickname or SteamID64');
+        alert('Please enter a Faceit nickname or Steam ID 64');
         return;
     }
 
     window.history.pushState({}, '', `/${query}`);
-
+    
+    console.log("🔍 Searching for:", query);
+    
     const searchBtn = document.querySelector('.search-btn');
     const originalContent = searchBtn.innerHTML;
-
+    
     try {
         if (showSpinner) {
-            searchBtn.innerHTML = `<div style="width: 16px; height: 16px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>`;
+            searchBtn.innerHTML = `
+                <div style="
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid #fff;
+                    border-top: 2px solid transparent;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                "></div>
+            `;
             await new Promise(requestAnimationFrame);
         }
-
-        const playerData = await fetchPlayerData(query);
+        
+        console.log("📡 Fetching player data...");
+        const playerData = await fetchPlayerData(query); // Przekazujemy query zamiast nickname
+        console.log("✅ Player data received:", playerData);
+        
+        console.log("📊 Fetching player stats...");
         const playerStats = await fetchPlayerStats(playerData.player_id);
+        console.log("✅ Player stats received:", playerStats);
+        
+        console.log("🎮 Fetching match history...");
         const matchHistory = await fetchMatchHistory(playerData.player_id);
-
+        console.log("✅ Match history received:", matchHistory);
+        
+        console.log("🔄 Updating player profile...");
         updatePlayerProfile(playerData, playerStats, matchHistory);
-
+        console.log("✅ Player profile updated");
+        
+        console.log("📈 About to update performance chart with player ID:", playerData.player_id);
+        
         if (typeof updatePerformanceChart === 'function') {
+            console.log("✅ updatePerformanceChart function exists, calling it...");
             await updatePerformanceChart(null, playerData.player_id);
+            console.log("✅ updatePerformanceChart completed");
+        } else {
+            console.error("❌ updatePerformanceChart function does not exist!");
         }
-
+        
     } catch (error) {
         console.error("❌ Error in searchPlayer:", error);
         alert('Player not found or API error. Please try again.');
     } finally {
         searchBtn.innerHTML = originalContent;
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-        document.body.classList.remove('loading');
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+            document.body.classList.remove('loading');
+        }
+        console.log("🏁 Search process finished");
     }
 }
 // Enhanced fetch functions with better error handling
-async function fetchPlayerData(input) {
-    const isSteamId = /^\d{17}$/.test(input); // Steam ID 64 check
-    const url = isSteamId
-        ? `${API_BASE_URL}/player?steamId=${encodeURIComponent(input)}`
-        : `${API_BASE_URL}/player?nickname=${encodeURIComponent(input)}`;
-
+async function fetchPlayerData(nickname) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+        
         if (!response.ok) {
             const errorText = await response.text();
             console.error('API Error Response:', errorText);
             throw new Error(`Player not found (${response.status})`);
         }
-
+        
         const data = await response.json();
+        console.log('Raw player data:', data);
         return data;
     } catch (error) {
         console.error('Fetch player data error:', error);
         throw error;
     }
 }
+
+async function fetchPlayerStats(playerId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Stats API Error Response:', errorText);
+            throw new Error(`Stats not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw stats data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch player stats error:', error);
+        throw error;
+    }
+}
+
 async function fetchMatchHistory(playerId) {
     try {
         const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
