@@ -5,18 +5,53 @@ exports.handler = async function(event, context) {
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 
-  try {
-    const nickname = event.queryStringParameters.nickname;
-    const API_KEY = process.env.FACEIT_API_KEY;
+  const API_KEY = process.env.FACEIT_API_KEY;
 
-    // 🔍 Próbujemy dokładnie dopasować
-    let response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${nickname}`, {
+  try {
+    const { nickname, steamId } = event.queryStringParameters;
+
+    let response;
+
+    if (steamId) {
+      // 🔍 Szukamy po SteamID64
+      response = await fetch(`https://open.faceit.com/data/v4/players?game=cs2&steam_id=${steamId}`, {
+        headers: {
+          Authorization: `Bearer ${API_KEY}`
+        }
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        return {
+          statusCode: response.status,
+          headers,
+          body: JSON.stringify({ error: `SteamID lookup failed`, details: text })
+        };
+      }
+
+      const data = await response.json();
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(data)
+      };
+    }
+
+    if (!nickname) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing nickname or steamId' })
+      };
+    }
+
+    // 🔍 Próbujemy dokładnie dopasować po nicku
+    response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${nickname}`, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
       }
     });
 
-    // Jeśli znaleziono gracza – zwracamy
     if (response.ok) {
       const data = await response.json();
       return {
@@ -26,7 +61,7 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // 🔁 Jeśli nie znaleziono (np. 404) – robimy wyszukiwanie ogólne
+    // 🔁 Jeśli nie znaleziono – szukamy ogólnie
     const searchRes = await fetch(`https://open.faceit.com/data/v4/search/players?nickname=${nickname}&limit=10`, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
@@ -34,21 +69,16 @@ exports.handler = async function(event, context) {
     });
 
     const searchData = await searchRes.json();
-
-    // Znajdź pierwszy pasujący nick (case-insensitive)
-    const match = searchData.items?.find(player => 
-      player.nickname.toLowerCase() === nickname.toLowerCase()
-    );
+    const match = searchData.items?.find(player => player.nickname.toLowerCase() === nickname.toLowerCase());
 
     if (!match) {
       return {
         statusCode: 404,
         headers,
-        body: JSON.stringify({ error: 'Player not found' })
+        body: JSON.stringify({ error: 'Player not found by nickname' })
       };
     }
 
-    // Gdy znajdziemy, pobieramy dane ponownie
     response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${match.nickname}`, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
@@ -56,7 +86,6 @@ exports.handler = async function(event, context) {
     });
 
     const finalData = await response.json();
-
     return {
       statusCode: 200,
       headers,
