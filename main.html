@@ -1471,16 +1471,16 @@ function toggleStats(type) {
     document.getElementById('faceit-aim').textContent = data.faceit.aim;
     document.getElementById('faceit-hs').textContent = data.faceit.hs;
     
-    // Premier stats - użyj Leetify jeśli dostępne, inaczej fallback
+// Premier stats - użyj Leetify jeśli dostępne, inaczej fallback
 if (window.currentLeetifyData && type === 'lifetime') {
     const leetifyData = window.currentLeetifyData;
     
     document.getElementById('premier-matches').textContent = leetifyData.total_matches || 'N/A';
     document.getElementById('premier-winrate').textContent = leetifyData.winrate ? `${Math.round(leetifyData.winrate * 100)}%` : 'N/A';
-        document.getElementById('premier-kd').textContent = leetifyStats.kdRatio ? parseFloat(leetifyStats.kdRatio).toFixed(2) : 'N/A';
-        document.getElementById('premier-adr').textContent = leetifyStats.damagePerRound ? Math.round(leetifyStats.damagePerRound) : 'N/A';
-        document.getElementById('premier-aim').textContent = leetifyStats.aimRating ? Math.round(leetifyStats.aimRating) : 'N/A';
-        document.getElementById('premier-hs').textContent = leetifyStats.headshotPercentage ? `${Math.round(leetifyStats.headshotPercentage * 100)}%` : 'N/A';
+        document.getElementById('premier-kd').textContent = leetifyData.stats?.kdRatio ? parseFloat(leetifyData.stats.kdRatio).toFixed(2) : 'N/A';
+        document.getElementById('premier-adr').textContent = leetifyData.stats?.damagePerRound ? Math.round(leetifyData.stats.damagePerRound) : 'N/A';
+        document.getElementById('premier-aim').textContent = leetifyData.rating?.aim ? Math.round(leetifyData.rating.aim) : 'N/A';
+        document.getElementById('premier-hs').textContent = leetifyData.stats?.headshotPercentage ? `${Math.round(leetifyData.stats.headshotPercentage * 100)}%` : 'N/A';
         
         // Usuń klasy "N/A" i przywróć kolory
         document.querySelectorAll('.premier-value').forEach(el => {
@@ -1695,9 +1695,9 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             }
         }
 
-        // 🎯 NOWE: CS2 Premier rating z Leetify
-        if (leetifyData?.games?.[0]?.skillLevel) {
-            const premierRating = leetifyData.ranks.premier;
+// 🎯 NOWE: CS2 Premier rating z Leetify
+if (leetifyData?.ranks?.premier) {
+    const premierRating = leetifyData.ranks.premier;
             const premierElement = document.querySelector('.premier-rating');
             if (premierElement) {
                 premierElement.textContent = Math.round(premierRating).toLocaleString();
@@ -1728,8 +1728,8 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
         }
 
 // 🎯 NOWE: Premier stats z Leetify
-if (leetifyData?.games?.[0]) {
-    const leetifyStats = leetifyData.games[0];
+if (leetifyData?.stats) {
+    const leetifyStats = leetifyData.stats;
     
     // Aktualizuj statystyki Premier
     updateStatSafely('premier-matches', leetifyStats, ['matchesPlayed'], 'N/A');
