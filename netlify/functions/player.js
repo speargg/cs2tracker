@@ -5,53 +5,34 @@ exports.handler = async function(event, context) {
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 
-  const API_KEY = process.env.FACEIT_API_KEY;
-
   try {
-    const { nickname, steamId } = event.queryStringParameters;
+    const query = event.queryStringParameters.nickname; // Nadal używamy parametru 'nickname' ale może to być Steam ID
+    const API_KEY = process.env.FACEIT_API_KEY;
 
+    // 🔍 Sprawdź czy to Steam ID 64 (17 cyfr, zaczyna się od 765)
+    const isSteamId = /^765\d{14}$/.test(query);
+    
     let response;
-
-    if (steamId) {
-      // 🔍 Szukamy po SteamID64
-      response = await fetch(`https://open.faceit.com/data/v4/players?game=cs2&steam_id=${steamId}`, {
+    
+    if (isSteamId) {
+      console.log('🎮 Searching by Steam ID 64:', query);
+      // Wyszukaj po Steam ID 64 używając game_player_id
+      response = await fetch(`https://open.faceit.com/data/v4/players?game_player_id=${query}&game=cs2`, {
         headers: {
           Authorization: `Bearer ${API_KEY}`
         }
       });
-
-      if (!response.ok) {
-        const text = await response.text();
-        return {
-          statusCode: response.status,
-          headers,
-          body: JSON.stringify({ error: `SteamID lookup failed`, details: text })
-        };
-      }
-
-      const data = await response.json();
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(data)
-      };
+    } else {
+      console.log('👤 Searching by nickname:', query);
+      // 🔍 Próbujemy dokładnie dopasować nickname
+      response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${query}`, {
+        headers: {
+          Authorization: `Bearer ${API_KEY}`
+        }
+      });
     }
 
-    if (!nickname) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Missing nickname or steamId' })
-      };
-    }
-
-    // 🔍 Próbujemy dokładnie dopasować po nicku
-    response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${nickname}`, {
-      headers: {
-        Authorization: `Bearer ${API_KEY}`
-      }
-    });
-
+    // Jeśli znaleziono gracza – zwracamy
     if (response.ok) {
       const data = await response.json();
       return {
@@ -61,24 +42,38 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // 🔁 Jeśli nie znaleziono – szukamy ogólnie
-    const searchRes = await fetch(`https://open.faceit.com/data/v4/search/players?nickname=${nickname}&limit=10`, {
+    // 🔁 Jeśli nie znaleziono po Steam ID, nie próbujemy dalej
+    if (isSteamId) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Player not found with this Steam ID 64' })
+      };
+    }
+
+    // 🔁 Jeśli nie znaleziono po nickname – robimy wyszukiwanie ogólne
+    const searchRes = await fetch(`https://open.faceit.com/data/v4/search/players?nickname=${query}&limit=10`, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
       }
     });
 
     const searchData = await searchRes.json();
-    const match = searchData.items?.find(player => player.nickname.toLowerCase() === nickname.toLowerCase());
+
+    // Znajdź pierwszy pasujący nick (case-insensitive)
+    const match = searchData.items?.find(player => 
+      player.nickname.toLowerCase() === query.toLowerCase()
+    );
 
     if (!match) {
       return {
         statusCode: 404,
         headers,
-        body: JSON.stringify({ error: 'Player not found by nickname' })
+        body: JSON.stringify({ error: 'Player not found' })
       };
     }
 
+    // Gdy znajdziemy, pobieramy dane ponownie
     response = await fetch(`https://open.faceit.com/data/v4/players?nickname=${match.nickname}`, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
@@ -86,6 +81,7 @@ exports.handler = async function(event, context) {
     });
 
     const finalData = await response.json();
+
     return {
       statusCode: 200,
       headers,
