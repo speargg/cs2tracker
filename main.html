@@ -1701,7 +1701,7 @@ if (leetifyData?.ranks?.premier) {
     const premierRating = leetifyData.ranks.premier;
             const premierElement = document.querySelector('.premier-rating');
             if (premierElement) {
-                premierElement.textContent = Math.round(premierRating).toLocaleString();
+                premierElement.textContent = Math.round(premierRating).toString();
                 // Usuń klasę CSS która pokazuje "N/A"
                 premierElement.classList.remove('premier-value');
                 premierElement.style.color = '#60a5fa'; // Przywróć niebieski kolor
@@ -1721,7 +1721,7 @@ if (leetifyData?.ranks?.premier) {
             const eloElement = document.querySelector('.faceit-rating');
             const levelElement = document.querySelector('.rating-elo');
             if (cs2Data.faceit_elo) {
-                eloElement.textContent = Math.round(cs2Data.faceit_elo).toLocaleString();
+                eloElement.textContent = Math.round(cs2Data.faceit_elo).toString();
             } else {
                 eloElement.textContent = 'N/A';
             }
