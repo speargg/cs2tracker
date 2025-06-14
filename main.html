@@ -497,6 +497,16 @@
             font-weight: 700;
         }
 
+        .premier-value {
+    color: #666 !important;
+}
+
+.premier-value::after {
+    content: " (N/A)";
+    font-size: 0.8em;
+    color: #888;
+}
+
         .faceit-value {
             color: #3b82f6;
         }
@@ -1462,11 +1472,11 @@ function toggleStats(type) {
     document.getElementById('faceit-hs').textContent = data.faceit.hs;
     
     // Premier stats - użyj Leetify jeśli dostępne, inaczej fallback
-    if (currentLeetifyData?.games?.[0] && type === 'lifetime') {
-        const leetifyStats = currentLeetifyData.games[0];
-        
-        document.getElementById('premier-matches').textContent = leetifyStats.matchesPlayed || 'N/A';
-        document.getElementById('premier-winrate').textContent = leetifyStats.winRate ? `${Math.round(leetifyStats.winRate * 100)}%` : 'N/A';
+if (window.currentLeetifyData && type === 'lifetime') {
+    const leetifyData = window.currentLeetifyData;
+    
+    document.getElementById('premier-matches').textContent = leetifyData.total_matches || 'N/A';
+    document.getElementById('premier-winrate').textContent = leetifyData.winrate ? `${Math.round(leetifyData.winrate * 100)}%` : 'N/A';
         document.getElementById('premier-kd').textContent = leetifyStats.kdRatio ? parseFloat(leetifyStats.kdRatio).toFixed(2) : 'N/A';
         document.getElementById('premier-adr').textContent = leetifyStats.damagePerRound ? Math.round(leetifyStats.damagePerRound) : 'N/A';
         document.getElementById('premier-aim').textContent = leetifyStats.aimRating ? Math.round(leetifyStats.aimRating) : 'N/A';
@@ -1687,7 +1697,7 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
 
         // 🎯 NOWE: CS2 Premier rating z Leetify
         if (leetifyData?.games?.[0]?.skillLevel) {
-            const premierRating = leetifyData.games[0].skillLevel;
+            const premierRating = leetifyData.ranks.premier;
             const premierElement = document.querySelector('.premier-rating');
             if (premierElement) {
                 premierElement.textContent = Math.round(premierRating).toLocaleString();
@@ -1717,13 +1727,13 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             levelElement.textContent = cs2Data.skill_level ? `Level ${cs2Data.skill_level}` : 'Level N/A';
         }
 
-        // 🎯 NOWE: Premier stats z Leetify
-        if (leetifyData?.games?.[0]) {
-            const leetifyStats = leetifyData.games[0];
-            
-            // Aktualizuj statystyki Premier
-            updateStatSafely('premier-matches', leetifyStats, ['matchesPlayed'], 'N/A');
-            updateStatSafely('premier-winrate', leetifyStats, ['winRate'], 'N/A', val => `${Math.round(val * 100)}%`);
+// 🎯 NOWE: Premier stats z Leetify
+if (leetifyData?.games?.[0]) {
+    const leetifyStats = leetifyData.games[0];
+    
+    // Aktualizuj statystyki Premier
+    updateStatSafely('premier-matches', leetifyStats, ['matchesPlayed'], 'N/A');
+    updateStatSafely('premier-winrate', leetifyStats, ['winRate'], 'N/A', val => `${Math.round(val * 100)}%`);
             updateStatSafely('premier-kd', leetifyStats, ['kdRatio'], 'N/A', val => parseFloat(val).toFixed(2));
             updateStatSafely('premier-adr', leetifyStats, ['damagePerRound'], 'N/A', val => Math.round(parseFloat(val)));
             updateStatSafely('premier-aim', leetifyStats, ['aimRating'], 'N/A', val => Math.round(parseFloat(val)));
