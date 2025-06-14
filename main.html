@@ -1199,6 +1199,7 @@ body.loading {
     </div>
 
     <script>
+	let isMatchesExpanded = false;
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
     // 🧠 Czy mamy pokazać loader?
@@ -1788,6 +1789,11 @@ if (leetifyData?.stats) {
 // Update match history display with player ID for win/loss determination
 async function updateMatchHistory(matches, playerId) {
     const matchesList = document.querySelector('.matches-list');
+	isMatchesExpanded = false;
+const expandBtn = document.querySelector('.expand-btn');
+if (expandBtn) {
+    expandBtn.textContent = 'Show More Matches';
+}
 
     // Wyczyść istniejące karty meczów
     const existingMatches = matchesList.querySelectorAll('.match-card');
@@ -2382,31 +2388,29 @@ async function updatePerformanceChart(_, playerId) {
         console.error("❌ Błąd aktualizacji wykresu ELO:", err);
     }
 }
-// Function to toggle visibility of hidden matches
+// Zastąp funkcję toggleMoreMatches
 function toggleMoreMatches() {
-    const hiddenMatches = document.querySelectorAll('.hidden-matches');
+    const hiddenMatches = document.querySelectorAll('.match-card.hidden-matches');
     const expandBtn = document.querySelector('.expand-btn');
     
-    if (!hiddenMatches.length) return;
+    if (!hiddenMatches.length || !expandBtn) return;
     
-    const isHidden = hiddenMatches[0].style.display === 'none';
-    
-    hiddenMatches.forEach(match => {
-        if (isHidden) {
-            match.style.display = 'grid'; // Używamy grid bo match-card ma display: grid
-            match.classList.remove('hidden-matches');
-        } else {
+    if (isMatchesExpanded) {
+        // Hide matches
+        hiddenMatches.forEach(match => {
             match.style.display = 'none';
-            match.classList.add('hidden-matches');
-        }
-    });
-    
-    // Update button text
-    if (expandBtn) {
-        expandBtn.textContent = isHidden ? 'Show Less Matches' : 'Show More Matches';
+        });
+        expandBtn.textContent = 'Show More Matches';
+        isMatchesExpanded = false;
+    } else {
+        // Show matches
+        hiddenMatches.forEach(match => {
+            match.style.display = 'grid';
+        });
+        expandBtn.textContent = 'Show Less Matches';
+        isMatchesExpanded = true;
     }
 }
-
     </script>
 </body>
 </html>
