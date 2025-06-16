@@ -445,39 +445,56 @@
             backdrop-filter: blur(10px);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+        .stats-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+            margin-bottom: 1.5rem;
         }
 
-        .stat-card {
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
+        .platform-label {
+            flex: 1;
             text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            background: rgba(37, 99, 235, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .stat-card-title {
-            color: #94a3b8;
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 1.1rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 500;
+            letter-spacing: 1px;
         }
 
-        .stat-card-value {
-            font-size: 2rem;
+        .leetify-label {
+            color: #f59e0b;
+        }
+
+        .faceit-label {
+            color: #3b82f6;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+        }
+
+        .stat-value {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
         }
 
         .leetify-value {
@@ -486,12 +503,6 @@
 
         .faceit-value {
             color: #3b82f6;
-        }
-
-        .stat-card-subtitle {
-            color: #cbd5e1;
-            font-size: 0.75rem;
-            font-weight: 400;
         }
 
         .performance-section {
@@ -690,9 +701,10 @@
                 min-width: auto;
             }
 
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            .stat-row {
+                flex-direction: column;
                 gap: 1rem;
+                text-align: center;
             }
 
             .matches-header {
@@ -905,10 +917,6 @@ body.loading {
     margin-bottom: 1.5rem;
     font-size: 3rem; /* opcjonalnie mniejsze na mobile */
 }
-
-.hidden {
-    display: none !important;
-}
 }
     </style>
 </head>
@@ -984,60 +992,40 @@ body.loading {
                 </div>
             </div>
             <div class="stats-container">
-                <!-- Leetify Stats -->
-                <div id="leetify-stats" class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-title">Leetify Rating</div>
-                        <div class="stat-card-value leetify-value" id="leetify-rating">7.29</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Matches</div>
-                        <div class="stat-card-value leetify-value" id="leetify-matches">342</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Winrate</div>
-                        <div class="stat-card-value leetify-value" id="leetify-winrate">68.4%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Aim Rating</div>
-                        <div class="stat-card-value leetify-value" id="leetify-aim">81.1</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Utility</div>
-                        <div class="stat-card-value leetify-value" id="leetify-utility">62.9</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Reaction Time</div>
-                        <div class="stat-card-value leetify-value" id="leetify-reaction-time">189ms</div>
-                    </div>
+                <div class="stats-labels">
+                    <div class="platform-label leetify-label">Leetify</div>
+                    <div class="platform-label" style="color: #e2e8f0;">Statistics</div>
+                    <div class="platform-label faceit-label">FACEIT</div>
                 </div>
-
-                <!-- FACEIT Stats -->
-                <div id="faceit-stats" class="stats-grid hidden">
-                    <div class="stat-card">
-                        <div class="stat-card-title">K/D</div>
-                        <div class="stat-card-value faceit-value" id="faceit-kd">1.24</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">ADR</div>
-                        <div class="stat-card-value faceit-value" id="faceit-adr">79.5</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Matches</div>
-                        <div class="stat-card-value faceit-value" id="faceit-matches">256</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Winrate</div>
-                        <div class="stat-card-value faceit-value" id="faceit-winrate">62%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">HS%</div>
-                        <div class="stat-card-value faceit-value" id="faceit-hs">48%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Longest Win Streak</div>
-                        <div class="stat-card-value faceit-value" id="faceit-win-streak">12</div>
-                    </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-rating">7.29</div>
+                    <div class="stat-label">Leetify Rating</div>
+                    <div class="stat-value faceit-value" id="faceit-kd">1.24</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-matches">1,247</div>
+                    <div class="stat-label">Matches</div>
+                    <div class="stat-value faceit-value" id="faceit-adr">82.5</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-winrate">68.2%</div>
+                    <div class="stat-label">Winrate</div>
+                    <div class="stat-value faceit-value" id="faceit-matches">1,156</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-aim">81.1</div>
+                    <div class="stat-label">Aim Rating</div>
+                    <div class="stat-value faceit-value" id="faceit-winrate">72.1%</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-utility">62.9</div>
+                    <div class="stat-label">Utility</div>
+                    <div class="stat-value faceit-value" id="faceit-hs">48.3%</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-value leetify-value" id="leetify-reaction-time">187ms</div>
+                    <div class="stat-label">Reaction Time</div>
+                    <div class="stat-value faceit-value" id="faceit-win-streak">12</div>
                 </div>
             </div>
         </div>
@@ -1325,7 +1313,7 @@ function toggleTheme() {
     }
 }
 
-// Updated function to toggle between Leetify and FACEIT statistics with new layout
+// New function to toggle between Leetify and FACEIT statistics
 function toggleStatsPlatform(platform) {
     // Update button states
     document.querySelectorAll('.stats-toggle .toggle-btn').forEach(btn => {
@@ -1335,16 +1323,24 @@ function toggleStatsPlatform(platform) {
     
     currentStatsPlatform = platform;
     
-    // Show/hide appropriate stats grids
-    const leetifyStats = document.getElementById('leetify-stats');
-    const faceitStats = document.getElementById('faceit-stats');
+    // Show/hide appropriate columns based on platform
+    const leetifyValues = document.querySelectorAll('.leetify-value');
+    const faceitValues = document.querySelectorAll('.faceit-value');
+    const leetifyLabel = document.querySelector('.leetify-label');
+    const faceitLabel = document.querySelector('.faceit-label');
     
     if (platform === 'leetify') {
-        leetifyStats.classList.remove('hidden');
-        faceitStats.classList.add('hidden');
+        // Show Leetify, hide FACEIT
+        leetifyValues.forEach(el => el.style.display = 'block');
+        faceitValues.forEach(el => el.style.display = 'none');
+        leetifyLabel.style.display = 'block';
+        faceitLabel.style.display = 'none';
     } else {
-        leetifyStats.classList.add('hidden');
-        faceitStats.classList.remove('hidden');
+        // Show FACEIT, hide Leetify
+        leetifyValues.forEach(el => el.style.display = 'none');
+        faceitValues.forEach(el => el.style.display = 'block');
+        leetifyLabel.style.display = 'none';
+        faceitLabel.style.display = 'block';
     }
 }
 
@@ -1649,20 +1645,14 @@ function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform =
             }
         }
 
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = value != null ? transform(value) : fallback;
-        }
+        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
     } catch (e) {
         console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = fallback;
-        }
+        document.getElementById(elementId).textContent = fallback;
     }
 }
 
-// Updated updatePlayerProfile function with new stats layout
+// Updated updatePlayerProfile function with new stats mapping
 function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData = null) {
     try {
         // Store Leetify data globally
@@ -1677,16 +1667,16 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             }
         }
 
-        // Update Leetify statistics
+        // Update Leetify statistics with new mapping
         if (leetifyData) {
             // Leetify Rating
             updateStatSafely('leetify-rating', leetifyData, ['ranks', 'leetify'], 'N/A', val => parseFloat(val).toFixed(2));
             
-            // Matches (from stats.total_matches)
+            // Matches (total_matches)
             updateStatSafely('leetify-matches', leetifyData, ['stats', 'total_matches'], 'N/A', val => val.toString());
             
-            // Winrate (calculate from wins/matches)
-            if (leetifyData.stats?.wins && leetifyData.stats?.total_matches) {
+            // Winrate (calculate from wins/total_matches)
+            if (leetifyData?.stats?.wins && leetifyData?.stats?.total_matches) {
                 const winrate = (leetifyData.stats.wins / leetifyData.stats.total_matches * 100).toFixed(1);
                 document.getElementById('leetify-winrate').textContent = `${winrate}%`;
             } else {
@@ -1699,8 +1689,8 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             // Utility
             updateStatSafely('leetify-utility', leetifyData, ['rating', 'utility'], 'N/A', val => Math.round(val));
             
-            // Reaction Time (from reaction_time_ms)
-            updateStatSafely('leetify-reaction-time', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => `${Math.round(val)}ms`);
+            // Reaction Time (reaction_time_ms)
+            updateStatSafely('leetify-reaction-time', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => `${val}ms`);
         } else {
             // Set all Leetify stats to N/A if no data
             document.getElementById('leetify-rating').textContent = 'N/A';
@@ -1711,27 +1701,27 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             document.getElementById('leetify-reaction-time').textContent = 'N/A';
         }
 
-        // Update FACEIT statistics
+        // Update FACEIT statistics with new mapping
         if (playerStats?.lifetime) {
             const stats = playerStats.lifetime;
             
-            // K/D Ratio
-            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A');
+            // K/D (Average K/D Ratio)
+            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
             
-            // ADR
+            // ADR (Average Damage per Round)
             updateStatSafely('faceit-adr', stats, ['Average Damage per Round'], 'N/A', val => Math.round(parseFloat(val)));
             
             // Matches
-            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A');
+            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A', val => val.toString());
             
-            // Winrate %
-            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
+            // Winrate % (Win Rate %)
+            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => `${parseFloat(val).toFixed(1)}%`);
             
-            // HS%
+            // HS% (Average Headshots %)
             updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => `${Math.round(parseFloat(val))}%`);
             
             // Longest Win Streak
-            updateStatSafely('faceit-win-streak', stats, ['Longest Win Streak'], 'N/A');
+            updateStatSafely('faceit-win-streak', stats, ['Longest Win Streak'], 'N/A', val => val.toString());
         } else {
             // Set all FACEIT stats to N/A if no data
             document.getElementById('faceit-kd').textContent = 'N/A';
