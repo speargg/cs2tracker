@@ -543,7 +543,7 @@
             background: rgba(239, 68, 68, 0.1);
         }
 
-        /* Enhanced Recent Matches Section */
+        /* Recent Matches Section - Updated Layout */
         .matches-section {
             margin-bottom: 2rem;
         }
@@ -562,11 +562,11 @@
         .matches-header-stats {
             display: flex;
             justify-content: flex-end;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
         .matches-header-stats > div {
-            min-width: 50px;
+            min-width: 60px;
             text-align: center;
         }
 
@@ -601,7 +601,7 @@
         .match-stats {
             display: flex;
             justify-content: flex-end;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
         .match-card:last-child {
@@ -617,6 +617,13 @@
             align-items: center;
             gap: 1rem;
             justify-content: flex-start;
+        }
+
+        .match-result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .match-result {
@@ -639,49 +646,50 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
+        .match-date {
+            font-size: 0.625rem;
+            color: #94a3b8;
+            font-weight: 500;
+            text-align: center;
+        }
+
         .match-info {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
         }
 
-        .match-date {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            font-weight: 400;
-        }
-
-        .match-map-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
         .match-map {
             font-size: 0.875rem;
-            color: #e2e8f0;
-            font-weight: 500;
+            color: #fff;
+            font-weight: 600;
             white-space: nowrap;
         }
 
-        .match-elo {
+        .match-elo-change {
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.25rem 0.5rem;
+            padding: 0.125rem 0.5rem;
             border-radius: 4px;
             white-space: nowrap;
         }
 
-        .elo-gain {
+        .match-elo-positive {
             color: #10b981;
             background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .elo-loss {
+        .match-elo-negative {
             color: #ef4444;
             background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .match-elo-neutral {
+            color: #94a3b8;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
 
         .match-score {
@@ -697,7 +705,8 @@
             color: #fff;
             text-align: center;
             white-space: nowrap;
-            min-width: 50px;
+            min-width: 60px;
+            font-size: 0.875rem;
         }
 
         .expand-btn {
@@ -722,27 +731,6 @@
 
         .hidden-matches {
             display: none;
-        }
-
-        /* Loading states */
-        .match-loading {
-            opacity: 0.6;
-        }
-
-        .match-loading .match-map,
-        .match-loading .match-elo,
-        .match-loading .match-score,
-        .match-loading .match-stat-value {
-            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-            color: transparent;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
         }
 
         @media (max-width: 768px) {
@@ -795,15 +783,30 @@
                 font-size: 0.875rem;
             }
 
-            .match-map-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.25rem;
+            .match-map {
+                font-size: 0.75rem;
             }
 
-            .match-elo {
-                font-size: 0.7rem;
-                padding: 0.2rem 0.4rem;
+            .match-elo-change {
+                font-size: 0.625rem;
+                padding: 0.125rem 0.375rem;
+            }
+
+            .match-score {
+                font-size: 1rem;
+            }
+
+            .match-stat-value {
+                font-size: 0.75rem;
+                min-width: 45px;
+            }
+
+            .matches-header-stats {
+                gap: 0.5rem;
+            }
+
+            .match-stats {
+                gap: 0.5rem;
             }
         }
 
@@ -818,8 +821,8 @@
                 padding: 0.75rem;
             }
 
-            .match-stats {
-                gap: 0.2rem;
+            .match-left {
+                gap: 0.5rem;
             }
 
             .match-result {
@@ -828,92 +831,124 @@
                 font-size: 0.75rem;
             }
 
+            .match-map {
+                font-size: 0.7rem;
+            }
+
+            .match-elo-change {
+                font-size: 0.6rem;
+                padding: 0.1rem 0.3rem;
+            }
+
             .match-score {
-                font-size: 1rem;
+                font-size: 0.875rem;
             }
 
             .match-stat-value {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 min-width: 35px;
+            }
+
+            .matches-header-stats {
+                gap: 0.25rem;
+            }
+
+            .match-stats {
+                gap: 0.25rem;
             }
         }
 
-        /* Theme Toggle Button - Non-interfering */
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            background: rgba(26, 35, 50, 0.8);
-            backdrop-filter: blur(10px);
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 9999;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 !important;
-            padding: 0 !important;
-            float: none !important;
-            clear: none !important;
-            transform: none;
-        }
+		/* Theme Toggle Button - Non-interfering */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    background: rgba(26, 35, 50, 0.8);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Reset all potentially interfering properties */
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    clear: none !important;
+    transform: none;
+}
 
-        .theme-toggle:hover {
-            background: rgba(37, 99, 235, 0.3);
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
+.theme-toggle:hover {
+    background: rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
 
-        body {
-            position: relative;
-        }
+/* Ensure body and container are not affected */
+body {
+    position: relative;
+}
 
-        .container {
-            position: static;
-        }
+.container {
+    position: static;
+}
 
-        .avatar {
-            margin: 0 auto;
-        }
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+}
 
-        .social-links {
-            margin: 0.75rem 0 1rem;
-        }
+.social-link:hover .social-icon {
+    filter: brightness(1.2);
+    transform: scale(1.1);
+}
 
-        .avatar-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
+/* Blokuje przewijanie i przesuwanie layoutu, dopóki nie zniknie loader */
+body.loading {
+  overflow: hidden;
+}
 
-        .avatar-wrapper .rating-card {
-            background: rgba(26, 35, 50, 0.6);
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            min-width: 220px;
-        }
+.avatar {
+    margin: 0 auto;
+}
 
-        .header .nickname {
-            margin-top: 0.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 3rem;
-        }
+.social-links {
+    margin: 0.75rem 0 1rem;
+}
 
-        /* Blokuje przewijanie i przesuwanie layoutu, dopóki nie zniknie loader */
-        body.loading {
-            overflow: hidden;
-        }
+.avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.avatar-wrapper .rating-card {
+    background: rgba(26, 35, 50, 0.6);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    min-width: 220px;
+}
+
+.header .nickname {
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 3rem; /* opcjonalnie mniejsze na mobile */
+}
     </style>
 </head>
 <body>
@@ -1053,199 +1088,204 @@
             </div>
         </div>
 
-        <!-- Enhanced Recent Matches Section -->
-        <div class="matches-section">
-            <h2 class="section-title">Recent Matches</h2>
-            
-            <div class="matches-header">
-                <div>MATCH DETAILS</div>
-                <div>SCORE</div>
-                <div class="matches-header-stats">
-                    <div>K/D</div>
-                    <div>ADR</div>
-                    <div>HS%</div>
-                </div>
-            </div>
-
-            <div class="matches-list" id="matchesList">
-                <!-- Matches will be dynamically loaded here -->
-            </div>
-
-            <button class="expand-btn" id="expandBtn" onclick="toggleMoreMatches()">Show More Matches</button>
+        <!-- Recent Matches Section -->
+<div class="matches-section">
+    <h2 class="section-title">Recent Matches</h2>
+    
+    <div class="matches-header">
+        <div>MATCH INFO</div>
+        <div>SCORE</div>
+        <div class="matches-header-stats">
+            <div>K/D</div>
+            <div>ADR</div>
+            <div>HS%</div>
         </div>
     </div>
 
+    <div class="matches-list">
+        <!-- Matches will be dynamically loaded here -->
+    </div>
+
+    <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
+</div>
+    </div>
+
     <script>
-        let isMatchesExpanded = false;
-        let currentStatsPlatform = 'leetify';
-        let currentLeetifyData = null;
-        let currentPlayerId = null;
-        let allMatches = [];
-        let visibleMatchCount = 5;
+	let isMatchesExpanded = false;
+    let currentStatsPlatform = 'leetify'; // Track current platform
+    let currentLeetifyData = null; // Store Leetify data globally
+    let playerEloHistory = []; // Store ELO history for match calculations
 
-        // Create and inject theme toggle button
-        document.addEventListener('DOMContentLoaded', function() {
-            const shouldShowLoader = localStorage.getItem('showLoader') === 'true';
+// Create and inject theme toggle button
+document.addEventListener('DOMContentLoaded', function() {
+    // 🧠 Czy mamy pokazać loader?
+    const shouldShowLoader = localStorage.getItem('showLoader') === 'true';
 
-            const loader = document.getElementById('loader');
-            const content = document.getElementById('content');
+    const loader = document.getElementById('loader');
+    const content = document.getElementById('content');
 
-            if (shouldShowLoader && loader && content) {
-                loader.style.display = 'flex';
-                content.style.display = 'none';
-                document.body.classList.add('loading');
-            }
+    if (shouldShowLoader && loader && content) {
+        loader.style.display = 'flex';
+        content.style.display = 'none';
+        document.body.classList.add('loading');
+    }
 
-            localStorage.removeItem('showLoader');
+    // 🧹 Usuń flagę, żeby nie działała przy kolejnym odświeżeniu
+    localStorage.removeItem('showLoader');
 
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'theme-toggle';
-            toggleBtn.onclick = toggleTheme;
-            toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
-            document.body.appendChild(toggleBtn);
+    // 🌗 Utwórz przycisk do zmiany motywu
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'theme-toggle';
+    toggleBtn.onclick = toggleTheme;
+    toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
+    document.body.appendChild(toggleBtn);
 
-            const savedTheme = localStorage.getItem('theme');
-            const themeIcon = toggleBtn.querySelector('.theme-icon');
+    // 🎨 Ustaw zapamiętany motyw
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = toggleBtn.querySelector('.theme-icon');
 
-            if (savedTheme === 'black') {
-                document.body.classList.add('black-theme');
-                themeIcon.textContent = '☀️';
-            }
+    if (savedTheme === 'black') {
+        document.body.classList.add('black-theme');
+        themeIcon.textContent = '☀️';
+    }
 
-            let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
+let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
 
-            if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
-                const input = document.querySelector('.search-input');
-                if (input) {
-                    input.value = nickname;
-                    searchPlayer(false);
-                }
-            } else {
-                if (loader && content) {
-                    loader.style.display = 'none';
-                    content.style.display = 'block';
-                    document.body.classList.remove('loading');
-                }
-            }
-        });
+if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
+    const input = document.querySelector('.search-input');
+    if (input) {
+        input.value = nickname;
+        searchPlayer(false);
+    }
+} else {
+    if (loader && content) {
+        loader.style.display = 'none';
+        content.style.display = 'block';
+        document.body.classList.remove('loading');
+    }
+}
+});
 
-        // Theme toggle functionality
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.querySelector('.theme-icon');
-            
-            body.classList.toggle('black-theme');
-            
-            if (body.classList.contains('black-theme')) {
-                themeIcon.textContent = '☀️';
-                localStorage.setItem('theme', 'black');
-            } else {
-                themeIcon.textContent = '🌙';
-                localStorage.setItem('theme', 'blue');
-            }
+// Theme toggle functionality
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.querySelector('.theme-icon');
+    
+    body.classList.toggle('black-theme');
+    
+    // Change icon based on theme
+    if (body.classList.contains('black-theme')) {
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'black');
+    } else {
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'blue');
+    }
+}
+
+let performanceChart;
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) {
+            console.error('❌ Nie znaleziono elementu #performanceChart!');
+            return;
         }
 
-        let performanceChart;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const canvas = document.getElementById('performanceChart');
-                if (!canvas) {
-                    console.error('❌ Nie znaleziono elementu #performanceChart!');
-                    return;
-                }
-
-                const ctx = canvas.getContext('2d');
-                performanceChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            label: 'Faceit ELO',
-                            data: [],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: '#3b82f6',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: 'rgba(15, 20, 25, 0.95)',
-                                titleColor: '#ffffff',
-                                bodyColor: '#ffffff',
-                                borderColor: 'rgba(37, 99, 235, 0.3)',
-                                borderWidth: 1,
-                                cornerRadius: 8,
-                                displayColors: false,
-                                multiKeyBackground: 'transparent',
-                                callbacks: {
-                                    title: context => `${context[0].label}`,
-                                    label: context => {
-                                        const currentElo = context.parsed.y;
-                                        const index = context.dataIndex;
-                                        const data = context.dataset.data;
-                                        if (index === 0) return `ELO: ${currentElo}`;
-                                        const diff = currentElo - data[index - 1];
-                                        return [`ELO: ${currentElo}`, diff >= 0 ? `+${diff}` : `${diff}`];
-                                    },
-                                    labelTextColor: context => {
-                                        const index = context.dataIndex;
-                                        const data = context.dataset.data;
-                                        if (index === 0) return '#ffffff';
-                                        const change = context.parsed.y - data[index - 1];
-                                        return change >= 0 ? '#10b981' : '#ef4444';
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                ticks: {
-                                    stepSize: 100,
-                                    color: '#94a3b8',
-                                    font: {
-                                        family: 'Inter'
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(37, 99, 235, 0.2)'
-                                }
+        const ctx = canvas.getContext('2d');
+        performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Faceit ELO',
+                    data: [],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 20, 25, 0.95)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(37, 99, 235, 0.3)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        multiKeyBackground: 'transparent',
+                        callbacks: {
+                            title: context => `${context[0].label}`,
+                            label: context => {
+                                const currentElo = context.parsed.y;
+                                const index = context.dataIndex;
+                                const data = context.dataset.data;
+                                if (index === 0) return `ELO: ${currentElo}`;
+                                const diff = currentElo - data[index - 1];
+                                return [`ELO: ${currentElo}`, diff >= 0 ? `+${diff}` : `${diff}`];
                             },
-                            x: {
-                                ticks: {
-                                    color: '#94a3b8',
-                                    font: {
-                                        family: 'Inter'
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(37, 99, 235, 0.2)'
-                                }
+                            labelTextColor: context => {
+                                const index = context.dataIndex;
+                                const data = context.dataset.data;
+                                if (index === 0) return '#ffffff';
+                                const change = context.parsed.y - data[index - 1];
+                                return change >= 0 ? '#10b981' : '#ef4444';
                             }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
                         }
                     }
-                });
-                console.log('✅ Wykres został zainicjowany');
+                },
+scales: {
+    y: {
+        beginAtZero: false,
+        ticks: {
+            stepSize: 100,
+            color: '#94a3b8',
+            font: {
+                family: 'Inter'
+            }
+        },
+        grid: {
+            color: 'rgba(37, 99, 235, 0.2)'
+        }
+    },
+    x: {
+        ticks: {
+            color: '#94a3b8',
+            font: {
+                family: 'Inter'
+            }
+        },
+        grid: {
+            color: 'rgba(37, 99, 235, 0.2)'
+        }
+    }
+},
+interaction: {
+    intersect: false,
+    mode: 'index'
+}
+}
+});
+        console.log('✅ Wykres został zainicjowany');
 
-            }, 0);
-        });
+    }, 0);
+});
 
+        // Calculate and update ELO change
         function updateEloChange() {
             const firstElo = performanceChart.data.datasets[0].data[0];
             const lastElo = performanceChart.data.datasets[0].data[performanceChart.data.datasets[0].data.length - 1];
@@ -1261,862 +1301,815 @@
             }
         }
 
-        // Add enter key support for search
-        document.querySelector('.search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchPlayer();
-            }
-        });
+// Add enter key support for search
+document.querySelector('.search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchPlayer();
+    }
+});
 
-        // Faceit API configuration
-        const API_BASE_URL = '/.netlify/functions';
-        const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
+// Faceit API configuration
+const API_BASE_URL = '/.netlify/functions';
+const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
+	    
+// Enhanced search function
+async function searchPlayer(showSpinner = true) {
+    console.log("🔍 Starting search...");
+    
+    const searchInput = document.querySelector('.search-input');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        alert('Please enter a Faceit nickname or Steam ID 64');
+        return;
+    }
 
-        // Enhanced search function with ELO data integration
-        async function searchPlayer(showSpinner = true) {
-            console.log("🔍 Starting search...");
-            
-            const searchInput = document.querySelector('.search-input');
-            const query = searchInput.value.trim();
-            
-            if (!query) {
-                alert('Please enter a Faceit nickname or Steam ID 64');
-                return;
-            }
-
-            window.history.pushState({}, '', `/${query}`);
-            
-            console.log("🔍 Searching for:", query);
-            
-            const searchBtn = document.querySelector('.search-btn');
-            const originalContent = searchBtn.innerHTML;
-            
-            try {
-                if (showSpinner) {
-                    searchBtn.innerHTML = `
-                        <div style="
-                            width: 16px;
-                            height: 16px;
-                            border: 2px solid #fff;
-                            border-top: 2px solid transparent;
-                            border-radius: 50%;
-                            animation: spin 1s linear infinite;
-                        "></div>
-                    `;
-                    await new Promise(requestAnimationFrame);
-                }
-                
-                console.log("📡 Fetching player data...");
-                const playerData = await fetchPlayerData(query);
-                console.log("✅ Player data received:", playerData);
-                
-                console.log("📊 Fetching player stats...");
-                const playerStats = await fetchPlayerStats(playerData.player_id);
-                console.log("✅ Player stats received:", playerStats);
-                
-                console.log("🎮 Fetching match history...");
-                const matchHistory = await fetchMatchHistory(playerData.player_id);
-                console.log("✅ Match history received:", matchHistory);
-                
-                let leetifyData = null;
-                if (playerData.games?.cs2?.game_player_id) {
-                    console.log("🎯 Fetching Leetify data...");
-                    leetifyData = await fetchLeetifyData(playerData.games.cs2.game_player_id);
-                    console.log("✅ Leetify data received:", leetifyData);
-                }
-                
-                console.log("🔄 Updating player profile...");
-                updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData);
-                console.log("✅ Player profile updated");
-                
-                // Store player ID for ELO fetching
-                currentPlayerId = playerData.player_id;
-                
-                console.log("📈 About to update performance chart with player ID:", playerData.player_id);
-                
-                if (typeof updatePerformanceChart === 'function') {
-                    console.log("✅ updatePerformanceChart function exists, calling it...");
-                    await updatePerformanceChart(null, playerData.player_id);
-                    console.log("✅ updatePerformanceChart completed");
-                } else {
-                    console.error("❌ updatePerformanceChart function does not exist!");
-                }
-                
-            } catch (error) {
-                console.error("❌ Error in searchPlayer:", error);
-                alert('Player not found or API error. Please try again.');
-            } finally {
-                searchBtn.innerHTML = originalContent;
-                const loader = document.getElementById('loader');
-                const content = document.getElementById('content');
-                if (loader && content) {
-                    loader.style.display = 'none';
-                    content.style.display = 'block';
-                    document.body.classList.remove('loading');
-                }
-                console.log("🏁 Search process finished");
-            }
+    window.history.pushState({}, '', `/${query}`);
+    
+    console.log("🔍 Searching for:", query);
+    
+    const searchBtn = document.querySelector('.search-btn');
+    const originalContent = searchBtn.innerHTML;
+    
+    try {
+        if (showSpinner) {
+            searchBtn.innerHTML = `
+                <div style="
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid #fff;
+                    border-top: 2px solid transparent;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                "></div>
+            `;
+            await new Promise(requestAnimationFrame);
         }
-
-        // Enhanced fetch functions with better error handling
-        async function fetchPlayerData(nickname) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API Error Response:', errorText);
-                    throw new Error(`Player not found (${response.status})`);
-                }
-                
-                const data = await response.json();
-                console.log('Raw player data:', data);
-                return data;
-            } catch (error) {
-                console.error('Fetch player data error:', error);
-                throw error;
-            }
+        
+        console.log("📡 Fetching player data...");
+        const playerData = await fetchPlayerData(query);
+        console.log("✅ Player data received:", playerData);
+        
+        console.log("📊 Fetching player stats...");
+        const playerStats = await fetchPlayerStats(playerData.player_id);
+        console.log("✅ Player stats received:", playerStats);
+        
+        console.log("🎮 Fetching match history...");
+        const matchHistory = await fetchMatchHistory(playerData.player_id);
+        console.log("✅ Match history received:", matchHistory);
+        
+        // Fetch ELO history for match calculations
+        console.log("📈 Fetching ELO history...");
+        const eloHistory = await fetchEloHistory(playerData.player_id);
+        console.log("✅ ELO history received:", eloHistory);
+        playerEloHistory = eloHistory || [];
+        
+        // 🎯 NOWE: Pobierz dane z Leetify jeśli mamy Steam ID
+        let leetifyData = null;
+        if (playerData.games?.cs2?.game_player_id) {
+            console.log("🎯 Fetching Leetify data...");
+            leetifyData = await fetchLeetifyData(playerData.games.cs2.game_player_id);
+            console.log("✅ Leetify data received:", leetifyData);
         }
-
-        async function fetchPlayerStats(playerId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Stats API Error Response:', errorText);
-                    throw new Error(`Stats not found (${response.status})`);
-                }
-                
-                const data = await response.json();
-                console.log('Raw stats data:', data);
-                return data;
-            } catch (error) {
-                console.error('Fetch player stats error:', error);
-                throw error;
-            }
+        
+        console.log("🔄 Updating player profile...");
+        updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData);
+        console.log("✅ Player profile updated");
+        
+        console.log("📈 About to update performance chart with player ID:", playerData.player_id);
+        
+        if (typeof updatePerformanceChart === 'function') {
+            console.log("✅ updatePerformanceChart function exists, calling it...");
+            await updatePerformanceChart(null, playerData.player_id);
+            console.log("✅ updatePerformanceChart completed");
+        } else {
+            console.error("❌ updatePerformanceChart function does not exist!");
         }
-
-        async function fetchMatchHistory(playerId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Matches API Error Response:', errorText);
-                    throw new Error(`Match history not found (${response.status})`);
-                }
-                
-                const data = await response.json();
-                console.log('Raw match data:', data);
-                return data;
-            } catch (error) {
-                console.error('Fetch match history error:', error);
-                throw error;
-            }
+        
+    } catch (error) {
+        console.error("❌ Error in searchPlayer:", error);
+        alert('Player not found or API error. Please try again.');
+    } finally {
+        searchBtn.innerHTML = originalContent;
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+            document.body.classList.remove('loading');
         }
+        console.log("🏁 Search process finished");
+    }
+}
 
-        // Fetch Leetify data for CS2 Premier stats
-        async function fetchLeetifyData(steamId) {
-            try {
-                console.log('🎯 Fetching Leetify data for Steam ID:', steamId);
-                const response = await fetch(`${API_BASE_URL}/leetify-stats?steamId=${encodeURIComponent(steamId)}`);
-                
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        console.warn('⚠️ Player not found on Leetify');
-                        return null;
-                    }
-                    throw new Error(`Leetify API error: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('✅ Leetify data received:', data);
-                return data;
-            } catch (error) {
-                console.error('❌ Error fetching Leetify data:', error);
+// Enhanced fetch functions with better error handling
+async function fetchPlayerData(nickname) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error Response:', errorText);
+            throw new Error(`Player not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw player data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch player data error:', error);
+        throw error;
+    }
+}
+
+async function fetchPlayerStats(playerId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Stats API Error Response:', errorText);
+            throw new Error(`Stats not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw stats data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch player stats error:', error);
+        throw error;
+    }
+}
+
+async function fetchMatchHistory(playerId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Matches API Error Response:', errorText);
+            throw new Error(`Match history not found (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw match data:', data);
+        return data;
+    } catch (error) {
+        console.error('Fetch match history error:', error);
+        throw error;
+    }
+}
+
+// Fetch ELO history for calculating match ELO changes
+async function fetchEloHistory(playerId) {
+    try {
+        console.log('📈 Fetching ELO history for player:', playerId);
+        const response = await fetch(`/.netlify/functions/faceitElo?playerId=${playerId}`);
+        
+        if (!response.ok) {
+            console.warn('⚠️ Could not fetch ELO history');
+            return [];
+        }
+        
+        const data = await response.json();
+        console.log('✅ ELO history received:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching ELO history:', error);
+        return [];
+    }
+}
+
+// Fetch Leetify data for CS2 Premier stats
+async function fetchLeetifyData(steamId) {
+    try {
+        console.log('🎯 Fetching Leetify data for Steam ID:', steamId);
+        const response = await fetch(`${API_BASE_URL}/leetify-stats?steamId=${encodeURIComponent(steamId)}`);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn('⚠️ Player not found on Leetify');
                 return null;
             }
+            throw new Error(`Leetify API error: ${response.status}`);
         }
+        
+        const data = await response.json();
+        console.log('✅ Leetify data received:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching Leetify data:', error);
+        return null;
+    }
+}
 
-        // Fetch ELO data for matches using unofficial FACEIT API
-        async function fetchMatchEloData(playerId) {
-            try {
-                console.log('🎯 Fetching ELO data for player:', playerId);
-                
-                // Use your existing faceitElo endpoint with CORS proxy
-                const response = await fetch(`${API_BASE_URL}/faceitElo?playerId=${encodeURIComponent(playerId)}`);
-                
-                if (!response.ok) {
-                    console.warn('⚠️ Could not fetch ELO data:', response.status);
-                    return [];
-                }
-                
-                const eloData = await response.json();
-                console.log('✅ ELO data received:', eloData);
-                return Array.isArray(eloData) ? eloData : [];
-            } catch (error) {
-                console.error('❌ Error fetching ELO data:', error);
-                return [];
+function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
+    try {
+        let value = source;
+        for (let key of keys) {
+            if (value && key in value) {
+                value = value[key];
+            } else {
+                value = null;
+                break;
             }
         }
 
-        function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
-            try {
-                let value = source;
-                for (let key of keys) {
-                    if (value && key in value) {
-                        value = value[key];
-                    } else {
-                        value = null;
-                        break;
-                    }
-                }
+        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
+    } catch (e) {
+        console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
+        document.getElementById(elementId).textContent = fallback;
+    }
+}
 
-                document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
-            } catch (e) {
-                console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-                document.getElementById(elementId).textContent = fallback;
+// Updated updatePlayerProfile function with separate Leetify and FACEIT sections
+function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData = null) {
+    try {
+        // Store Leetify data globally
+        currentLeetifyData = leetifyData;
+        
+        // Header info
+        if (playerData?.nickname) {
+            document.querySelector('.nickname').textContent = playerData.nickname;
+            const avatarContainer = document.querySelector('.avatar');
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
             }
         }
 
-        // Updated updatePlayerProfile function with enhanced match loading
-        function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData = null) {
-            try {
-                currentLeetifyData = leetifyData;
-                
-                // Header info
-                if (playerData?.nickname) {
-                    document.querySelector('.nickname').textContent = playerData.nickname;
-                    const avatarContainer = document.querySelector('.avatar');
-                    if (avatarContainer) {
-                        avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
-                    }
-                }
-
-                // Update Leetify statistics
-                if (leetifyData) {
-                    updateStatSafely('leetify-rating', leetifyData, ['ranks', 'leetify'], 'N/A', val => parseFloat(val).toFixed(2));
-                    updateStatSafely('leetify-matches', leetifyData, ['total_matches'], 'N/A', val => val.toLocaleString());
-                    updateStatSafely('leetify-winrate', leetifyData, ['winrate'], 'N/A', val => Math.round(val * 100) + '%');
-                    updateStatSafely('leetify-aim', leetifyData, ['rating', 'aim'], 'N/A', val => Math.round(val));
-                    updateStatSafely('leetify-utility', leetifyData, ['rating', 'utility'], 'N/A', val => Math.round(val));
-                    updateStatSafely('leetify-reaction', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => parseFloat(val).toFixed(2));
-                } else {
-                    document.getElementById('leetify-rating').textContent = 'N/A';
-                    document.getElementById('leetify-matches').textContent = 'N/A';
-                    document.getElementById('leetify-winrate').textContent = 'N/A';
-                    document.getElementById('leetify-aim').textContent = 'N/A';
-                    document.getElementById('leetify-utility').textContent = 'N/A';
-                    document.getElementById('leetify-reaction').textContent = 'N/A';
-                }
-
-                // Update FACEIT statistics
-                if (playerStats?.lifetime) {
-                    const stats = playerStats.lifetime;
-                    
-                    updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
-                    updateStatSafely('faceit-adr', stats, ['ADR'], 'N/A', val => Math.round(parseFloat(val)));
-                    updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A', val => parseInt(val).toLocaleString());
-                    updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
-                    updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
-                    updateStatSafely('faceit-streak', stats, ['Longest Win Streak'], 'N/A', val => parseInt(val));
-                } else {
-                    document.getElementById('faceit-kd').textContent = 'N/A';
-                    document.getElementById('faceit-adr').textContent = 'N/A';
-                    document.getElementById('faceit-matches').textContent = 'N/A';
-                    document.getElementById('faceit-winrate').textContent = 'N/A';
-                    document.getElementById('faceit-hs').textContent = 'N/A';
-                    document.getElementById('faceit-streak').textContent = 'N/A';
-                }
-
-                // Update header ratings
-                if (leetifyData?.ranks?.premier) {
-                    const premierElement = document.querySelector('.premier-rating');
-                    if (premierElement) {
-                        premierElement.textContent = Math.round(leetifyData.ranks.premier).toString();
-                    }
-                }
-
-                if (playerData?.games?.cs2?.faceit_elo) {
-                    const faceitElement = document.querySelector('.faceit-rating');
-                    const levelElement = document.querySelector('.rating-elo');
-                    if (faceitElement) {
-                        faceitElement.textContent = Math.round(playerData.games.cs2.faceit_elo).toString();
-                    }
-                    if (levelElement && playerData.games.cs2.skill_level) {
-                        levelElement.textContent = `Level ${playerData.games.cs2.skill_level}`;
-                    }
-                }
-
-                // Profile links
-                if (playerData?.nickname) {
-                    const faceitLink = document.querySelector('.social-link:nth-child(2)');
-                    if (faceitLink) {
-                        faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-                    }
-                }
-
-                // Update matches with ELO data
-                const playerId = playerData?.player_id;
-                if (matchHistory?.items && playerId) {
-                    updateMatchHistoryWithElo(matchHistory.items, playerId);
-                }
-
-                if (playerId) {
-                    updatePerformanceChart(null, playerId);
-                }
-
-            } catch (error) {
-                console.error("❌ Error updating player profile:", error);
-                alert("Error displaying player data. Please try again.");
-            }
-        }
-
-        // Enhanced match history update with ELO integration
-        async function updateMatchHistoryWithElo(matches, playerId) {
-            const matchesList = document.getElementById('matchesList');
+        // Update Leetify statistics
+        if (leetifyData) {
+            // Leetify Rating
+            updateStatSafely('leetify-rating', leetifyData, ['ranks', 'leetify'], 'N/A', val => parseFloat(val).toFixed(2));
             
-            // Reset state
-            isMatchesExpanded = false;
-            visibleMatchCount = 5;
-            allMatches = [];
+            // Matches (with thousands separator)
+            updateStatSafely('leetify-matches', leetifyData, ['total_matches'], 'N/A', val => val.toLocaleString());
             
-            const expandBtn = document.getElementById('expandBtn');
-            if (expandBtn) {
-                expandBtn.textContent = 'Show More Matches';
+            // Winrate (convert to percentage)
+            updateStatSafely('leetify-winrate', leetifyData, ['winrate'], 'N/A', val => Math.round(val * 100) + '%');
+            
+            // Aim Rating
+            updateStatSafely('leetify-aim', leetifyData, ['rating', 'aim'], 'N/A', val => Math.round(val));
+            
+            // Utility
+            updateStatSafely('leetify-utility', leetifyData, ['rating', 'utility'], 'N/A', val => Math.round(val));
+            
+            // Reaction Time (formatted to 2 decimal places)
+            updateStatSafely('leetify-reaction', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => parseFloat(val).toFixed(2));
+        } else {
+            // Set all Leetify stats to N/A if no data
+            document.getElementById('leetify-rating').textContent = 'N/A';
+            document.getElementById('leetify-matches').textContent = 'N/A';
+            document.getElementById('leetify-winrate').textContent = 'N/A';
+            document.getElementById('leetify-aim').textContent = 'N/A';
+            document.getElementById('leetify-utility').textContent = 'N/A';
+            document.getElementById('leetify-reaction').textContent = 'N/A';
+        }
+
+        // Update FACEIT statistics
+        if (playerStats?.lifetime) {
+            const stats = playerStats.lifetime;
+            
+            // K/D Ratio
+            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
+            
+            // ADR
+            updateStatSafely('faceit-adr', stats, ['ADR'], 'N/A', val => Math.round(parseFloat(val)));
+            
+            // Matches
+            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A', val => parseInt(val).toLocaleString());
+            
+            // Winrate
+            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
+            
+            // Headshot %
+            updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
+            
+            // Longest Win Streak
+            updateStatSafely('faceit-streak', stats, ['Longest Win Streak'], 'N/A', val => parseInt(val));
+        } else {
+            // Set all FACEIT stats to N/A if no data
+            document.getElementById('faceit-kd').textContent = 'N/A';
+            document.getElementById('faceit-adr').textContent = 'N/A';
+            document.getElementById('faceit-matches').textContent = 'N/A';
+            document.getElementById('faceit-winrate').textContent = 'N/A';
+            document.getElementById('faceit-hs').textContent = 'N/A';
+            document.getElementById('faceit-streak').textContent = 'N/A';
+        }
+
+        // Update header ratings
+        if (leetifyData?.ranks?.premier) {
+            const premierElement = document.querySelector('.premier-rating');
+            if (premierElement) {
+                premierElement.textContent = Math.round(leetifyData.ranks.premier).toString();
             }
+        }
 
-            // Clear existing matches
-            matchesList.innerHTML = '';
+        if (playerData?.games?.cs2?.faceit_elo) {
+            const faceitElement = document.querySelector('.faceit-rating');
+            const levelElement = document.querySelector('.rating-elo');
+            if (faceitElement) {
+                faceitElement.textContent = Math.round(playerData.games.cs2.faceit_elo).toString();
+            }
+            if (levelElement && playerData.games.cs2.skill_level) {
+                levelElement.textContent = `Level ${playerData.games.cs2.skill_level}`;
+            }
+        }
 
-            // Filter only 5v5 matches
-            const fiveVFiveMatches = matches.filter(match => {
-                const gameMode = match.game_mode || '';
-                return gameMode === '5v5' || gameMode.includes('5v5');
+        // Profile links
+        if (playerData?.nickname) {
+            const faceitLink = document.querySelector('.social-link:nth-child(2)');
+            if (faceitLink) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+
+        // Update matches and chart
+        const playerId = playerData?.player_id;
+        if (matchHistory?.items) {
+            updateMatchHistory(matchHistory.items, playerId);
+        }
+
+        if (playerId) {
+            updatePerformanceChart(null, playerId);
+        }
+
+    } catch (error) {
+        console.error("❌ Error updating player profile:", error);
+        alert("Error displaying player data. Please try again.");
+    }
+}
+
+// Function to calculate ELO change for a specific match
+function calculateEloChange(matchTimestamp, matchId) {
+    if (!playerEloHistory || playerEloHistory.length === 0) {
+        return 0;
+    }
+
+    // Find the ELO entry for this match
+    const matchEloEntry = playerEloHistory.find(entry => {
+        const entryDate = new Date(entry.date);
+        const matchDate = new Date(matchTimestamp * 1000);
+        // Allow for some time difference (within 1 hour)
+        return Math.abs(entryDate.getTime() - matchDate.getTime()) < 3600000;
+    });
+
+    if (!matchEloEntry) {
+        return 0;
+    }
+
+    // Find the previous ELO entry
+    const currentIndex = playerEloHistory.indexOf(matchEloEntry);
+    if (currentIndex === -1 || currentIndex === playerEloHistory.length - 1) {
+        return 0;
+    }
+
+    const previousEloEntry = playerEloHistory[currentIndex + 1]; // Array is in reverse chronological order
+    if (!previousEloEntry) {
+        return 0;
+    }
+
+    const currentElo = parseInt(matchEloEntry.elo);
+    const previousElo = parseInt(previousEloEntry.elo);
+    
+    return currentElo - previousElo;
+}
+
+// Update match history display with enhanced layout and ELO changes
+async function updateMatchHistory(matches, playerId) {
+    const matchesList = document.querySelector('.matches-list');
+    isMatchesExpanded = false;
+    const expandBtn = document.querySelector('.expand-btn');
+    if (expandBtn) {
+        expandBtn.textContent = 'Show More Matches';
+    }
+
+    // Clear existing match cards
+    const existingMatches = matchesList.querySelectorAll('.match-card');
+    existingMatches.forEach(match => match.remove());
+
+    // Filter only 5v5 matches
+    const fiveVFiveMatches = matches.filter(match => {
+        return match.game_mode === '5v5' || 
+               (match.teams?.faction1?.players?.length === 5 && match.teams?.faction2?.players?.length === 5);
+    });
+
+    // Split data into visible and hidden
+    const visibleMatches = fiveVFiveMatches.slice(0, 5);
+    const hiddenMatches = fiveVFiveMatches.slice(5, 10);
+
+    // Create visible match cards in parallel
+    const visibleMatchCards = await Promise.all(
+        visibleMatches.map(m => createEnhancedMatchCard(m, playerId))
+    );
+    visibleMatchCards.forEach(card => matchesList.appendChild(card));
+
+    // Create hidden match cards in parallel
+    const hiddenMatchCards = await Promise.all(
+        hiddenMatches.map(m => createEnhancedMatchCard(m, playerId))
+    );
+    hiddenMatchCards.forEach(card => {
+        card.classList.add('hidden-matches');
+        card.style.display = 'none';
+        matchesList.appendChild(card);
+    });
+}
+
+// Create enhanced match card with new layout and ELO changes
+async function createEnhancedMatchCard(match, playerId) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card';
+    
+    try {
+        console.log('Processing match:', match);
+        
+        // Extract basic match info
+        const matchId = match.match_id || match.id;
+        const status = match.status || 'unknown';
+        
+        // Determine which team the player was on
+        let playerTeam = null;
+        let enemyTeam = null;
+        
+        if (match.teams && match.teams.faction1 && match.teams.faction2) {
+            const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
+            const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
+            
+            if (inFaction1) {
+                playerTeam = 'faction1';
+                enemyTeam = 'faction2';
+            } else if (inFaction2) {
+                playerTeam = 'faction2';
+                enemyTeam = 'faction1';
+            }
+        }
+        
+        // Initial values
+        let mapName = 'Loading...';
+        let scoreDisplay = '- - -';
+        let playerStats = { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kdRatio: '-' };
+        
+        // Determine match result
+        const result = determineMatchResult(match, playerTeam, status);
+        const dateDisplay = formatMatchDate(match);
+        
+        // Calculate ELO change
+        const eloChange = calculateEloChange(match.started_at || match.finished_at, matchId);
+        let eloChangeDisplay = '';
+        let eloChangeClass = 'match-elo-neutral';
+        
+        if (eloChange > 0) {
+            eloChangeDisplay = `+${eloChange} ELO`;
+            eloChangeClass = 'match-elo-positive';
+        } else if (eloChange < 0) {
+            eloChangeDisplay = `${eloChange} ELO`;
+            eloChangeClass = 'match-elo-negative';
+        } else {
+            eloChangeDisplay = 'N/A';
+        }
+        
+        // Create initial card with loading state
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result-container">
+                    <div class="match-result ${result.class}">${result.symbol}</div>
+                    ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+                </div>
+                <div class="match-info">
+                    <div class="match-map">${mapName}</div>
+                    <div class="match-elo-change ${eloChangeClass}">${eloChangeDisplay}</div>
+                </div>
+            </div>
+            <div class="match-score">${scoreDisplay}</div>
+            <div class="match-stats">
+                <div class="match-stat-value">${playerStats.kdRatio}</div>
+                <div class="match-stat-value">${playerStats.adr}</div>
+                <div class="match-stat-value">${playerStats.hsPercent}</div>
+            </div>
+        `;
+        
+        // Fetch detailed match data asynchronously
+        if (status === 'finished') {
+            fetchDetailedMatchData(matchId, playerId).then(details => {
+                if (details) {
+                    updateEnhancedMatchCard(matchCard, details, result, eloChangeDisplay, eloChangeClass, dateDisplay);
+                }
+            }).catch(error => {
+                console.error('Error loading match details:', error);
+                updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay);
             });
+        } else {
+            updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay);
+        }
+        
+    } catch (error) {
+        console.error('Error creating match card:', error, match);
+        matchCard.innerHTML = `
+            <div class="match-left">
+                <div class="match-result-container">
+                    <div class="match-result loss">L</div>
+                </div>
+                <div class="match-info">
+                    <div class="match-map">Unknown Match</div>
+                    <div class="match-elo-change match-elo-neutral">N/A</div>
+                </div>
+            </div>
+            <div class="match-score">- - -</div>
+            <div class="match-stats">
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+                <div class="match-stat-value">-</div>
+            </div>
+        `;
+    }
+    
+    return matchCard;
+}
 
-            console.log(`🎮 Found ${fiveVFiveMatches.length} 5v5 matches out of ${matches.length} total matches`);
+// Helper function to determine match result
+function determineMatchResult(match, playerTeam, status) {
+    if (status === 'finished' && match.results) {
+        if (match.results.winner === playerTeam) {
+            return { symbol: 'W', class: 'win' };
+        } else {
+            return { symbol: 'L', class: 'loss' };
+        }
+    } else if (status === 'ongoing') {
+        return { symbol: '?', class: 'ongoing' };
+    } else if (status === 'cancelled' || status === 'aborted') {
+        return { symbol: '-', class: 'cancelled' };
+    } else {
+        return { symbol: 'L', class: 'loss' };
+    }
+}
 
-            // Store all matches
-            allMatches = fiveVFiveMatches;
+// Helper function to format match date
+function formatMatchDate(match) {
+    if (match.started_at || match.finished_at) {
+        const timestamp = match.started_at || match.finished_at;
+        const matchDate = new Date(timestamp * 1000);
+        return matchDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    return '';
+}
 
-            // Fetch ELO data in parallel
-            const eloDataPromise = fetchMatchEloData(playerId);
+async function fetchDetailedMatchData(matchId, playerId) {
+  try {
+    console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
+    const [matchDetails, matchStats] = await Promise.all([
+      fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
+      fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
+    ]);
+    
+    console.log('📦 matchDetails:', matchDetails);
+    console.log('📊 matchStats:', matchStats);
+    
+    const result = {
+      mapName: 'Unknown',
+      score: '- - -',
+      playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kdRatio: '-' }
+    };
 
-            // Create initial visible matches with loading state
-            const initialMatches = fiveVFiveMatches.slice(0, visibleMatchCount);
-            
-            for (const match of initialMatches) {
-                const matchCard = await createMatchCardWithElo(match, playerId, null); // null = loading ELO
-                matchesList.appendChild(matchCard);
-            }
+    // === Map name ===
+    if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
+      result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
+    } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
+      result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
+    } else if (matchDetails?.map) {
+      result.mapName = cleanMapName(matchDetails.map);
+    } else if (matchDetails?.voting?.map?.name) {
+      result.mapName = cleanMapName(matchDetails.voting.map.name);
+    }
 
-            // Update with ELO data when available
-            try {
-                const eloData = await eloDataPromise;
-                console.log('🎯 ELO data for matches:', eloData);
-                
-                // Update existing cards with ELO data
-                const matchCards = matchesList.querySelectorAll('.match-card');
-                matchCards.forEach((card, index) => {
-                    if (index < initialMatches.length) {
-                        updateMatchCardElo(card, initialMatches[index], eloData);
-                    }
-                });
-                
-            } catch (error) {
-                console.error('❌ Error loading ELO data:', error);
-                // Remove loading states
-                const matchCards = matchesList.querySelectorAll('.match-card');
-                matchCards.forEach(card => {
-                    card.classList.remove('match-loading');
-                    const eloElement = card.querySelector('.match-elo');
-                    if (eloElement && eloElement.textContent === 'Loading...') {
-                        eloElement.style.display = 'none';
-                    }
-                });
-            }
+    // === Score ===
+    try {
+      let score1 = null;
+      let score2 = null;
 
-            // Update expand button visibility
-            if (expandBtn) {
-                expandBtn.style.display = fiveVFiveMatches.length > visibleMatchCount ? 'block' : 'none';
-            }
+      if (matchStats?.rounds?.[0]?.teams) {
+        const teams = matchStats.rounds[0].teams;
+        
+        if (teams.length >= 2) {
+          if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
+            score1 = parseInt(teams[0].team_stats['Final Score']);
+            score2 = parseInt(teams[1].team_stats['Final Score']);
+          } else if (teams[0].team_stats?.['Rounds Won'] && teams[1].team_stats?.['Rounds Won']) {
+            score1 = parseInt(teams[0].team_stats['Rounds Won']);
+            score2 = parseInt(teams[1].team_stats['Rounds Won']);
+          }
+        }
+      }
+
+      if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
+        result.score = `${score1}:${score2}`;
+      }
+    } catch (err) {
+      console.warn('❌ Error determining score:', err);
+    }
+
+    // === Player stats ===
+    if (matchStats?.rounds?.[0]?.teams) {
+      const teams = matchStats.rounds[0].teams;
+      let playerMatchStats = null;
+
+      for (const team of teams) {
+        const found = team.players.find(p => p.player_id === playerId);
+        if (found) {
+          playerMatchStats = found;
+          break;
+        }
+      }
+
+      if (playerMatchStats?.player_stats) {
+        const stats = playerMatchStats.player_stats;
+        
+        const adrValue = stats['Average Damage per Round'] || 
+                        stats['ADR'] || 
+                        stats['adr'] || 
+                        stats['Damage/Round'];
+        
+        const kills = stats.Kills || stats.kills || 0;
+        const deaths = stats.Deaths || stats.deaths || 1;
+        
+        result.playerStats = {
+          kills: kills,
+          deaths: deaths,
+          adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
+          hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
+            ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
+            : '-',
+          kdRatio: `${kills}/${deaths} (${(kills / deaths).toFixed(2)})`
+        };
+      }
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('❌ Error fetching detailed match data:', error);
+    return null;
+  }
+}
+
+// Function to clean up map names
+function cleanMapName(mapName) {
+    if (!mapName || mapName === 'Unknown') return 'Unknown';
+    
+    // Remove common prefixes and clean up
+    let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+    
+    // Capitalize first letter of each word
+    cleaned = cleaned.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+    
+    return cleaned;
+}
+
+// Function to update enhanced match card with detailed information
+function updateEnhancedMatchCard(matchCard, details, result, eloChangeDisplay, eloChangeClass, dateDisplay) {
+    matchCard.innerHTML = `
+        <div class="match-left">
+            <div class="match-result-container">
+                <div class="match-result ${result.class}">${result.symbol}</div>
+                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+            </div>
+            <div class="match-info">
+                <div class="match-map">${details.mapName}</div>
+                <div class="match-elo-change ${eloChangeClass}">${eloChangeDisplay}</div>
+            </div>
+        </div>
+        <div class="match-score">${details.score}</div>
+        <div class="match-stats">
+            <div class="match-stat-value">${details.playerStats.kdRatio}</div>
+            <div class="match-stat-value">${details.playerStats.adr}</div>
+            <div class="match-stat-value">${details.playerStats.hsPercent}</div>
+        </div>
+    `;
+}
+
+// Function to update enhanced match card with basic information
+function updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay) {
+    let scoreDisplay = '- - -';
+    
+    if (match.results && match.results.score && playerTeam && enemyTeam) {
+        const playerScore = match.results.score[playerTeam] || 0;
+        const enemyScore = match.results.score[enemyTeam] || 0;
+        scoreDisplay = `${playerScore}:${enemyScore}`;
+    }
+    
+    let mapName = 'Unknown';
+    
+    if (match.voting?.map?.name) {
+        mapName = cleanMapName(match.voting.map.name);
+    } else if (match.voting?.map?.pick?.[0]) {
+        mapName = cleanMapName(match.voting.map.pick[0]);
+    } else if (match.map) {
+        mapName = cleanMapName(match.map);
+    } else if (match.maps?.[0]) {
+        mapName = cleanMapName(match.maps[0]);
+    } else {
+        mapName = '5v5 Matchmaking';
+    }
+    
+    const mapElement = matchCard.querySelector('.match-map');
+    const scoreElement = matchCard.querySelector('.match-score');
+    
+    if (mapElement && mapElement.textContent === 'Loading...') {
+        mapElement.textContent = mapName;
+    }
+    if (scoreElement) scoreElement.textContent = scoreDisplay;
+}
+
+// Function with dynamic range - better adapts to player data
+async function updatePerformanceChart(_, playerId) {
+    if (!performanceChart) {
+        console.warn("⚠️ performanceChart not ready yet — trying again in 200ms...");
+        setTimeout(() => updatePerformanceChart(_, playerId), 200);
+        return;
+    }
+
+    console.log("📈 Updating ELO chart for player:", playerId);
+
+    const endpoint = `/.netlify/functions/faceitElo?playerId=${playerId}`;
+
+    try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error(`Faceit API error: ${res.status}`);
+
+        const items = await res.json();
+
+        if (!Array.isArray(items)) {
+            console.warn("⚠️ API response is not an array:", items);
+            return;
         }
 
-        // Create match card with ELO integration
-        async function createMatchCardWithElo(match, playerId, eloData) {
-            const matchCard = document.createElement('div');
-            matchCard.className = 'match-card';
-            
-            try {
-                console.log('Processing match:', match);
-                
-                const matchId = match.match_id || match.id;
-                const status = match.status || 'unknown';
-                
-                // Determine which team the player was on
-                let playerTeam = null;
-                let enemyTeam = null;
-                
-                if (match.teams && match.teams.faction1 && match.teams.faction2) {
-                    const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
-                    const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
-                    
-                    if (inFaction1) {
-                        playerTeam = 'faction1';
-                        enemyTeam = 'faction2';
-                    } else if (inFaction2) {
-                        playerTeam = 'faction2';
-                        enemyTeam = 'faction1';
-                    }
-                }
-                
-                // Determine match result
-                const result = determineMatchResult(match, playerTeam, status);
-                const dateDisplay = formatMatchDate(match);
-                
-                // Get ELO change for this match
-                let eloChange = null;
-                if (eloData && Array.isArray(eloData)) {
-                    const matchElo = eloData.find(elo => elo.matchId === matchId);
-                    if (matchElo && matchElo.eloChange !== undefined) {
-                        eloChange = matchElo.eloChange;
-                    }
-                }
-                
-                // Create initial card structure
-                matchCard.innerHTML = `
-                    <div class="match-left">
-                        <div class="match-result ${result.class}">${result.symbol}</div>
-                        <div class="match-info">
-                            ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
-                            <div class="match-map-row">
-                                <div class="match-map">Loading...</div>
-                                ${eloChange !== null ? 
-                                    `<div class="match-elo ${eloChange >= 0 ? 'elo-gain' : 'elo-loss'}">
-                                        ${eloChange >= 0 ? '+' : ''}${eloChange} ELO
-                                    </div>` : 
-                                    `<div class="match-elo" style="display: none;">Loading...</div>`
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div class="match-score">- - -</div>
-                    <div class="match-stats">
-                        <div class="match-stat-value">-</div>
-                        <div class="match-stat-value">-</div>
-                        <div class="match-stat-value">-</div>
-                    </div>
-                `;
-                
-                // Add loading class if ELO is being fetched
-                if (eloChange === null) {
-                    matchCard.classList.add('match-loading');
-                }
-                
-                // Fetch detailed match data asynchronously
-                if (status === 'finished') {
-                    fetchDetailedMatchData(matchId, playerId).then(details => {
-                        if (details) {
-                            updateMatchCardWithDetails(matchCard, details, result);
-                        }
-                    }).catch(error => {
-                        console.error('Error loading match details:', error);
-                        updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
-                    });
-                } else {
-                    updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam);
-                }
-                
-            } catch (error) {
-                console.error('Error creating match card:', error, match);
-                matchCard.innerHTML = `
-                    <div class="match-left">
-                        <div class="match-result loss">L</div>
-                        <div class="match-info">
-                            <div class="match-map-row">
-                                <div class="match-map">Unknown Match</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="match-score">- - -</div>
-                    <div class="match-stats">
-                        <div class="match-stat-value">-</div>
-                        <div class="match-stat-value">-</div>
-                        <div class="match-stat-value">-</div>
-                    </div>
-                `;
-            }
-            
-            return matchCard;
+        const eloHistory = items
+            .filter(item => item.elo && item.date)
+            .map(item => {
+                const elo = parseInt(item.elo);
+                const date = new Date(item.date);
+                const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                return { elo, label };
+            })
+            .reverse();
+
+        if (eloHistory.length === 0) {
+            console.warn("⚠️ No ELO data to display.");
+            return;
         }
 
-        // Update match card with ELO data
-        function updateMatchCardElo(matchCard, match, eloData) {
-            const matchId = match.match_id || match.id;
-            const eloElement = matchCard.querySelector('.match-elo');
-            
-            if (eloElement && Array.isArray(eloData)) {
-                const matchElo = eloData.find(elo => elo.matchId === matchId);
-                
-                if (matchElo && matchElo.eloChange !== undefined) {
-                    const eloChange = matchElo.eloChange;
-                    eloElement.textContent = `${eloChange >= 0 ? '+' : ''}${eloChange} ELO`;
-                    eloElement.className = `match-elo ${eloChange >= 0 ? 'elo-gain' : 'elo-loss'}`;
-                    eloElement.style.display = 'block';
-                } else {
-                    eloElement.style.display = 'none';
-                }
-            }
-            
-            // Remove loading state
-            matchCard.classList.remove('match-loading');
-        }
+        const labels = eloHistory.map(d => d.label);
+        const values = eloHistory.map(d => d.elo);
 
-        // Helper function to determine match result
-        function determineMatchResult(match, playerTeam, status) {
-            if (status === 'finished' && match.results) {
-                if (match.results.winner === playerTeam) {
-                    return { symbol: 'W', class: 'win' };
-                } else {
-                    return { symbol: 'L', class: 'loss' };
-                }
-            } else if (status === 'ongoing') {
-                return { symbol: '?', class: 'ongoing' };
-            } else if (status === 'cancelled' || status === 'aborted') {
-                return { symbol: '-', class: 'cancelled' };
-            } else {
-                return { symbol: 'L', class: 'loss' };
-            }
-        }
+        console.log("✅ ELO:", values);
+        console.log("📅 Dates:", labels);
 
-        // Helper function to format match date
-        function formatMatchDate(match) {
-            if (match.started_at || match.finished_at) {
-                const timestamp = match.started_at || match.finished_at;
-                const matchDate = new Date(timestamp * 1000);
-                return matchDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric'
-                });
-            }
-            return '';
-        }
+        const minElo = Math.min(...values);
+        const maxElo = Math.max(...values);
+        const padding = Math.max((maxElo - minElo) * 0.2, 150);
 
-        // Enhanced detailed match data fetching (keeping your existing implementation)
-        async function fetchDetailedMatchData(matchId, playerId) {
-            try {
-                console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
-                const [matchDetails, matchStats] = await Promise.all([
-                    fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
-                    fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
-                ]);
-                
-                console.log('📦 matchDetails:', matchDetails);
-                console.log('📊 matchStats:', matchStats);
-                
-                const result = {
-                    mapName: 'Unknown',
-                    score: '- - -',
-                    playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-' }
-                };
+        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
+        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
+        performanceChart.data.labels = labels;
+        performanceChart.data.datasets[0].data = values;
+        performanceChart.update();
 
-                // Map name extraction (keeping your existing logic)
-                console.log('🗺️ Looking for map name...');
-                
-                if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
-                    result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
-                    console.log('✅ Map name from voting.map.entities[0].game_map_id:', result.mapName);
-                } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
-                    result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
-                    console.log('✅ Map name from rounds:', result.mapName);
-                } else if (matchDetails?.map) {
-                    result.mapName = cleanMapName(matchDetails.map);
-                    console.log('✅ Map name from map field:', result.mapName);
-                }
+        updateEloChange?.();
 
-                // Score extraction (keeping your existing logic)
-                try {
-                    let score1 = null;
-                    let score2 = null;
+        console.log("✅ ELO chart updated");
 
-                    if (matchStats?.rounds?.[0]?.teams) {
-                        const teams = matchStats.rounds[0].teams;
-                        console.log('🏆 Teams data from matchStats:', teams);
-                        
-                        if (teams.length >= 2) {
-                            if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
-                                score1 = parseInt(teams[0].team_stats['Final Score']);
-                                score2 = parseInt(teams[1].team_stats['Final Score']);
-                                console.log('✅ Score from team_stats Final Score:', score1, ':', score2);
-                            }
-                        }
-                    }
+    } catch (err) {
+        console.error("❌ Error updating ELO chart:", err);
+    }
+}
 
-                    if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
-                        result.score = `${score1}:${score2}`;
-                        console.log('🏆 Final score set to:', result.score);
-                    }
-                } catch (err) {
-                    console.warn('❌ Error determining score:', err);
-                }
-
-                // Player stats extraction (keeping your existing logic)
-                if (matchStats?.rounds?.[0]?.teams) {
-                    const teams = matchStats.rounds[0].teams;
-                    let playerMatchStats = null;
-
-                    for (const team of teams) {
-                        const found = team.players.find(p => p.player_id === playerId);
-                        if (found) {
-                            playerMatchStats = found;
-                            break;
-                        }
-                    }
-
-                    if (playerMatchStats?.player_stats) {
-                        const stats = playerMatchStats.player_stats;
-                        console.log('🎯 Player match stats:', stats);
-                        
-                        const adrValue = stats['Average Damage per Round'] || 
-                                        stats['ADR'] || 
-                                        stats['adr'] || 
-                                        stats['Damage/Round'] || 
-                                        stats['DamagePerRound'] ||
-                                        stats['AvgDamagePerRound'];
-                        
-                        result.playerStats = {
-                            kills: stats.Kills || stats.kills || '-',
-                            deaths: stats.Deaths || stats.deaths || '-',
-                            adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
-                            hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
-                                ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
-                                : '-',
-                            kdRatio: (stats.Kills || stats.kills) && (stats.Deaths || stats.deaths)
-                                ? ((stats.Kills || stats.kills) / (stats.Deaths || stats.deaths)).toFixed(2)
-                                : '-'
-                        };
-                        
-                        console.log('✅ Final player stats:', result.playerStats);
-                    }
-                }
-
-                console.log('🎉 Final result:', result);
-                return result;
-
-            } catch (error) {
-                console.error('❌ Error fetching detailed match data:', error);
-                return null;
-            }
-        }
-
-        // Function to clean up map names (keeping your existing implementation)
-        function cleanMapName(mapName) {
-            if (!mapName || mapName === 'Unknown') return 'Unknown';
-            
-            let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
-            
-            cleaned = cleaned.split(' ').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            ).join(' ');
-            
-            return cleaned;
-        }
-
-        // Function to update match card with detailed information
-        function updateMatchCardWithDetails(matchCard, details, result) {
-            const mapElement = matchCard.querySelector('.match-map');
-            const scoreElement = matchCard.querySelector('.match-score');
-            const statsElements = matchCard.querySelectorAll('.match-stat-value');
-            
-            if (mapElement) mapElement.textContent = details.mapName;
-            if (scoreElement) scoreElement.textContent = details.score;
-            
-            if (statsElements.length >= 3) {
-                statsElements[0].textContent = details.playerStats.kdRatio;
-                statsElements[1].textContent = details.playerStats.adr;
-                statsElements[2].textContent = details.playerStats.hsPercent;
-            }
-        }
-
-        // Function to update match card with basic information when detailed fetch fails
-        function updateMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam) {
-            let scoreDisplay = '- - -';
-            
-            if (match.results && match.results.score && playerTeam && enemyTeam) {
-                const playerScore = match.results.score[playerTeam] || 0;
-                const enemyScore = match.results.score[enemyTeam] || 0;
-                scoreDisplay = `${playerScore}:${enemyScore}`;
-            }
-            
-            let mapName = 'Unknown';
-            
-            if (match.voting?.map?.name) {
-                mapName = cleanMapName(match.voting.map.name);
-            } else if (match.voting?.map?.pick?.[0]) {
-                mapName = cleanMapName(match.voting.map.pick[0]);
-            } else if (match.map) {
-                mapName = cleanMapName(match.map);
-            } else if (match.maps?.[0]) {
-                mapName = cleanMapName(match.maps[0]);
-            } else {
-                mapName = '5v5 Matchmaking';
-            }
-            
-            const mapElement = matchCard.querySelector('.match-map');
-            const scoreElement = matchCard.querySelector('.match-score');
-            
-            if (mapElement && mapElement.textContent === 'Loading...') {
-                mapElement.textContent = mapName;
-            }
-            if (scoreElement) scoreElement.textContent = scoreDisplay;
-        }
-
-        // Enhanced performance chart update function
-        async function updatePerformanceChart(_, playerId) {
-            if (!performanceChart) {
-                console.warn("⚠️ performanceChart jeszcze niegotowy — próbuję ponownie za 200ms...");
-                setTimeout(() => updatePerformanceChart(_, playerId), 200);
-                return;
-            }
-
-            console.log("📈 Aktualizuję wykres ELO dla gracza:", playerId);
-
-            const endpoint = `/.netlify/functions/faceitElo?playerId=${playerId}`;
-
-            try {
-                const res = await fetch(endpoint);
-                if (!res.ok) throw new Error(`Błąd API Faceit: ${res.status}`);
-
-                const items = await res.json();
-
-                if (!Array.isArray(items)) {
-                    console.warn("⚠️ Odpowiedź z API nie jest tablicą:", items);
-                    return;
-                }
-
-                const eloHistory = items
-                    .filter(item => item.elo && item.date)
-                    .map(item => {
-                        const elo = parseInt(item.elo);
-                        const date = new Date(item.date);
-                        const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
-                        return { elo, label };
-                    })
-                    .reverse();
-
-                if (eloHistory.length === 0) {
-                    console.warn("⚠️ Brak danych ELO do wyświetlenia.");
-                    return;
-                }
-
-                const labels = eloHistory.map(d => d.label);
-                const values = eloHistory.map(d => d.elo);
-
-                console.log("✅ ELO:", values);
-                console.log("📅 Daty:", labels);
-
-                const minElo = Math.min(...values);
-                const maxElo = Math.max(...values);
-                const padding = Math.max((maxElo - minElo) * 0.2, 150);
-
-                performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
-                performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
-                performanceChart.data.labels = labels;
-                performanceChart.data.datasets[0].data = values;
-                performanceChart.update();
-
-                updateEloChange?.();
-
-                console.log("✅ Wykres ELO został zaktualizowany");
-
-            } catch (err) {
-                console.error("❌ Błąd aktualizacji wykresu ELO:", err);
-            }
-        }
-
-        // Enhanced toggle more matches function
-        async function toggleMoreMatches() {
-            const matchesList = document.getElementById('matchesList');
-            const expandBtn = document.getElementById('expandBtn');
-            
-            if (!expandBtn || !currentPlayerId) return;
-            
-            if (isMatchesExpanded) {
-                // Hide additional matches
-                const allMatchCards = matchesList.querySelectorAll('.match-card');
-                for (let i = visibleMatchCount; i < allMatchCards.length; i++) {
-                    allMatchCards[i].remove();
-                }
-                
-                expandBtn.textContent = 'Show More Matches';
-                isMatchesExpanded = false;
-            } else {
-                // Show more matches
-                expandBtn.textContent = 'Loading...';
-                expandBtn.disabled = true;
-                
-                try {
-                    // Get ELO data for all matches
-                    const eloData = await fetchMatchEloData(currentPlayerId);
-                    
-                    // Get next batch of matches
-                    const nextMatches = allMatches.slice(visibleMatchCount, visibleMatchCount + 5);
-                    
-                    // Create and append new match cards
-                    for (const match of nextMatches) {
-                        const matchCard = await createMatchCardWithElo(match, currentPlayerId, eloData);
-                        matchesList.appendChild(matchCard);
-                        
-                        // Fetch detailed data for the new card
-                        const matchId = match.match_id || match.id;
-                        const status = match.status || 'unknown';
-                        
-                        if (status === 'finished') {
-                            fetchDetailedMatchData(matchId, currentPlayerId).then(details => {
-                                if (details) {
-                                    const result = determineMatchResult(match, 
-                                        getPlayerTeam(match, currentPlayerId), status);
-                                    updateMatchCardWithDetails(matchCard, details, result);
-                                }
-                            }).catch(error => {
-                                console.error('Error loading match details:', error);
-                            });
-                        }
-                    }
-                    
-                    visibleMatchCount += nextMatches.length;
-                    
-                    // Update button state
-                    if (visibleMatchCount >= allMatches.length) {
-                        expandBtn.textContent = 'Show Less Matches';
-                    } else {
-                        expandBtn.textContent = 'Show More Matches';
-                    }
-                    
-                    isMatchesExpanded = true;
-                    
-                } catch (error) {
-                    console.error('Error loading more matches:', error);
-                    expandBtn.textContent = 'Show More Matches';
-                } finally {
-                    expandBtn.disabled = false;
-                }
-            }
-        }
-
-        // Helper function to get player team
-        function getPlayerTeam(match, playerId) {
-            if (match.teams && match.teams.faction1 && match.teams.faction2) {
-                const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
-                const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
-                
-                if (inFaction1) return 'faction1';
-                if (inFaction2) return 'faction2';
-            }
-            return null;
-        }
+// Toggle more matches function
+function toggleMoreMatches() {
+    const hiddenMatches = document.querySelectorAll('.match-card.hidden-matches');
+    const expandBtn = document.querySelector('.expand-btn');
+    
+    if (!hiddenMatches.length || !expandBtn) return;
+    
+    if (isMatchesExpanded) {
+        // Hide matches
+        hiddenMatches.forEach(match => {
+            match.style.display = 'none';
+        });
+        expandBtn.textContent = 'Show More Matches';
+        isMatchesExpanded = false;
+    } else {
+        // Show matches
+        hiddenMatches.forEach(match => {
+            match.style.display = 'grid';
+        });
+        expandBtn.textContent = 'Show Less Matches';
+        isMatchesExpanded = true;
+    }
+}
     </script>
 </body>
 </html>
