@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Statistics</title>
+    
+    <!-- Preconnect to external resources for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://speargg.github.io">
+    
+    <!-- Load CSS and fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- Load Chart.js with defer for better performance -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <!-- Search Bar Section -->
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
+                    <button class="search-btn" onclick="searchPlayer()">
+                        <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
+                    </button>
+                </div>
+                <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
+            </div>
+
+            <!-- Avatar + Ratings -->
+            <div class="avatar-wrapper">
+                <div class="rating-card cs2-premier">
+                    <div class="rating-title">CS2 Premier</div>
+                    <div class="rating-value premier-rating">Loading...</div>
+                    <div class="rating-season">Season 2</div>
+                </div>
+
+                <div class="avatar">?</div>
+
+                <div class="rating-card faceit">
+                    <div class="rating-title">Faceit</div>
+                    <div class="rating-value faceit-rating">Loading...</div>
+                    <div class="rating-elo">Level -</div>
+                </div>
+            </div>
+            
+            <!-- Nickname -->
+            <h1 class="nickname">CS2 Statistics</h1>
+            
+            <!-- Social links -->
+            <div class="social-links">
+                <a href="#" class="social-link" id="steam-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
+                </a>
+                <a href="#" class="social-link" id="faceit-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit">
+                </a>
+                <a href="#" class="social-link" id="leetify-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify">
+                </a>
+                <a href="#" class="social-link" id="csstats-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats">
+                </a>
+            </div>
+        </div>
+
+        <!-- Leetify Statistics Section -->
+        <div class="leetify-stats">
+            <h2 class="section-title">Leetify Statistics</h2>
+            <div class="leetify-container">
+                <div class="leetify-stats-grid">
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Rating</div>
+                        <div class="leetify-stat-value" id="leetify-rating">-</div>
+                    </div>
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Matches</div>
+                        <div class="leetify-stat-value" id="leetify-matches">-</div>
+                    </div>
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Winrate</div>
+                        <div class="leetify-stat-value" id="leetify-winrate">-</div>
+                    </div>
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Aim</div>
+                        <div class="leetify-stat-value" id="leetify-aim">-</div>
+                    </div>
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Utility</div>
+                        <div class="leetify-stat-value" id="leetify-utility">-</div>
+                    </div>
+                    <div class="leetify-stat-card">
+                        <div class="leetify-stat-label">Reaction Time</div>
+                        <div class="leetify-stat-value" id="leetify-reaction">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FACEIT Statistics Section -->
+        <div class="faceit-stats">
+            <h2 class="section-title">FACEIT Statistics</h2>
+            <div class="faceit-container">
+                <div class="faceit-stats-grid">
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">K/D</div>
+                        <div class="faceit-stat-value" id="faceit-kd">-</div>
+                    </div>
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">ADR</div>
+                        <div class="faceit-stat-value" id="faceit-adr">-</div>
+                    </div>
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">Matches</div>
+                        <div class="faceit-stat-value" id="faceit-matches">-</div>
+                    </div>
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">Winrate</div>
+                        <div class="faceit-stat-value" id="faceit-winrate">-</div>
+                    </div>
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">HS%</div>
+                        <div class="faceit-stat-value" id="faceit-hs">-</div>
+                    </div>
+                    <div class="faceit-stat-card">
+                        <div class="faceit-stat-label">Win Streak</div>
+                        <div class="faceit-stat-value" id="faceit-streak">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Graph Section -->
+        <div class="performance-section">
+            <h2 class="section-title">Faceit ELO over last 20 Matches</h2>
+            <div class="chart-container">
+                <div class="elo-change" id="eloChange">Loading...</div>
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Matches Section -->
+        <div class="matches-section">
+            <h2 class="section-title">Recent Matches</h2>
+            
+            <div class="matches-header">
+                <div>MATCH INFO</div>
+                <div>SCORE</div>
+                <div class="matches-header-stats">
+                    <div>K/D</div>
+                    <div>ADR</div>
+                    <div>HS%</div>
+                </div>
+            </div>
+
+            <div class="matches-list">
+                <!-- Matches will be dynamically loaded here -->
+            </div>
+
+            <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
+        </div>
+    </div>
+
+    <!-- Load JavaScript modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
