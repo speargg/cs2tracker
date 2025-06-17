@@ -749,6 +749,35 @@
             display: none;
         }
 
+        /* CS2 Premier Rating Colors */
+        .premier-rating-gold {
+            color: #ffd700;
+        }
+
+        .premier-rating-red {
+            color: #ff4444;
+        }
+
+        .premier-rating-pink {
+            color: #ff69b4;
+        }
+
+        .premier-rating-purple {
+            color: #9966cc;
+        }
+
+        .premier-rating-blue {
+            color: #4169e1;
+        }
+
+        .premier-rating-light-blue {
+            color: #87ceeb;
+        }
+
+        .premier-rating-grey {
+            color: #808080;
+        }
+
         @media (max-width: 768px) {
             .nickname {
                 font-size: 2.5rem;
@@ -1013,16 +1042,16 @@ body.loading {
     <h1 class="nickname">NiKo_CS</h1>
     <!-- Social links moved above nickname -->
     <div class="social-links">
-        <a href="#" class="social-link">
+        <a href="#" class="social-link" id="steam-link">
             <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
         </a>
-        <a href="#" class="social-link">
+        <a href="#" class="social-link" id="faceit-link">
             <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit">
         </a>
-        <a href="#" class="social-link">
+        <a href="#" class="social-link" id="leetify-link">
             <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify">
         </a>
-        <a href="#" class="social-link">
+        <a href="#" class="social-link" id="csstats-link">
             <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats">
         </a>
     </div>
@@ -1130,6 +1159,7 @@ body.loading {
     let currentStatsPlatform = 'leetify'; // Track current platform
     let currentLeetifyData = null; // Store Leetify data globally
     let playerEloHistory = []; // Store ELO history for match calculations
+    let currentPlayerData = null; // Store current player data globally
 
 // Create and inject theme toggle button
 document.addEventListener('DOMContentLoaded', function() {
@@ -1326,6 +1356,50 @@ document.querySelector('.search-input').addEventListener('keypress', function(e)
 // Faceit API configuration
 const API_BASE_URL = '/.netlify/functions';
 const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
+
+// Function to get CS2 Premier rating color
+function getPremierRatingColor(rating) {
+    if (rating >= 30000) return 'premier-rating-gold';
+    if (rating >= 25000) return 'premier-rating-red';
+    if (rating >= 20000) return 'premier-rating-pink';
+    if (rating >= 15000) return 'premier-rating-purple';
+    if (rating >= 10000) return 'premier-rating-blue';
+    if (rating >= 5000) return 'premier-rating-light-blue';
+    return 'premier-rating-grey';
+}
+
+// Function to format Premier rating with dot separator
+function formatPremierRating(rating) {
+    return rating.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Function to update social links
+function updateSocialLinks(playerData, leetifyData) {
+    const steamLink = document.getElementById('steam-link');
+    const faceitLink = document.getElementById('faceit-link');
+    const leetifyLink = document.getElementById('leetify-link');
+    const csstatsLink = document.getElementById('csstats-link');
+
+    // Steam link
+    if (playerData?.games?.cs2?.game_player_id) {
+        steamLink.href = `https://steamcommunity.com/profiles/${playerData.games.cs2.game_player_id}`;
+    }
+
+    // Faceit link (already working)
+    if (playerData?.nickname) {
+        faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+    }
+
+    // Leetify link
+    if (playerData?.games?.cs2?.game_player_id) {
+        leetifyLink.href = `https://leetify.com/app/profile/${playerData.games.cs2.game_player_id}`;
+    }
+
+    // CSStats link
+    if (playerData?.games?.cs2?.game_player_id) {
+        csstatsLink.href = `https://csstats.gg/player/${playerData.games.cs2.game_player_id}`;
+    }
+}
 	    
 // Enhanced search function
 async function searchPlayer(showSpinner = true) {
@@ -1364,6 +1438,9 @@ async function searchPlayer(showSpinner = true) {
         console.log("📡 Fetching player data...");
         const playerData = await fetchPlayerData(query);
         console.log("✅ Player data received:", playerData);
+        
+        // Store player data globally
+        currentPlayerData = playerData;
         
         console.log("📊 Fetching player stats...");
         const playerStats = await fetchPlayerStats(playerData.player_id);
@@ -1612,11 +1689,19 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             document.getElementById('faceit-streak').textContent = 'N/A';
         }
 
-        // Update header ratings
+        // Update header ratings with color coding for Premier
         if (leetifyData?.ranks?.premier) {
             const premierElement = document.querySelector('.premier-rating');
             if (premierElement) {
-                premierElement.textContent = Math.round(leetifyData.ranks.premier).toString();
+                const rating = Math.round(leetifyData.ranks.premier);
+                const colorClass = getPremierRatingColor(rating);
+                
+                // Remove all existing color classes
+                premierElement.className = premierElement.className.replace(/premier-rating-\w+/g, '');
+                // Add new color class
+                premierElement.classList.add(colorClass);
+                
+                premierElement.textContent = formatPremierRating(rating);
             }
         }
 
@@ -1631,13 +1716,8 @@ function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData 
             }
         }
 
-        // Profile links
-        if (playerData?.nickname) {
-            const faceitLink = document.querySelector('.social-link:nth-child(2)');
-            if (faceitLink) {
-                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-            }
-        }
+        // Update social links
+        updateSocialLinks(playerData, leetifyData);
 
         // Update matches and chart
         const playerId = playerData?.player_id;
@@ -1960,7 +2040,7 @@ async function fetchDetailedMatchData(matchId, playerId) {
           hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
             ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
             : '-',
-          kdRatio: `${kills}/${deaths}\n${(kills / deaths).toFixed(2)}`
+          kdRatio: `${kills}/${deaths}`
         };
       }
     }
