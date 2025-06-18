@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS2 Statistics</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
 * {
@@ -34,36 +34,6 @@
             margin-bottom: 2rem;
             text-align: center;
             width: 100%;
-        }
-
-        /* Pełnoekranowy spinner */
-        .fullscreen-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0f1419;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        /* Spinner animowany — WAŻNE: nie wewnątrz @media! */
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 5px solid rgba(255, 255, 255, 0.15);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .avatar img {
@@ -903,159 +873,143 @@
             }
         }
 
-		/* Theme Toggle Button - Non-interfering */
-.theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 1px solid rgba(37, 99, 235, 0.3);
-    background: rgba(26, 35, 50, 0.8);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 9999;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Reset all potentially interfering properties */
-    margin: 0 !important;
-    padding: 0 !important;
-    float: none !important;
-    clear: none !important;
-    transform: none;
-}
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            background: rgba(26, 35, 50, 0.8);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 !important;
+            padding: 0 !important;
+            float: none !important;
+            clear: none !important;
+            transform: none;
+        }
 
-.theme-toggle:hover {
-    background: rgba(37, 99, 235, 0.3);
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-}
+        .theme-toggle:hover {
+            background: rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
 
-/* Ensure body and container are not affected */
-body {
-    position: relative;
-}
+        body {
+            position: relative;
+        }
 
-.container {
-    position: static;
-}
+        .container {
+            position: static;
+        }
 
-/* Mobile Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        max-width: 100%;
-        padding: 0 15px;
-    }
-}
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 0 15px;
+            }
+        }
 
-.social-link:hover .social-icon {
-    filter: brightness(1.2);
-    transform: scale(1.1);
-}
+        .social-link:hover .social-icon {
+            filter: brightness(1.2);
+            transform: scale(1.1);
+        }
 
-/* Blokuje przewijanie i przesuwanie layoutu, dopóki nie zniknie loader */
-body.loading {
-  overflow: hidden;
-}
+        .avatar {
+            margin: 0 auto;
+        }
 
-.avatar {
-    margin: 0 auto;
-}
+        .social-links {
+            margin: 0.75rem 0 1rem;
+        }
 
-.social-links {
-    margin: 0.75rem 0 1rem;
-}
+        .avatar-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
 
-.avatar-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
+        .avatar-wrapper .rating-card {
+            background: rgba(26, 35, 50, 0.6);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-width: 220px;
+        }
 
-.avatar-wrapper .rating-card {
-    background: rgba(26, 35, 50, 0.6);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    border-radius: 16px;
-    padding: 1.5rem 2rem;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    min-width: 220px;
-}
+        .header .nickname {
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 3rem;
+        }
 
-.header .nickname {
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 3rem; /* opcjonalnie mniejsze na mobile */
-}
+        .search-input.loading {
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
-
-<!-- Loader -->
-<div id="loader" class="fullscreen-loader">
-  <div class="spinner"></div>
-</div>
-
-  <!-- Ukryty kontent gracza -->
-  <div id="content" style="display: none;">
     <div class="container">
-      <!-- Header Section -->
-      <div class="header">
+        <!-- Header Section -->
+        <div class="header">
+            <!-- Search Bar Section -->
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
+                    <button class="search-btn" onclick="searchPlayer()">
+                        <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
+                    </button>
+                </div>
+                <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
+            </div>
 
-<div class="header">
+            <!-- Avatar + Ratings -->
+            <div class="avatar-wrapper">
+                <div class="rating-card cs2-premier">
+                    <div class="rating-title">CS2 Premier</div>
+                    <div class="rating-value premier-rating">24,687</div>
+                    <div class="rating-season">Season 2</div>
+                </div>
 
-    <!-- Search Bar Section -->
-    <div class="search-section">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Enter Steam ID or Faceit nickname...">
-            <button class="search-btn" onclick="searchPlayer()">
-                <img src="https://speargg.github.io/cs2tracker/assets/img/search.png" alt="Search" style="width: 20px; height: 20px; object-fit: contain;">
-            </button>
+                <div class="avatar">NK</div>
+
+                <div class="rating-card faceit">
+                    <div class="rating-title">Faceit</div>
+                    <div class="rating-value faceit-rating">2,834</div>
+                    <div class="rating-elo">Level 10</div>
+                </div>
+            </div>
+            <!-- Nickname is now below everything -->
+            <h1 class="nickname">NiKo_CS</h1>
+            <!-- Social links moved above nickname -->
+            <div class="social-links">
+                <a href="#" class="social-link" id="steam-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
+                </a>
+                <a href="#" class="social-link" id="faceit-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit">
+                </a>
+                <a href="#" class="social-link" id="leetify-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify">
+                </a>
+                <a href="#" class="social-link" id="csstats-link">
+                    <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats">
+                </a>
+            </div>
         </div>
-        <div class="search-hint">Find any player profile using their Steam ID or Faceit nickname</div>
-    </div>
-
-    <!-- Avatar + Ratings -->
-    <div class="avatar-wrapper">
-        <div class="rating-card cs2-premier">
-            <div class="rating-title">CS2 Premier</div>
-            <div class="rating-value premier-rating">24,687</div>
-            <div class="rating-season">Season 2</div>
-        </div>
-
-        <div class="avatar">NK</div>
-
-        <div class="rating-card faceit">
-            <div class="rating-title">Faceit</div>
-            <div class="rating-value faceit-rating">2,834</div>
-            <div class="rating-elo">Level 10</div>
-        </div>
-    </div>
-    <!-- Nickname is now below everything -->
-    <h1 class="nickname">NiKo_CS</h1>
-    <!-- Social links moved above nickname -->
-    <div class="social-links">
-        <a href="#" class="social-link" id="steam-link">
-            <img src="https://speargg.github.io/cs2tracker/assets/img/steam.png" alt="Steam">
-        </a>
-        <a href="#" class="social-link" id="faceit-link">
-            <img src="https://speargg.github.io/cs2tracker/assets/img/faceit.png" alt="Faceit">
-        </a>
-        <a href="#" class="social-link" id="leetify-link">
-            <img src="https://speargg.github.io/cs2tracker/assets/img/leetify.png" alt="Leetify">
-        </a>
-        <a href="#" class="social-link" id="csstats-link">
-            <img src="https://speargg.github.io/cs2tracker/assets/img/csstats.png" alt="CS Stats">
-        </a>
-    </div>
-</div>
 
         <!-- Leetify Statistics Section -->
         <div class="leetify-stats">
@@ -1133,208 +1087,692 @@ body.loading {
         </div>
 
         <!-- Recent Matches Section -->
-<div class="matches-section">
-    <h2 class="section-title">Recent Matches</h2>
-    
-    <div class="matches-header">
-        <div>MATCH INFO</div>
-        <div>SCORE</div>
-        <div class="matches-header-stats">
-            <div>K/D</div>
-            <div>ADR</div>
-            <div>HS%</div>
+        <div class="matches-section">
+            <h2 class="section-title">Recent Matches</h2>
+            
+            <div class="matches-header">
+                <div>MATCH INFO</div>
+                <div>SCORE</div>
+                <div class="matches-header-stats">
+                    <div>K/D</div>
+                    <div>ADR</div>
+                    <div>HS%</div>
+                </div>
+            </div>
+
+            <div class="matches-list">
+                <!-- Matches will be dynamically loaded here -->
+            </div>
+
+            <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
         </div>
     </div>
 
-    <div class="matches-list">
-        <!-- Matches will be dynamically loaded here -->
-    </div>
-
-    <button class="expand-btn" onclick="toggleMoreMatches()">Show More Matches</button>
-</div>
-    </div>
-
     <script>
-	let isMatchesExpanded = false;
-    let currentStatsPlatform = 'leetify'; // Track current platform
-    let currentLeetifyData = null; // Store Leetify data globally
-    let playerEloHistory = []; // Store ELO history for match calculations
-    let currentPlayerData = null; // Store current player data globally
+        // ============================================
+        // GLOBAL VARIABLES & CONFIG
+        // ============================================
+        let isMatchesExpanded = false;
+        let currentPlayerData = null;
+        let playerEloHistory = [];
+        let performanceChart = null;
+        
+        // Enhanced cache with TTL
+        const apiCache = new Map();
+        const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Create and inject theme toggle button
-document.addEventListener('DOMContentLoaded', function() {
-    // 🧠 Czy mamy pokazać loader?
-    const shouldShowLoader = localStorage.getItem('showLoader') === 'true';
+        // Batch processing for match details
+        const matchDetailsQueue = [];
+        let isProcessingQueue = false;
 
-    const loader = document.getElementById('loader');
-    const content = document.getElementById('content');
-
-    if (shouldShowLoader && loader && content) {
-        loader.style.display = 'flex';
-        content.style.display = 'none';
-        document.body.classList.add('loading');
-    }
-
-    // 🧹 Usuń flagę, żeby nie działała przy kolejnym odświeżeniu
-    localStorage.removeItem('showLoader');
-
-    // 🌗 Utwórz przycisk do zmiany motywu
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'theme-toggle';
-    toggleBtn.onclick = toggleTheme;
-    toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
-    document.body.appendChild(toggleBtn);
-
-    // 🎨 Ustaw zapamiętany motyw
-    const savedTheme = localStorage.getItem('theme');
-    const themeIcon = toggleBtn.querySelector('.theme-icon');
-
-    if (savedTheme === 'black') {
-        document.body.classList.add('black-theme');
-        themeIcon.textContent = '☀️';
-    }
-
-    // ✅ Obsługa nicku z pathname (Netlify friendly URL np. /spear)
-let nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
-
-if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
-    const input = document.querySelector('.search-input');
-    if (input) {
-        input.value = nickname;
-        searchPlayer(false);
-    }
-} else {
-    if (loader && content) {
-        loader.style.display = 'none';
-        content.style.display = 'block';
-        document.body.classList.remove('loading');
-    }
-}
-});
-
-// Theme toggle functionality
-function toggleTheme() {
-    const body = document.body;
-    const themeIcon = document.querySelector('.theme-icon');
-    
-    body.classList.toggle('black-theme');
-    
-    // Change icon based on theme
-    if (body.classList.contains('black-theme')) {
-        themeIcon.textContent = '☀️';
-        localStorage.setItem('theme', 'black');
-    } else {
-        themeIcon.textContent = '🌙';
-        localStorage.setItem('theme', 'blue');
-    }
-}
-
-let performanceChart;
-
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const canvas = document.getElementById('performanceChart');
-        if (!canvas) {
-            console.error('❌ Nie znaleziono elementu #performanceChart!');
-            return;
+        // ============================================
+        // ENHANCED CACHING SYSTEM
+        // ============================================
+        function getCachedData(key) {
+            const cached = apiCache.get(key);
+            if (!cached) return null;
+            
+            if (Date.now() - cached.timestamp > CACHE_TTL) {
+                apiCache.delete(key);
+                return null;
+            }
+            
+            return cached.data;
         }
 
-        const ctx = canvas.getContext('2d');
-        performanceChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Faceit ELO',
-                    data: [],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 3,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 20, 25, 0.95)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#ffffff',
-                        borderColor: 'rgba(37, 99, 235, 0.3)',
-                        borderWidth: 1,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        multiKeyBackground: 'transparent',
-                        callbacks: {
-                            title: context => `${context[0].label}`,
-                            label: context => {
-                                const currentElo = context.parsed.y;
-                                const index = context.dataIndex;
-                                const data = context.dataset.data;
-                                if (index === 0) return `ELO: ${currentElo}`;
-                                const diff = currentElo - data[index - 1];
-                                return [`ELO: ${currentElo}`, diff >= 0 ? `+${diff}` : `${diff}`];
-                            },
-                            labelTextColor: context => {
-                                const index = context.dataIndex;
-                                const data = context.dataset.data;
-                                if (index === 0) return '#ffffff';
-                                const change = context.parsed.y - data[index - 1];
-                                return change >= 0 ? '#10b981' : '#ef4444';
-                            }
+        function setCachedData(key, data) {
+            apiCache.set(key, {
+                data: data,
+                timestamp: Date.now()
+            });
+        }
+
+        // ============================================
+        // OPTIMIZED API CALLS
+        // ============================================
+        async function fetchWithCache(url, cacheKey) {
+            const cached = getCachedData(cacheKey);
+            if (cached) {
+                console.log(`📦 Cache hit for ${cacheKey}`);
+                return cached;
+            }
+
+            console.log(`🌐 Fetching ${cacheKey}...`);
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status} for ${url}`);
+            }
+            
+            const data = await response.json();
+            setCachedData(cacheKey, data);
+            return data;
+        }
+
+        // Parallel API calls function
+        async function fetchAllPlayerData(nickname) {
+            console.log('🚀 Starting optimized data fetch...');
+            
+            // Step 1: Get basic player data first
+            const playerData = await fetchWithCache(
+                `/.netlify/functions/player?nickname=${encodeURIComponent(nickname)}`,
+                `player_${nickname}`
+            );
+
+            console.log('✅ Player data loaded');
+
+            // Step 2: Parallel fetch of all other data
+            const playerId = playerData.player_id;
+            const steamId = playerData.games?.cs2?.game_player_id;
+
+            const promises = [
+                fetchWithCache(
+                    `/.netlify/functions/stats?playerId=${playerId}`,
+                    `stats_${playerId}`
+                ).catch(err => {
+                    console.warn('⚠️ Stats fetch failed:', err);
+                    return null;
+                }),
+                
+                fetchWithCache(
+                    `/.netlify/functions/matches?playerId=${playerId}`,
+                    `matches_${playerId}`
+                ).catch(err => {
+                    console.warn('⚠️ Matches fetch failed:', err);
+                    return { items: [] };
+                }),
+                
+                fetchWithCache(
+                    `/.netlify/functions/faceitElo?playerId=${playerId}`,
+                    `elo_${playerId}`
+                ).catch(err => {
+                    console.warn('⚠️ ELO fetch failed:', err);
+                    return [];
+                }),
+                
+                steamId ? fetchWithCache(
+                    `/.netlify/functions/leetify-stats?steamId=${steamId}`,
+                    `leetify_${steamId}`
+                ).catch(err => {
+                    console.warn('⚠️ Leetify fetch failed:', err);
+                    return null;
+                }) : Promise.resolve(null)
+            ];
+
+            const [statsData, matchesData, eloData, leetifyData] = await Promise.all(promises);
+            
+            console.log('✅ All data loaded in parallel');
+
+            return {
+                playerData,
+                statsData,
+                matchesData,
+                eloData,
+                leetifyData
+            };
+        }
+
+        // ============================================
+        // OPTIMIZED SEARCH FUNCTION
+        // ============================================
+        async function searchPlayer() {
+            const searchInput = document.querySelector('.search-input');
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                alert('Please enter a Faceit nickname or Steam ID 64');
+                return;
+            }
+
+            // Visual feedback - just change input style, no spinner
+            searchInput.classList.add('loading');
+            
+            try {
+                console.time('⏱️ Total search time');
+                
+                // Fetch all data in parallel
+                const allData = await fetchAllPlayerData(query);
+                
+                // Update URL immediately
+                window.history.pushState({}, '', `/${query}`);
+                
+                // Update UI immediately with available data
+                updatePlayerProfile(allData);
+                
+                console.timeEnd('⏱️ Total search time');
+                
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                alert('Player not found or API error. Please try again.');
+            } finally {
+                searchInput.classList.remove('loading');
+            }
+        }
+
+        // ============================================
+        // OPTIMIZED UI UPDATE FUNCTIONS
+        // ============================================
+        function updatePlayerProfile({ playerData, statsData, matchesData, eloData, leetifyData }) {
+            console.log('🔄 Updating UI...');
+            
+            // Store globally
+            currentPlayerData = playerData;
+            playerEloHistory = eloData || [];
+
+            // Update basic profile info immediately
+            updateBasicProfile(playerData, leetifyData);
+            
+            // Update stats
+            updateStats(statsData, leetifyData);
+            
+            // Update chart
+            updateChart(eloData);
+            
+            // Update matches - optimized with batch loading
+            updateMatches(matchesData?.items || [], playerData.player_id);
+            
+            console.log('✅ UI updated');
+        }
+
+        function updateBasicProfile(playerData, leetifyData) {
+            // Update nickname and avatar
+            if (playerData?.nickname) {
+                document.querySelector('.nickname').textContent = playerData.nickname;
+                const avatarContainer = document.querySelector('.avatar');
+                if (avatarContainer && playerData.avatar) {
+                    avatarContainer.innerHTML = `<img src="${playerData.avatar}" alt="Player avatar" />`;
+                }
+            }
+
+            // Update ratings
+            if (leetifyData?.ranks?.premier) {
+                const premierElement = document.querySelector('.premier-rating');
+                if (premierElement) {
+                    const rating = Math.round(leetifyData.ranks.premier);
+                    const colorClass = getPremierRatingColor(rating);
+                    
+                    premierElement.className = premierElement.className.replace(/premier-rating-\w+/g, '');
+                    premierElement.classList.add(colorClass);
+                    premierElement.textContent = formatPremierRating(rating);
+                }
+            }
+
+            if (playerData?.games?.cs2?.faceit_elo) {
+                const faceitElement = document.querySelector('.faceit-rating');
+                const levelElement = document.querySelector('.rating-elo');
+                if (faceitElement) {
+                    faceitElement.textContent = Math.round(playerData.games.cs2.faceit_elo).toString();
+                }
+                if (levelElement && playerData.games.cs2.skill_level) {
+                    levelElement.textContent = `Level ${playerData.games.cs2.skill_level}`;
+                }
+            }
+
+            // Update social links
+            updateSocialLinks(playerData);
+        }
+
+        function updateStats(statsData, leetifyData) {
+            // Leetify stats
+            if (leetifyData) {
+                updateStatSafely('leetify-rating', leetifyData, ['ranks', 'leetify'], 'N/A', val => parseFloat(val).toFixed(2));
+                updateStatSafely('leetify-matches', leetifyData, ['total_matches'], 'N/A');
+                updateStatSafely('leetify-winrate', leetifyData, ['winrate'], 'N/A', val => Math.round(val * 100) + '%');
+                updateStatSafely('leetify-aim', leetifyData, ['rating', 'aim'], 'N/A', val => Math.round(val));
+                updateStatSafely('leetify-utility', leetifyData, ['rating', 'utility'], 'N/A', val => Math.round(val));
+                updateStatSafely('leetify-reaction', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => parseFloat(val).toFixed(2) + ' ms');
+            }
+
+            // FACEIT stats
+            if (statsData?.lifetime) {
+                const stats = statsData.lifetime;
+                updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
+                updateStatSafely('faceit-adr', stats, ['ADR'], 'N/A', val => Math.round(parseFloat(val)));
+                updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A', val => parseInt(val).toString());
+                updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
+                updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
+                updateStatSafely('faceit-streak', stats, ['Longest Win Streak'], 'N/A', val => parseInt(val));
+            }
+        }
+
+        function updateChart(eloData) {
+            if (!eloData || eloData.length === 0) return;
+
+            // Initialize chart if needed
+            if (!performanceChart) {
+                initializeChart();
+            }
+
+            if (!performanceChart) return;
+
+            const processedData = eloData.slice(-20).reverse();
+            const labels = processedData.map(item => {
+                const date = new Date(item.date);
+                return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+            });
+            const values = processedData.map(item => parseInt(item.elo));
+
+            performanceChart.data.labels = labels;
+            performanceChart.data.datasets[0].data = values;
+            performanceChart.update('none'); // No animation for faster update
+
+            // Update ELO change indicator
+            updateEloChange(values);
+        }
+
+        // ============================================
+        // OPTIMIZED MATCH LOADING
+        // ============================================
+        function updateMatches(matches, playerId) {
+            const matchesList = document.querySelector('.matches-list');
+            
+            // Clear existing matches
+            matchesList.innerHTML = '';
+            
+            // Filter 5v5 matches
+            const fiveVFiveMatches = matches.filter(match => {
+                return match.game_mode === '5v5' || 
+                       (match.teams?.faction1?.players?.length === 5 && match.teams?.faction2?.players?.length === 5);
+            });
+
+            // Create basic match cards immediately
+            const visibleMatches = fiveVFiveMatches.slice(0, 5);
+            const hiddenMatches = fiveVFiveMatches.slice(5, 10);
+
+            // Add visible matches
+            visibleMatches.forEach(match => {
+                const matchCard = createBasicMatchCard(match, playerId);
+                matchesList.appendChild(matchCard);
+            });
+
+            // Add hidden matches
+            hiddenMatches.forEach(match => {
+                const matchCard = createBasicMatchCard(match, playerId);
+                matchCard.classList.add('hidden-matches');
+                matchCard.style.display = 'none';
+                matchesList.appendChild(matchCard);
+            });
+
+            // Batch load detailed match data in background
+            const allMatches = [...visibleMatches, ...hiddenMatches];
+            batchLoadMatchDetails(allMatches, playerId);
+        }
+
+        function createBasicMatchCard(match, playerId) {
+            const matchCard = document.createElement('div');
+            matchCard.className = 'match-card';
+            matchCard.dataset.matchId = match.match_id || match.id;
+
+            // Determine basic match info
+            const { result, playerTeam, enemyTeam } = analyzeMatch(match, playerId);
+            const dateDisplay = formatMatchDate(match);
+            const eloChange = calculateEloChange(match.started_at || match.finished_at);
+            
+            // Basic map name
+            let mapName = getBasicMapName(match);
+            let scoreDisplay = getBasicScore(match, playerTeam, enemyTeam);
+
+            matchCard.innerHTML = `
+                <div class="match-left">
+                    <div class="match-result-container">
+                        <div class="match-result ${result.class}">${result.symbol}</div>
+                        ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
+                    </div>
+                    <div class="match-info">
+                        <div class="match-map">${mapName}</div>
+                        <div class="match-elo-change ${eloChange.class}">${eloChange.display}</div>
+                    </div>
+                </div>
+                <div class="match-score">
+                    <div class="match-score-main">${scoreDisplay}</div>
+                    <div class="match-kd-ratio">-/-</div>
+                </div>
+                <div class="match-stats">
+                    <div class="match-stat-value">-</div>
+                    <div class="match-stat-value">-</div>
+                </div>
+            `;
+
+            return matchCard;
+        }
+
+        // Batch process match details to avoid overwhelming the API
+        async function batchLoadMatchDetails(matches, playerId) {
+            if (isProcessingQueue) return;
+            isProcessingQueue = true;
+
+            const BATCH_SIZE = 3;
+            const finishedMatches = matches.filter(m => m.status === 'finished');
+
+            for (let i = 0; i < finishedMatches.length; i += BATCH_SIZE) {
+                const batch = finishedMatches.slice(i, i + BATCH_SIZE);
+                
+                await Promise.allSettled(
+                    batch.map(match => loadDetailedMatchData(match, playerId))
+                );
+
+                // Small delay between batches to avoid rate limiting
+                if (i + BATCH_SIZE < finishedMatches.length) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            isProcessingQueue = false;
+        }
+
+        async function loadDetailedMatchData(match, playerId) {
+            const matchId = match.match_id || match.id;
+            const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+            
+            if (!matchCard) return;
+
+            try {
+                const cacheKey = `match_${matchId}`;
+                const cachedDetails = getCachedData(cacheKey);
+                
+                let details;
+                if (cachedDetails) {
+                    details = cachedDetails;
+                } else {
+                    const [matchDetails, matchStats] = await Promise.all([
+                        fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(r => r.json()),
+                        fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(r => r.json())
+                    ]);
+                    
+                    details = processMatchDetails(matchDetails, matchStats, playerId);
+                    setCachedData(cacheKey, details);
+                }
+
+                updateMatchCard(matchCard, details);
+                
+            } catch (error) {
+                console.warn(`⚠️ Failed to load details for match ${matchId}:`, error);
+            }
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
+            try {
+                let value = source;
+                for (let key of keys) {
+                    if (value && key in value) {
+                        value = value[key];
+                    } else {
+                        value = null;
+                        break;
+                    }
+                }
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = value != null ? transform(value) : fallback;
+                }
+            } catch (e) {
+                console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
+                const element = document.getElementById(elementId);
+                if (element) element.textContent = fallback;
+            }
+        }
+
+        function analyzeMatch(match, playerId) {
+            let playerTeam = null;
+            let enemyTeam = null;
+            
+            if (match.teams?.faction1 && match.teams?.faction2) {
+                const inFaction1 = match.teams.faction1.players.some(p => p.player_id === playerId);
+                const inFaction2 = match.teams.faction2.players.some(p => p.player_id === playerId);
+                
+                if (inFaction1) {
+                    playerTeam = 'faction1';
+                    enemyTeam = 'faction2';
+                } else if (inFaction2) {
+                    playerTeam = 'faction2';
+                    enemyTeam = 'faction1';
+                }
+            }
+
+            let result = { symbol: 'L', class: 'loss' };
+            if (match.status === 'finished' && match.results?.winner === playerTeam) {
+                result = { symbol: 'W', class: 'win' };
+            } else if (match.status === 'ongoing') {
+                result = { symbol: '?', class: 'ongoing' };
+            }
+
+            return { result, playerTeam, enemyTeam };
+        }
+
+        function getBasicMapName(match) {
+            if (match.voting?.map?.name) {
+                return cleanMapName(match.voting.map.name);
+            } else if (match.map) {
+                return cleanMapName(match.map);
+            }
+            return '5v5 Match';
+        }
+
+        function getBasicScore(match, playerTeam, enemyTeam) {
+            if (match.results?.score && playerTeam && enemyTeam) {
+                const playerScore = match.results.score[playerTeam] || 0;
+                const enemyScore = match.results.score[enemyTeam] || 0;
+                return `${playerScore}:${enemyScore}`;
+            }
+            return '- : -';
+        }
+
+        function calculateEloChange(timestamp) {
+            if (!playerEloHistory || playerEloHistory.length === 0) {
+                return { display: 'N/A', class: 'match-elo-neutral' };
+            }
+
+            const matchEloEntry = playerEloHistory.find(entry => {
+                const entryDate = new Date(entry.date);
+                const matchDate = new Date(timestamp * 1000);
+                return Math.abs(entryDate.getTime() - matchDate.getTime()) < 3600000;
+            });
+
+            if (!matchEloEntry) {
+                return { display: 'N/A', class: 'match-elo-neutral' };
+            }
+
+            const currentIndex = playerEloHistory.indexOf(matchEloEntry);
+            if (currentIndex === -1 || currentIndex === playerEloHistory.length - 1) {
+                return { display: 'N/A', class: 'match-elo-neutral' };
+            }
+
+            const previousEloEntry = playerEloHistory[currentIndex + 1];
+            const change = parseInt(matchEloEntry.elo) - parseInt(previousEloEntry.elo);
+
+            if (change > 0) {
+                return { display: `+${change} ELO`, class: 'match-elo-positive' };
+            } else if (change < 0) {
+                return { display: `${change} ELO`, class: 'match-elo-negative' };
+            } else {
+                return { display: '±0 ELO', class: 'match-elo-neutral' };
+            }
+        }
+
+        function processMatchDetails(matchDetails, matchStats, playerId) {
+            const result = {
+                mapName: 'Unknown',
+                score: '- : -',
+                playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kdRatio: '-' }
+            };
+
+            // Extract map name
+            if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
+                result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
+            } else if (matchDetails?.map) {
+                result.mapName = cleanMapName(matchDetails.map);
+            }
+
+            // Extract score
+            if (matchStats?.rounds?.[0]?.teams?.length >= 2) {
+                const teams = matchStats.rounds[0].teams;
+                const score1 = parseInt(teams[0].team_stats?.['Final Score'] || teams[0].team_stats?.['Rounds Won'] || 0);
+                const score2 = parseInt(teams[1].team_stats?.['Final Score'] || teams[1].team_stats?.['Rounds Won'] || 0);
+                result.score = `${score1}:${score2}`;
+            }
+
+            // Extract player stats
+            if (matchStats?.rounds?.[0]?.teams) {
+                for (const team of matchStats.rounds[0].teams) {
+                    const playerData = team.players.find(p => p.player_id === playerId);
+                    if (playerData?.player_stats) {
+                        const stats = playerData.player_stats;
+                        const kills = stats.Kills || stats.kills || 0;
+                        const deaths = stats.Deaths || stats.deaths || 1;
+                        
+                        result.playerStats = {
+                            kills,
+                            deaths,
+                            adr: stats['Average Damage per Round'] || stats.ADR ? Math.round(parseFloat(stats['Average Damage per Round'] || stats.ADR)) : '-',
+                            hsPercent: stats['Headshots %'] || stats['HS%'] ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%']))}%` : '-',
+                            kdRatio: `${kills}/${deaths}`
+                        };
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        function updateMatchCard(matchCard, details) {
+            const mapElement = matchCard.querySelector('.match-map');
+            const scoreElement = matchCard.querySelector('.match-score-main');
+            const kdElement = matchCard.querySelector('.match-kd-ratio');
+            const statElements = matchCard.querySelectorAll('.match-stat-value');
+
+            if (mapElement) mapElement.textContent = details.mapName;
+            if (scoreElement) scoreElement.textContent = details.score;
+            if (kdElement) kdElement.textContent = details.playerStats.kdRatio;
+            
+            if (statElements[0]) statElements[0].textContent = details.playerStats.kdRatio;
+            if (statElements[1]) statElements[1].textContent = details.playerStats.adr;
+            if (statElements[2]) statElements[2].textContent = details.playerStats.hsPercent;
+        }
+
+        function cleanMapName(mapName) {
+            if (!mapName) return 'Unknown';
+            let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
+            return cleaned.split(' ').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' ');
+        }
+
+        function formatMatchDate(match) {
+            if (match.started_at || match.finished_at) {
+                const timestamp = match.started_at || match.finished_at;
+                const matchDate = new Date(timestamp * 1000);
+                return matchDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+            return '';
+        }
+
+        function getPremierRatingColor(rating) {
+            if (rating >= 30000) return 'premier-rating-gold';
+            if (rating >= 25000) return 'premier-rating-red';
+            if (rating >= 20000) return 'premier-rating-pink';
+            if (rating >= 15000) return 'premier-rating-purple';
+            if (rating >= 10000) return 'premier-rating-blue';
+            if (rating >= 5000) return 'premier-rating-light-blue';
+            return 'premier-rating-grey';
+        }
+
+        function formatPremierRating(rating) {
+            return rating.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function updateSocialLinks(playerData) {
+            const steamLink = document.getElementById('steam-link');
+            const faceitLink = document.getElementById('faceit-link');
+            const leetifyLink = document.getElementById('leetify-link');
+            const csstatsLink = document.getElementById('csstats-link');
+
+            if (playerData?.games?.cs2?.game_player_id) {
+                steamLink.href = `https://steamcommunity.com/profiles/${playerData.games.cs2.game_player_id}`;
+                leetifyLink.href = `https://leetify.com/app/profile/${playerData.games.cs2.game_player_id}`;
+                csstatsLink.href = `https://csstats.gg/player/${playerData.games.cs2.game_player_id}`;
+            }
+
+            if (playerData?.nickname) {
+                faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
+            }
+        }
+
+        function initializeChart() {
+            const canvas = document.getElementById('performanceChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Faceit ELO',
+                        data: [],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(37, 99, 235, 0.2)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(37, 99, 235, 0.2)' }
                         }
                     }
-                },
-scales: {
-    y: {
-        beginAtZero: false,
-        ticks: {
-            stepSize: 100,
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
-            }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
+                }
+            });
         }
-    },
-    x: {
-        ticks: {
-            color: '#94a3b8',
-            font: {
-                family: 'Inter'
-            }
-        },
-        grid: {
-            color: 'rgba(37, 99, 235, 0.2)'
-        }
-    }
-},
-interaction: {
-    intersect: false,
-    mode: 'index'
-}
-}
-});
-        console.log('✅ Wykres został zainicjowany');
 
-    }, 0);
-});
-
-        // Calculate and update ELO change
-        function updateEloChange() {
-            const firstElo = performanceChart.data.datasets[0].data[0];
-            const lastElo = performanceChart.data.datasets[0].data[performanceChart.data.datasets[0].data.length - 1];
-            const change = lastElo - firstElo;
+        function updateEloChange(values) {
+            if (values.length < 2) return;
+            
+            const change = values[values.length - 1] - values[0];
             const eloChangeElement = document.getElementById('eloChange');
             
             if (change >= 0) {
@@ -1346,871 +1784,80 @@ interaction: {
             }
         }
 
-// Add enter key support for search
-document.querySelector('.search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        searchPlayer();
-    }
-});
-
-// Faceit API configuration
-const API_BASE_URL = '/.netlify/functions';
-const FACEIT_BASE_URL = 'https://open.faceit.com/data/v4';
-
-// Function to get CS2 Premier rating color
-function getPremierRatingColor(rating) {
-    if (rating >= 30000) return 'premier-rating-gold';
-    if (rating >= 25000) return 'premier-rating-red';
-    if (rating >= 20000) return 'premier-rating-pink';
-    if (rating >= 15000) return 'premier-rating-purple';
-    if (rating >= 10000) return 'premier-rating-blue';
-    if (rating >= 5000) return 'premier-rating-light-blue';
-    return 'premier-rating-grey';
-}
-
-// Function to format Premier rating with dot separator
-function formatPremierRating(rating) {
-    return rating.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-// Function to update social links
-function updateSocialLinks(playerData, leetifyData) {
-    const steamLink = document.getElementById('steam-link');
-    const faceitLink = document.getElementById('faceit-link');
-    const leetifyLink = document.getElementById('leetify-link');
-    const csstatsLink = document.getElementById('csstats-link');
-
-    // Steam link
-    if (playerData?.games?.cs2?.game_player_id) {
-        steamLink.href = `https://steamcommunity.com/profiles/${playerData.games.cs2.game_player_id}`;
-    }
-
-    // Faceit link (already working)
-    if (playerData?.nickname) {
-        faceitLink.href = `https://www.faceit.com/en/players/${playerData.nickname}`;
-    }
-
-    // Leetify link
-    if (playerData?.games?.cs2?.game_player_id) {
-        leetifyLink.href = `https://leetify.com/app/profile/${playerData.games.cs2.game_player_id}`;
-    }
-
-    // CSStats link
-    if (playerData?.games?.cs2?.game_player_id) {
-        csstatsLink.href = `https://csstats.gg/player/${playerData.games.cs2.game_player_id}`;
-    }
-}
-	    
-// Enhanced search function
-async function searchPlayer(showSpinner = true) {
-    console.log("🔍 Starting search...");
-    
-    const searchInput = document.querySelector('.search-input');
-    const query = searchInput.value.trim();
-    
-    if (!query) {
-        alert('Please enter a Faceit nickname or Steam ID 64');
-        return;
-    }
-
-    window.history.pushState({}, '', `/${query}`);
-    
-    console.log("🔍 Searching for:", query);
-    
-    const searchBtn = document.querySelector('.search-btn');
-    const originalContent = searchBtn.innerHTML;
-    
-    try {
-        if (showSpinner) {
-            searchBtn.innerHTML = `
-                <div style="
-                    width: 16px;
-                    height: 16px;
-                    border: 2px solid #fff;
-                    border-top: 2px solid transparent;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                "></div>
-            `;
-            await new Promise(requestAnimationFrame);
-        }
-        
-        console.log("📡 Fetching player data...");
-        const playerData = await fetchPlayerData(query);
-        console.log("✅ Player data received:", playerData);
-        
-        // Store player data globally
-        currentPlayerData = playerData;
-        
-        console.log("📊 Fetching player stats...");
-        const playerStats = await fetchPlayerStats(playerData.player_id);
-        console.log("✅ Player stats received:", playerStats);
-        
-        console.log("🎮 Fetching match history...");
-        const matchHistory = await fetchMatchHistory(playerData.player_id);
-        console.log("✅ Match history received:", matchHistory);
-        
-        // Fetch ELO history for match calculations
-        console.log("📈 Fetching ELO history...");
-        const eloHistory = await fetchEloHistory(playerData.player_id);
-        console.log("✅ ELO history received:", eloHistory);
-        playerEloHistory = eloHistory || [];
-        
-        // 🎯 NOWE: Pobierz dane z Leetify jeśli mamy Steam ID
-        let leetifyData = null;
-        if (playerData.games?.cs2?.game_player_id) {
-            console.log("🎯 Fetching Leetify data...");
-            leetifyData = await fetchLeetifyData(playerData.games.cs2.game_player_id);
-            console.log("✅ Leetify data received:", leetifyData);
-        }
-        
-        console.log("🔄 Updating player profile...");
-        updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData);
-        console.log("✅ Player profile updated");
-        
-        console.log("📈 About to update performance chart with player ID:", playerData.player_id);
-        
-        if (typeof updatePerformanceChart === 'function') {
-            console.log("✅ updatePerformanceChart function exists, calling it...");
-            await updatePerformanceChart(null, playerData.player_id);
-            console.log("✅ updatePerformanceChart completed");
-        } else {
-            console.error("❌ updatePerformanceChart function does not exist!");
-        }
-        
-    } catch (error) {
-        console.error("❌ Error in searchPlayer:", error);
-        alert('Player not found or API error. Please try again.');
-    } finally {
-        searchBtn.innerHTML = originalContent;
-        const loader = document.getElementById('loader');
-        const content = document.getElementById('content');
-        if (loader && content) {
-            loader.style.display = 'none';
-            content.style.display = 'block';
-            document.body.classList.remove('loading');
-        }
-        console.log("🏁 Search process finished");
-    }
-}
-
-// Enhanced fetch functions with better error handling
-async function fetchPlayerData(nickname) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/player?nickname=${encodeURIComponent(nickname)}`);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API Error Response:', errorText);
-            throw new Error(`Player not found (${response.status})`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw player data:', data);
-        return data;
-    } catch (error) {
-        console.error('Fetch player data error:', error);
-        throw error;
-    }
-}
-
-async function fetchPlayerStats(playerId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/stats?playerId=${encodeURIComponent(playerId)}`);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Stats API Error Response:', errorText);
-            throw new Error(`Stats not found (${response.status})`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw stats data:', data);
-        return data;
-    } catch (error) {
-        console.error('Fetch player stats error:', error);
-        throw error;
-    }
-}
-
-async function fetchMatchHistory(playerId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/matches?playerId=${encodeURIComponent(playerId)}`);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Matches API Error Response:', errorText);
-            throw new Error(`Match history not found (${response.status})`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw match data:', data);
-        return data;
-    } catch (error) {
-        console.error('Fetch match history error:', error);
-        throw error;
-    }
-}
-
-// Fetch ELO history for calculating match ELO changes
-async function fetchEloHistory(playerId) {
-    try {
-        console.log('📈 Fetching ELO history for player:', playerId);
-        const response = await fetch(`/.netlify/functions/faceitElo?playerId=${playerId}`);
-        
-        if (!response.ok) {
-            console.warn('⚠️ Could not fetch ELO history');
-            return [];
-        }
-        
-        const data = await response.json();
-        console.log('✅ ELO history received:', data);
-        return data;
-    } catch (error) {
-        console.error('❌ Error fetching ELO history:', error);
-        return [];
-    }
-}
-
-// Fetch Leetify data for CS2 Premier stats
-async function fetchLeetifyData(steamId) {
-    try {
-        console.log('🎯 Fetching Leetify data for Steam ID:', steamId);
-        const response = await fetch(`${API_BASE_URL}/leetify-stats?steamId=${encodeURIComponent(steamId)}`);
-        
-        if (!response.ok) {
-            if (response.status === 404) {
-                console.warn('⚠️ Player not found on Leetify');
-                return null;
-            }
-            throw new Error(`Leetify API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ Leetify data received:', data);
-        return data;
-    } catch (error) {
-        console.error('❌ Error fetching Leetify data:', error);
-        return null;
-    }
-}
-
-function updateStatSafely(elementId, source, keys, fallback = 'N/A', transform = val => val) {
-    try {
-        let value = source;
-        for (let key of keys) {
-            if (value && key in value) {
-                value = value[key];
+        function toggleMoreMatches() {
+            const hiddenMatches = document.querySelectorAll('.match-card.hidden-matches');
+            const expandBtn = document.querySelector('.expand-btn');
+            
+            if (!hiddenMatches.length || !expandBtn) return;
+            
+            if (isMatchesExpanded) {
+                hiddenMatches.forEach(match => match.style.display = 'none');
+                expandBtn.textContent = 'Show More Matches';
+                isMatchesExpanded = false;
             } else {
-                value = null;
-                break;
+                hiddenMatches.forEach(match => match.style.display = 'grid');
+                expandBtn.textContent = 'Show Less Matches';
+                isMatchesExpanded = true;
             }
         }
 
-        document.getElementById(elementId).textContent = value != null ? transform(value) : fallback;
-    } catch (e) {
-        console.warn(`⚠️ Failed to update stat: ${elementId}`, e);
-        document.getElementById(elementId).textContent = fallback;
-    }
-}
-
-// Updated updatePlayerProfile function with separate Leetify and FACEIT sections
-function updatePlayerProfile(playerData, playerStats, matchHistory, leetifyData = null) {
-    try {
-        // Store Leetify data globally
-        currentLeetifyData = leetifyData;
-        
-        // Header info
-        if (playerData?.nickname) {
-            document.querySelector('.nickname').textContent = playerData.nickname;
-            const avatarContainer = document.querySelector('.avatar');
-            if (avatarContainer) {
-                avatarContainer.innerHTML = `<img id="player-avatar" src="${playerData.avatar || 'img/default-avatar.jpg'}" alt="Player avatar" />`;
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-icon');
+            
+            body.classList.toggle('black-theme');
+            
+            if (body.classList.contains('black-theme')) {
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'black');
+            } else {
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'blue');
             }
         }
 
-        // Update Leetify statistics
-        if (leetifyData) {
-            // Leetify Rating
-            updateStatSafely('leetify-rating', leetifyData, ['ranks', 'leetify'], 'N/A', val => parseFloat(val).toFixed(2));
-            
-            // Matches (without thousands separator)
-            updateStatSafely('leetify-matches', leetifyData, ['total_matches'], 'N/A', val => val.toString());
-            
-            // Winrate (convert to percentage)
-            updateStatSafely('leetify-winrate', leetifyData, ['winrate'], 'N/A', val => Math.round(val * 100) + '%');
-            
-            // Aim Rating
-            updateStatSafely('leetify-aim', leetifyData, ['rating', 'aim'], 'N/A', val => Math.round(val));
-            
-            // Utility
-            updateStatSafely('leetify-utility', leetifyData, ['rating', 'utility'], 'N/A', val => Math.round(val));
-            
-            // Reaction Time (formatted with ms suffix)
-            updateStatSafely('leetify-reaction', leetifyData, ['stats', 'reaction_time_ms'], 'N/A', val => parseFloat(val).toFixed(2) + ' ms');
-        } else {
-            // Set all Leetify stats to N/A if no data
-            document.getElementById('leetify-rating').textContent = 'N/A';
-            document.getElementById('leetify-matches').textContent = 'N/A';
-            document.getElementById('leetify-winrate').textContent = 'N/A';
-            document.getElementById('leetify-aim').textContent = 'N/A';
-            document.getElementById('leetify-utility').textContent = 'N/A';
-            document.getElementById('leetify-reaction').textContent = 'N/A';
-        }
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create theme toggle button
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'theme-toggle';
+            toggleBtn.onclick = toggleTheme;
+            toggleBtn.innerHTML = '<span class="theme-icon">🌙</span>';
+            document.body.appendChild(toggleBtn);
 
-        // Update FACEIT statistics
-        if (playerStats?.lifetime) {
-            const stats = playerStats.lifetime;
-            
-            // K/D Ratio
-            updateStatSafely('faceit-kd', stats, ['Average K/D Ratio'], 'N/A', val => parseFloat(val).toFixed(2));
-            
-            // ADR
-            updateStatSafely('faceit-adr', stats, ['ADR'], 'N/A', val => Math.round(parseFloat(val)));
-            
-            // Matches (without thousands separator)
-            updateStatSafely('faceit-matches', stats, ['Matches'], 'N/A', val => parseInt(val).toString());
-            
-            // Winrate
-            updateStatSafely('faceit-winrate', stats, ['Win Rate %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
-            
-            // Headshot %
-            updateStatSafely('faceit-hs', stats, ['Average Headshots %'], 'N/A', val => Math.round(parseFloat(val)) + '%');
-            
-            // Longest Win Streak
-            updateStatSafely('faceit-streak', stats, ['Longest Win Streak'], 'N/A', val => parseInt(val));
-        } else {
-            // Set all FACEIT stats to N/A if no data
-            document.getElementById('faceit-kd').textContent = 'N/A';
-            document.getElementById('faceit-adr').textContent = 'N/A';
-            document.getElementById('faceit-matches').textContent = 'N/A';
-            document.getElementById('faceit-winrate').textContent = 'N/A';
-            document.getElementById('faceit-hs').textContent = 'N/A';
-            document.getElementById('faceit-streak').textContent = 'N/A';
-        }
+            // Set saved theme
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = toggleBtn.querySelector('.theme-icon');
 
-        // Update header ratings with color coding for Premier
-        if (leetifyData?.ranks?.premier) {
-            const premierElement = document.querySelector('.premier-rating');
-            if (premierElement) {
-                const rating = Math.round(leetifyData.ranks.premier);
-                const colorClass = getPremierRatingColor(rating);
-                
-                // Remove all existing color classes
-                premierElement.className = premierElement.className.replace(/premier-rating-\w+/g, '');
-                // Add new color class
-                premierElement.classList.add(colorClass);
-                
-                premierElement.textContent = formatPremierRating(rating);
+            if (savedTheme === 'black') {
+                document.body.classList.add('black-theme');
+                themeIcon.textContent = '☀️';
             }
-        }
 
-        if (playerData?.games?.cs2?.faceit_elo) {
-            const faceitElement = document.querySelector('.faceit-rating');
-            const levelElement = document.querySelector('.rating-elo');
-            if (faceitElement) {
-                faceitElement.textContent = Math.round(playerData.games.cs2.faceit_elo).toString();
-            }
-            if (levelElement && playerData.games.cs2.skill_level) {
-                levelElement.textContent = `Level ${playerData.games.cs2.skill_level}`;
-            }
-        }
+            // Initialize chart
+            setTimeout(initializeChart, 100);
 
-        // Update social links
-        updateSocialLinks(playerData, leetifyData);
-
-        // Update matches and chart
-        const playerId = playerData?.player_id;
-        if (matchHistory?.items) {
-            updateMatchHistory(matchHistory.items, playerId);
-        }
-
-        if (playerId) {
-            updatePerformanceChart(null, playerId);
-        }
-
-    } catch (error) {
-        console.error("❌ Error updating player profile:", error);
-        alert("Error displaying player data. Please try again.");
-    }
-}
-
-// Function to calculate ELO change for a specific match
-function calculateEloChange(matchTimestamp, matchId) {
-    if (!playerEloHistory || playerEloHistory.length === 0) {
-        return 0;
-    }
-
-    // Find the ELO entry for this match
-    const matchEloEntry = playerEloHistory.find(entry => {
-        const entryDate = new Date(entry.date);
-        const matchDate = new Date(matchTimestamp * 1000);
-        // Allow for some time difference (within 1 hour)
-        return Math.abs(entryDate.getTime() - matchDate.getTime()) < 3600000;
-    });
-
-    if (!matchEloEntry) {
-        return 0;
-    }
-
-    // Find the previous ELO entry
-    const currentIndex = playerEloHistory.indexOf(matchEloEntry);
-    if (currentIndex === -1 || currentIndex === playerEloHistory.length - 1) {
-        return 0;
-    }
-
-    const previousEloEntry = playerEloHistory[currentIndex + 1]; // Array is in reverse chronological order
-    if (!previousEloEntry) {
-        return 0;
-    }
-
-    const currentElo = parseInt(matchEloEntry.elo);
-    const previousElo = parseInt(previousEloEntry.elo);
-    
-    return currentElo - previousElo;
-}
-
-// Update match history display with enhanced layout and ELO changes
-async function updateMatchHistory(matches, playerId) {
-    const matchesList = document.querySelector('.matches-list');
-    isMatchesExpanded = false;
-    const expandBtn = document.querySelector('.expand-btn');
-    if (expandBtn) {
-        expandBtn.textContent = 'Show More Matches';
-    }
-
-    // Clear existing match cards
-    const existingMatches = matchesList.querySelectorAll('.match-card');
-    existingMatches.forEach(match => match.remove());
-
-    // Filter only 5v5 matches
-    const fiveVFiveMatches = matches.filter(match => {
-        return match.game_mode === '5v5' || 
-               (match.teams?.faction1?.players?.length === 5 && match.teams?.faction2?.players?.length === 5);
-    });
-
-    // Split data into visible and hidden
-    const visibleMatches = fiveVFiveMatches.slice(0, 5);
-    const hiddenMatches = fiveVFiveMatches.slice(5, 10);
-
-    // Create visible match cards in parallel
-    const visibleMatchCards = await Promise.all(
-        visibleMatches.map(m => createEnhancedMatchCard(m, playerId))
-    );
-    visibleMatchCards.forEach(card => matchesList.appendChild(card));
-
-    // Create hidden match cards in parallel
-    const hiddenMatchCards = await Promise.all(
-        hiddenMatches.map(m => createEnhancedMatchCard(m, playerId))
-    );
-    hiddenMatchCards.forEach(card => {
-        card.classList.add('hidden-matches');
-        card.style.display = 'none';
-        matchesList.appendChild(card);
-    });
-}
-
-// Create enhanced match card with new layout and ELO changes
-async function createEnhancedMatchCard(match, playerId) {
-    const matchCard = document.createElement('div');
-    matchCard.className = 'match-card';
-    
-    try {
-        console.log('Processing match:', match);
-        
-        // Extract basic match info
-        const matchId = match.match_id || match.id;
-        const status = match.status || 'unknown';
-        
-        // Determine which team the player was on
-        let playerTeam = null;
-        let enemyTeam = null;
-        
-        if (match.teams && match.teams.faction1 && match.teams.faction2) {
-            const inFaction1 = match.teams.faction1.players.some(player => player.player_id === playerId);
-            const inFaction2 = match.teams.faction2.players.some(player => player.player_id === playerId);
-            
-            if (inFaction1) {
-                playerTeam = 'faction1';
-                enemyTeam = 'faction2';
-            } else if (inFaction2) {
-                playerTeam = 'faction2';
-                enemyTeam = 'faction1';
-            }
-        }
-        
-        // Initial values
-        let mapName = 'Loading...';
-        let scoreDisplay = '- - -';
-        let playerStats = { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kdRatio: '-' };
-        
-        // Determine match result
-        const result = determineMatchResult(match, playerTeam, status);
-        const dateDisplay = formatMatchDate(match);
-        
-        // Calculate ELO change
-        const eloChange = calculateEloChange(match.started_at || match.finished_at, matchId);
-        let eloChangeDisplay = '';
-        let eloChangeClass = 'match-elo-neutral';
-        
-        if (eloChange > 0) {
-            eloChangeDisplay = `+${eloChange} ELO`;
-            eloChangeClass = 'match-elo-positive';
-        } else if (eloChange < 0) {
-            eloChangeDisplay = `${eloChange} ELO`;
-            eloChangeClass = 'match-elo-negative';
-        } else {
-            eloChangeDisplay = 'N/A';
-        }
-        
-        // Create initial card with loading state
-        matchCard.innerHTML = `
-            <div class="match-left">
-                <div class="match-result-container">
-                    <div class="match-result ${result.class}">${result.symbol}</div>
-                    ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
-                </div>
-                <div class="match-info">
-                    <div class="match-map">${mapName}</div>
-                    <div class="match-elo-change ${eloChangeClass}">${eloChangeDisplay}</div>
-                </div>
-            </div>
-            <div class="match-score">
-                <div class="match-score-main">${scoreDisplay}</div>
-                <div class="match-kd-ratio">${playerStats.kdRatio}</div>
-            </div>
-            <div class="match-stats">
-                <div class="match-stat-value">${playerStats.adr}</div>
-                <div class="match-stat-value">${playerStats.hsPercent}</div>
-            </div>
-        `;
-        
-        // Fetch detailed match data asynchronously
-        if (status === 'finished') {
-            fetchDetailedMatchData(matchId, playerId).then(details => {
-                if (details) {
-                    updateEnhancedMatchCard(matchCard, details, result, eloChangeDisplay, eloChangeClass, dateDisplay);
+            // Handle URL-based search
+            const nickname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+            if (nickname && nickname !== 'main.html' && nickname !== 'index.html') {
+                const input = document.querySelector('.search-input');
+                if (input) {
+                    input.value = nickname;
+                    searchPlayer();
                 }
-            }).catch(error => {
-                console.error('Error loading match details:', error);
-                updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay);
-            });
-        } else {
-            updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay);
-        }
-        
-    } catch (error) {
-        console.error('Error creating match card:', error, match);
-        matchCard.innerHTML = `
-            <div class="match-left">
-                <div class="match-result-container">
-                    <div class="match-result loss">L</div>
-                </div>
-                <div class="match-info">
-                    <div class="match-map">Unknown Match</div>
-                    <div class="match-elo-change match-elo-neutral">N/A</div>
-                </div>
-            </div>
-            <div class="match-score">
-                <div class="match-score-main">- - -</div>
-                <div class="match-kd-ratio">-</div>
-            </div>
-            <div class="match-stats">
-                <div class="match-stat-value">-</div>
-                <div class="match-stat-value">-</div>
-            </div>
-        `;
-    }
-    
-    return matchCard;
-}
-
-// Helper function to determine match result
-function determineMatchResult(match, playerTeam, status) {
-    if (status === 'finished' && match.results) {
-        if (match.results.winner === playerTeam) {
-            return { symbol: 'W', class: 'win' };
-        } else {
-            return { symbol: 'L', class: 'loss' };
-        }
-    } else if (status === 'ongoing') {
-        return { symbol: '?', class: 'ongoing' };
-    } else if (status === 'cancelled' || status === 'aborted') {
-        return { symbol: '-', class: 'cancelled' };
-    } else {
-        return { symbol: 'L', class: 'loss' };
-    }
-}
-
-// Helper function to format match date
-function formatMatchDate(match) {
-    if (match.started_at || match.finished_at) {
-        const timestamp = match.started_at || match.finished_at;
-        const matchDate = new Date(timestamp * 1000);
-        return matchDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
+            }
         });
-    }
-    return '';
-}
 
-async function fetchDetailedMatchData(matchId, playerId) {
-  try {
-    console.log('🔍 Fetching detailed data for match:', matchId, 'and player:', playerId);
-    const [matchDetails, matchStats] = await Promise.all([
-      fetch(`/.netlify/functions/match-details?matchId=${matchId}`).then(res => res.json()),
-      fetch(`/.netlify/functions/match-stats?matchId=${matchId}`).then(res => res.json())
-    ]);
-    
-    console.log('📦 matchDetails:', matchDetails);
-    console.log('📊 matchStats:', matchStats);
-    
-    const result = {
-      mapName: 'Unknown',
-      score: '- - -',
-      playerStats: { kills: '-', deaths: '-', adr: '-', hsPercent: '-', kdRatio: '-' }
-    };
-
-    // === Map name ===
-    if (matchDetails?.voting?.map?.entities?.[0]?.game_map_id) {
-      result.mapName = cleanMapName(matchDetails.voting.map.entities[0].game_map_id);
-    } else if (matchDetails?.rounds?.[0]?.round_stats?.Map) {
-      result.mapName = cleanMapName(matchDetails.rounds[0].round_stats.Map);
-    } else if (matchDetails?.map) {
-      result.mapName = cleanMapName(matchDetails.map);
-    } else if (matchDetails?.voting?.map?.name) {
-      result.mapName = cleanMapName(matchDetails.voting.map.name);
-    }
-
-    // === Score ===
-    try {
-      let score1 = null;
-      let score2 = null;
-
-      if (matchStats?.rounds?.[0]?.teams) {
-        const teams = matchStats.rounds[0].teams;
-        
-        if (teams.length >= 2) {
-          if (teams[0].team_stats?.['Final Score'] && teams[1].team_stats?.['Final Score']) {
-            score1 = parseInt(teams[0].team_stats['Final Score']);
-            score2 = parseInt(teams[1].team_stats['Final Score']);
-          } else if (teams[0].team_stats?.['Rounds Won'] && teams[1].team_stats?.['Rounds Won']) {
-            score1 = parseInt(teams[0].team_stats['Rounds Won']);
-            score2 = parseInt(teams[1].team_stats['Rounds Won']);
-          }
-        }
-      }
-
-      if (score1 != null && score2 != null && (score1 > 1 || score2 > 1)) {
-        result.score = `${score1}:${score2}`;
-      }
-    } catch (err) {
-      console.warn('❌ Error determining score:', err);
-    }
-
-    // === Player stats ===
-    if (matchStats?.rounds?.[0]?.teams) {
-      const teams = matchStats.rounds[0].teams;
-      let playerMatchStats = null;
-
-      for (const team of teams) {
-        const found = team.players.find(p => p.player_id === playerId);
-        if (found) {
-          playerMatchStats = found;
-          break;
-        }
-      }
-
-      if (playerMatchStats?.player_stats) {
-        const stats = playerMatchStats.player_stats;
-        
-        const adrValue = stats['Average Damage per Round'] || 
-                        stats['ADR'] || 
-                        stats['adr'] || 
-                        stats['Damage/Round'];
-        
-        const kills = stats.Kills || stats.kills || 0;
-        const deaths = stats.Deaths || stats.deaths || 1;
-        
-        result.playerStats = {
-          kills: kills,
-          deaths: deaths,
-          adr: adrValue ? Math.round(parseFloat(adrValue)) : '-',
-          hsPercent: stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']
-            ? `${Math.round(parseFloat(stats['Headshots %'] || stats['HS%'] || stats['headshots_percentage']))}%`
-            : '-',
-          kdRatio: `${kills}/${deaths}`
-        };
-      }
-    }
-
-    return result;
-
-  } catch (error) {
-    console.error('❌ Error fetching detailed match data:', error);
-    return null;
-  }
-}
-
-// Function to clean up map names
-function cleanMapName(mapName) {
-    if (!mapName || mapName === 'Unknown') return 'Unknown';
-    
-    // Remove common prefixes and clean up
-    let cleaned = mapName.replace(/^(de_|cs_|ar_)/, '').replace(/_/g, ' ');
-    
-    // Capitalize first letter of each word
-    cleaned = cleaned.split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
-    
-    return cleaned;
-}
-
-// Function to update enhanced match card with detailed information
-function updateEnhancedMatchCard(matchCard, details, result, eloChangeDisplay, eloChangeClass, dateDisplay) {
-    matchCard.innerHTML = `
-        <div class="match-left">
-            <div class="match-result-container">
-                <div class="match-result ${result.class}">${result.symbol}</div>
-                ${dateDisplay ? `<div class="match-date">${dateDisplay}</div>` : ''}
-            </div>
-            <div class="match-info">
-                <div class="match-map">${details.mapName}</div>
-                <div class="match-elo-change ${eloChangeClass}">${eloChangeDisplay}</div>
-            </div>
-        </div>
-        <div class="match-score">
-            <div class="match-score-main">${details.score}</div>
-        </div>
-        <div class="match-stats">
-            <div class="match-stat-value">${details.playerStats.kdRatio}</div>
-            <div class="match-stat-value">${details.playerStats.adr}</div>
-            <div class="match-stat-value">${details.playerStats.hsPercent}</div>
-        </div>
-    `;
-}
-
-// Function to update enhanced match card with basic information
-function updateEnhancedMatchCardBasic(matchCard, match, result, playerTeam, enemyTeam, eloChangeDisplay, eloChangeClass, dateDisplay) {
-    let scoreDisplay = '- - -';
-    
-    if (match.results && match.results.score && playerTeam && enemyTeam) {
-        const playerScore = match.results.score[playerTeam] || 0;
-        const enemyScore = match.results.score[enemyTeam] || 0;
-        scoreDisplay = `${playerScore}:${enemyScore}`;
-    }
-    
-    let mapName = 'Unknown';
-    
-    if (match.voting?.map?.name) {
-        mapName = cleanMapName(match.voting.map.name);
-    } else if (match.voting?.map?.pick?.[0]) {
-        mapName = cleanMapName(match.voting.map.pick[0]);
-    } else if (match.map) {
-        mapName = cleanMapName(match.map);
-    } else if (match.maps?.[0]) {
-        mapName = cleanMapName(match.maps[0]);
-    } else {
-        mapName = '5v5 Matchmaking';
-    }
-    
-    const mapElement = matchCard.querySelector('.match-map');
-    const scoreElement = matchCard.querySelector('.match-score-main');
-    
-    if (mapElement && mapElement.textContent === 'Loading...') {
-        mapElement.textContent = mapName;
-    }
-    if (scoreElement) scoreElement.textContent = scoreDisplay;
-}
-
-// Function with dynamic range - better adapts to player data
-async function updatePerformanceChart(_, playerId) {
-    if (!performanceChart) {
-        console.warn("⚠️ performanceChart not ready yet — trying again in 200ms...");
-        setTimeout(() => updatePerformanceChart(_, playerId), 200);
-        return;
-    }
-
-    console.log("📈 Updating ELO chart for player:", playerId);
-
-    const endpoint = `/.netlify/functions/faceitElo?playerId=${playerId}`;
-
-    try {
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error(`Faceit API error: ${res.status}`);
-
-        const items = await res.json();
-
-        if (!Array.isArray(items)) {
-            console.warn("⚠️ API response is not an array:", items);
-            return;
-        }
-
-        const eloHistory = items
-            .filter(item => item.elo && item.date)
-            .map(item => {
-                const elo = parseInt(item.elo);
-                const date = new Date(item.date);
-                const label = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
-                return { elo, label };
-            })
-            .reverse();
-
-        if (eloHistory.length === 0) {
-            console.warn("⚠️ No ELO data to display.");
-            return;
-        }
-
-        const labels = eloHistory.map(d => d.label);
-        const values = eloHistory.map(d => d.elo);
-
-        console.log("✅ ELO:", values);
-        console.log("📅 Dates:", labels);
-
-        const minElo = Math.min(...values);
-        const maxElo = Math.max(...values);
-        const padding = Math.max((maxElo - minElo) * 0.2, 150);
-
-        performanceChart.options.scales.y.min = Math.max(0, Math.floor(minElo - padding));
-        performanceChart.options.scales.y.max = Math.min(5000, Math.ceil(maxElo + padding));
-        performanceChart.data.labels = labels;
-        performanceChart.data.datasets[0].data = values;
-        performanceChart.update();
-
-        updateEloChange?.();
-
-        console.log("✅ ELO chart updated");
-
-    } catch (err) {
-        console.error("❌ Error updating ELO chart:", err);
-    }
-}
-
-// Toggle more matches function
-function toggleMoreMatches() {
-    const hiddenMatches = document.querySelectorAll('.match-card.hidden-matches');
-    const expandBtn = document.querySelector('.expand-btn');
-    
-    if (!hiddenMatches.length || !expandBtn) return;
-    
-    if (isMatchesExpanded) {
-        // Hide matches
-        hiddenMatches.forEach(match => {
-            match.style.display = 'none';
+        // Add enter key support for search
+        document.addEventListener('keypress', function(e) {
+            if (e.target.classList.contains('search-input') && e.key === 'Enter') {
+                searchPlayer();
+            }
         });
-        expandBtn.textContent = 'Show More Matches';
-        isMatchesExpanded = false;
-    } else {
-        // Show matches
-        hiddenMatches.forEach(match => {
-            match.style.display = 'grid';
-        });
-        expandBtn.textContent = 'Show Less Matches';
-        isMatchesExpanded = true;
-    }
-}
+
+        console.log('🚀 CS2 Tracker optimized and ready!');
     </script>
 </body>
 </html>
